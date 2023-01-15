@@ -1,0 +1,184 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Charts.ParticipantTimelineModel
+@{
+}
+
+<div class="row">
+    <div class="col mb-3">
+        <div id="races-radio-group" class="btn-group" role="group"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+    </div>
+</div>
+
+@section Styles {
+<style>
+</style>
+}
+
+@section Scripts {
+<script src="https://code.highcharts.com/gantt/highcharts-gantt.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.2/themes/grid-light.min.js"
+    integrity="sha512-Hsek8k83ikrWUFBEBxui5ePxtBxcXIuVHhiwSKMBJT5pucTIfW4Uuu9m0vw8qCVLGmw58YS0g8WiwcI5TXVgCg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    var racesRadioGroup = document.getElementById("races-radio-group");
+    let races, segments, checkins, leaders, selectedRace;
+    let chart, seriesData;
+    
+    async function getData() {
+        races = await getRaces();
+        segments = await getSegments();
+        checkins = await getCheckins();
+        leaders = await getLeaders();
+    }
+
+    function addRaceToRadioGroup(div, race) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "radio");
+        input.setAttribute("class", "btn-check");
+        input.setAttribute("name", "btnRace");
+        input.setAttribute("id", `btnRace-${race.code}`);
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("value", race.code);
+        input.addEventListener("change", function () {
+            selectRace(this.value);
+        });
+
+        var label = document.createElement("label");
+        label.setAttribute("class", "btn btn-outline-primary");
+        label.setAttribute("for", `btnRace-${race.code}`);
+        label.innerHTML = race.code;
+
+        div.appendChild(input);
+        div.appendChild(label);
+    }
+
+    function selectRace(raceCode) {
+        selectedRace = races.find((r) => r.code === raceCode);
+        chartSeries = prepareData();
+    }
+
+    async function getRaces() {
+        const response = await fetch("/api/races");
+        return response.json();
+    }
+
+    async function getSegments() {
+        const response = await fetch("/api/segments");
+        return response.json();
+    }
+
+    async function getCheckins() {
+        const response = await fetch("/api/checkins");
+        return response.json();
+    }
+
+    async function getLeaders() {
+        const response = await fetch("/api/leaders");
+        return response.json();
+    }
+
+    function prepareData() {
+        var filteredLeaders = leaders.filter((l) => l.participant.raceId === selectedRace.id);
+        var series = [];
+        for (var leadersIndex = 0; leadersIndex < filteredLeaders.length; leadersIndex++) {
+            var seriesEntry = {
+                name: filteredLeaders[leadersIndex].participant.fullName,
+                current: {
+                    totalDistance: filteredLeaders[leadersIndex].lastSegment.totalDistance,
+                    overallTime: filteredLeaders[leadersIndex].overallTime
+                },
+                data: []
+            };
+            var leaderCheckins = checkins.filter((ci) => ci.participantId === filteredLeaders[leadersIndex].participantId);
+            for (var leaderCheckinsIndex = 0; leaderCheckinsIndex < leaderCheckins.length; leaderCheckinsIndex++) {
+                var dataEntry = {};
+                dataEntry.id = filteredLeaders[leadersIndex].participantId;
+                dataEntry.y = leadersIndex;
+                dataEntry.end = new Date(leaderCheckins[leaderCheckinsIndex].when).getTime();
+                if (leaderCheckinsIndex === 0) {
+                    dataEntry.start = new Date(selectedRace.start).getTime();
+                } else {
+                    dataEntry.start = new Date(leaderCheckins[leaderCheckinsIndex - 1].when).getTime();
+                }
+                seriesEntry.data.push(dataEntry);
+            }
+            series.push(seriesEntry);
+        }
+        console.log(series);
+        return series;
+    }
+
+    function setupTimeline() {
+        chart = Highcharts.ganttChart('container', {
+            series: chartSeries,
+            plotOptions: {
+                series: {
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.name}',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Participant Timeline'
+            },
+            tooltip: {
+                pointFormat: '<span>Start: {point.start:%b %e %H:%M:%S}</span><br/><span>End: {point.end:%b %e %H:%M:%S}</span>'
+            },
+            xAxis: {
+                currentDateIndicator: true
+            },
+            yAxis: {
+                type: 'category',
+                grid: {
+                    columns: [{
+                        title: {
+                            text: 'Participant'
+                        },
+                        categories: chartSeries.map(function (s) {
+                            return s.name;
+                        })
+                    }, {
+                        title: {
+                            text: 'Distance'
+                        },
+                        categories: chartSeries.map(function (s) {
+                            return s.current.totalDistance;
+                        })
+                    }, {
+                        title: {
+                            text: 'Time'
+                        },
+                        categories: chartSeries.map(function (s) {
+                            return s.current.overallTime;
+                        })
+                    }]
+                }
+            }
+        });
+    }
+
+    getData().then((data) => {
+        var racesRadioGroup = document.getElementById("races-radio-group");
+        races.forEach((race) => addRaceToRadioGroup(racesRadioGroup, race));
+        selectRace("100M");
+        setupTimeline();
+    });
+
+
+</script>
+}

@@ -1,0 +1,124 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Charts.CheckinsModel
+@{
+}
+
+<div class="row">
+    <div class="col">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+    </div>
+</div>
+
+@section Styles {
+<style>
+    #container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .highcharts-figure {
+        min-width: 360px;
+        max-width: 1200px;
+        margin: 1em auto;
+    }
+</style>
+}
+
+@section Scripts {
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.2/themes/grid-light.min.js" integrity="sha512-Hsek8k83ikrWUFBEBxui5ePxtBxcXIuVHhiwSKMBJT5pucTIfW4Uuu9m0vw8qCVLGmw58YS0g8WiwcI5TXVgCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    async function getData() {
+        races = await getRaces();
+        segments = await getSegments();
+        checkins = await getCheckins();
+        checkpoints = await getCheckpoints();
+
+        return {
+            "races": races,
+            "segments": segments,
+            "checkpoints": checkpoints,
+            "checkins": checkins
+        };
+    }
+
+    async function getRaces() {
+        const response = await fetch("/api/races");
+        return response.json();
+    }
+
+    async function getCheckpoints() {
+        const response = await fetch("/api/checkpoints");
+        return response.json();
+    }
+
+    async function getSegments() {
+        const response = await fetch("/api/segments");
+        return response.json();
+    }
+
+    async function getCheckins() {
+        const response = await fetch("/api/checkins");
+        return response.json();
+    }
+
+    getData().then((data) => {
+
+        var series = [];
+        races.forEach((r) => series.push({
+            name: r.name,
+            data: []
+        }));
+        var categoryNames = checkpoints.sort((a, b) => { return a.number - b.number; }).map((x) => x.name);
+
+        checkins.forEach((ci) => {
+            var segment = segments.find((s) => s.id === ci.segmentId);
+            var race = races.find((r) => r.id === segment.raceId);
+            var checkpoint = checkpoints.find((cp) => cp.id === segment.toCheckpointId);
+            series.find((el, i, arr) => {
+                if (el.name === race.name) {
+                    el.data.push([Date.parse(ci.when.replace("2022-02", "2023-02")), checkpoint.number]);
+                }
+            });
+        });
+
+        const colors = Highcharts.getOptions().colors.map(color =>
+            Highcharts.color(color).setOpacity(0.5).get()
+        );
+
+        Highcharts.chart('container', {
+            chart: {
+                type: 'scatter'
+            },
+            title: {
+                text: 'Checkins by Checkpoint'
+            },
+            colors,
+            xAxis: {
+                type: "datetime",
+                title: {
+                    text: "Checkins"
+                }
+            },
+            yAxis: {
+                categories: categoryNames
+            },
+            plotOptions: {
+                scatter: {
+                    marker: {
+                        radius: 2,
+                        symbol: 'circle'
+                    }
+                }
+            },
+            series: series
+        });
+
+    });
+</script>
+}

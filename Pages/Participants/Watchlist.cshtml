@@ -1,0 +1,72 @@
+@page
+@model WatchlistModel
+@using LOVIT.Tracker.Models;
+@using LOVIT.Tracker.Utilities;
+
+<div class="row">
+    <div class="col-xs-12 col-xl-6">
+        <div class="card">
+            <h2 class="card-title p-2">Your Watchlist</h2>
+            @if (Model.Leaders.Count == 0)
+            {
+                <p class="p-2">You have not signed up for notifications for any runners.</p>
+            }
+            else
+            {
+                <p class="p-2">You have signed up for notifications for the following participants.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <th>Participant</th>
+                            <th class="text-center">Distance</th>
+                            <th class="text-center">Time</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.Leaders.Select((x, i) => new { data = x, index = i }))
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex">
+                                            <div class="d-none d-md-flex p-md-2">
+                                                <img src="@row.data.Participant.ProfilePicture(48)"
+                                                class="avatar rounded-circle img-responsive" style="max-width: 48px;" />
+                                            </div>
+                                            <div class="d-flex flex-column p-md-2 align-items-center">
+                                                <div><a asp-page="/participants/details"
+                                                    asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a>
+                                                </div>
+                                                @if (!String.IsNullOrEmpty(@row.data.Participant.Bib))
+                                                {
+                                                    <div><small class="text-muted">#@row.data.Participant.Bib</small></div>
+                                                }
+                                            </div>
+                                            <div class="d-none d-md-flex align-items-center">
+                                                @if (@row.data.Participant.Status != Status.Registered &&
+                                            @row.data.Participant.Status != Status.Started)
+                                                {
+                                                    <span class="d-none d-md-inline badge @row.data.Participant.StatusClass"
+                                                style="margin-left: 5px;">@row.data.Participant.Status.ToString()</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        @row.data.LastSegment?.TotalDistance
+                                    </td>
+                                    <td class="text-center">
+                                        @TimeHelpers.FormatSeconds((int)row.data.OverallTime)
+                                    </td>
+                                    <td>
+                                        <a asp-page="/participants/removewatch"
+                                        asp-route-participantId="@row.data.ParticipantId" class="button">Remove</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

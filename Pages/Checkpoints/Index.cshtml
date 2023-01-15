@@ -1,0 +1,177 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Checkpoints.IndexModel;
+@using LOVIT.Tracker.Models;
+@using LOVIT.Tracker.Utilities;
+@{
+}
+
+@if (Model.Races.Count > 1)
+{
+    <div class="row-fluid">
+        <div class="col">
+            <ul class="nav nav-pills nav-justified device-small d-xl-none pb-3 mx-auto" role="tablist" id="race-tabs">
+                @foreach (var race in Model.Races)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code" type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@if (Model.Races.Count > 1)
+{
+    <div class="tab-content d-flex">
+        @foreach (var race in Model.Races)
+        {
+            var raceSegments = Model.Segments.Where(x => x.ToCheckpointId == Model.Checkpoint.Id && x.RaceId == race.Id).OrderBy(x => x.Order);
+            var raceLeaders = Model.Leaders.Where(x => x.Participant.RaceId == race.Id);
+            
+            <div class="flex-grow-1 d-xl-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
+                <div class="card">
+                    <div class="text-center p-3">
+                        <h1>@race.Code</h1>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <th class="text-center">
+                                    <span class="d-sm-none">#</span>
+                                    <span class="d-none d-sm-block">Place</span>
+                                </th>
+                                <th>Participant</th>
+                                @foreach (var segment in raceSegments)
+                                {
+                                    <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="@segment.Name - @segment.Distance miles">
+                                        @segment.TotalDistance
+                                    </th>
+                                }
+                            </thead>
+                            <tbody>
+                                @foreach (var row in raceLeaders.Select((x, i) => new { data = x, index = i }))
+                                {
+                                    <tr>
+                                        <td class="text-center">@(row.index + 1)</td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <div class="d-none d-md-flex p-md-2">
+                                                    <img src="@row.data.Participant.ProfilePicture(48)" class="avatar rounded-circle img-responsive" style="max-width: 48px;"/>
+                                                </div>
+                                                <div class="d-flex flex-column p-md-2">
+                                                    <div><a asp-page="/participants/details" asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a></div>
+                                                    @if (!String.IsNullOrEmpty(@row.data.Participant.Bib))
+                                                    {
+                                                        <div><small class="text-muted">#@row.data.Participant.Bib</small></div>
+                                                    }
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    @if (@row.data.Participant.Status != Status.Registered && @row.data.Participant.Status != Status.Started)
+                                                    {
+                                                        <span class="d-inline badge @row.data.Participant.StatusClass" style="margin-left: 5px;">@row.data.Participant.Status.ToString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @foreach (var segment in raceSegments)
+                                        {
+                                            var checkin = Model.Checkins.Where(x => x.ParticipantId == row.data.Participant.Id && x.Segment.Id == segment.Id).FirstOrDefault();
+                                            <td class="text-center">
+                                                @if (checkin != null)
+                                                {
+                                                    <span>@checkin.When.ToLocalTime().ToString("ddd h:mm tt")</span>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div>
+        @foreach (var race in Model.Races)
+        {
+            var raceSegments = Model.Segments.Where(x => x.ToCheckpointId == Model.Checkpoint.Id && x.RaceId == race.Id).OrderBy(x => x.Order);
+            var raceLeaders = Model.Leaders.Where(x => x.Participant.RaceId == race.Id);
+            
+            <div class="flex-grow-1 d-lg-block col-xs-12 col-xl-6 mt-2 px-md-2">
+                <div class="card">
+                    <div class="text-center p-3">
+                        <h1>@race.Code</h1>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <th class="text-center">
+                                    <span class="d-sm-none">#</span>
+                                    <span class="d-none d-sm-block">Place</span>
+                                </th>
+                                <th>Participant</th>
+                                @foreach (var segment in raceSegments)
+                                {
+                                    <th class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="@segment.Name - @segment.Distance miles">
+                                        @segment.TotalDistance
+                                    </th>
+                                }
+                            </thead>
+                            <tbody>
+                                @foreach (var row in raceLeaders.Select((x, i) => new { data = x, index = i }))
+                                {
+                                    <tr>
+                                        <td class="text-center">@(row.index + 1)</td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <div class="d-none d-md-flex p-md-2">
+                                                    <img src="@row.data.Participant.ProfilePicture(48)" class="avatar rounded-circle img-responsive" style="max-width: 48px;"/>
+                                                </div>
+                                                <div class="d-flex flex-column p-md-2">
+                                                    <div><a asp-page="/participants/details" asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a></div>
+                                                    @if (!String.IsNullOrEmpty(@row.data.Participant.Bib))
+                                                    {
+                                                        <div><small class="text-muted">#@row.data.Participant.Bib</small></div>
+                                                    }
+                                                </div>
+                                                <div class="d-none d-md-flex align-items-center">
+                                                    @if (@row.data.Participant.Status != Status.Registered && @row.data.Participant.Status != Status.Started)
+                                                    {
+                                                        <span class="d-none d-md-inline badge @row.data.Participant.StatusClass" style="margin-left: 5px;">@row.data.Participant.Status.ToString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @foreach (var segment in raceSegments)
+                                        {
+                                            var checkin = Model.Checkins.Where(x => x.ParticipantId == row.data.Participant.Id && x.Segment.Id == segment.Id).FirstOrDefault();
+                                            <td class="text-center">
+                                                @if (checkin != null)
+                                                {
+                                                    <span>@checkin.When.ToLocalTime().ToString("ddd h:mm tt")</span>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+<script type="text/javascript">
+    var firstTabEl = document.querySelector('#race-tabs li:first-child a')
+    var firstTab = new bootstrap.Tab(firstTabEl);
+    firstTab.show()
+</script>
+}

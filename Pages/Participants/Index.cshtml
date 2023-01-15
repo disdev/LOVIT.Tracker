@@ -1,0 +1,102 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Participants.IndexModel
+@using LOVIT.Tracker.Utilities;
+@using LOVIT.Tracker.Models;
+@{
+}
+
+<div class="row">
+    <div class="col-auto me-auto mb-3">
+        <div class="hstack gap-3">
+            <div>
+                <img src="@Model.Participant.ProfilePicture(120)" class="mr-3 rounded-circle img-responsive" />
+            </div>
+            <div>
+                <h2>
+                    @Model.Participant.FullName
+                </h2>
+                @if (!String.IsNullOrEmpty(Model.Participant.Bib))
+                {
+                    <h5>
+                        #@Model.Participant.Bib
+                    </h5>
+                }
+                <p>
+                    @Model.Participant.Hometown
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-lg-3 col-auto me-2">
+        @if (Model.IsAuthenticated && Model.PhoneNumberSet == false)
+        {
+            <div class="alert alert-info">To receive notifications, first set your phone number in your <a asp-page="/account/profile">profile</a>. Then, you can return here to sign up.</div>
+        }
+        else if (Model.IsAuthenticated && Model.PhoneNumberSet == true)
+        {
+            @if (Model.ShowNotifyOption)
+            {
+                <div class="w-100 text-end">
+                    <a class="btn btn-info" asp-page="/participants/watch" asp-route-participantId="@Model.Participant.Id">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
+                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                        </svg>
+                        Get notifications
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">To receive notifications, create your account and set your phone number in your profile. Then, you can return here to sign up.</div>
+        }
+        
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <span class="p-2 fw-light fst-italic">Times in italics are estimates based on our custom prediction algorithm.</span>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            <span class="d-md-none">#</span>
+                            <span class="d-none d-md-block">Segment</span>
+                        </th>
+                        <th scope="col" class="text-center">Distance</th>
+                        <th scope="col" class="text-center">Total<br/>Distance</th>
+                        <th scope="col" class="text-center">Checkin</th>
+                        <th scope="col" class="text-center">Segment<br/>Time</th>
+                        <th scope="col" class="text-center">Segment<br/>Pace</th>
+                        <th scope="col" class="text-center">Overall<br/>Time</th>
+                        <th scope="col" class="text-center">Overall<br/>Pace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var segment in Model.ParticipantData.OrderBy(x => x.Order))
+                    {
+                        <tr class="@(segment.Estimated ? "fst-italic table-secondary" : "")">
+                            <th scope="row">
+                                <a asp-page="/segments/details" asp-route-segmentId="@segment.SegmentId">
+                                    <span class="d-none d-md-inline">@segment.SegmentName</span>
+                                    <span class="d-xs-inline d-md-none">@segment.Order</span>
+                                </a>
+                            </th>
+                            <td class="text-center">@segment.Distance</td>
+                            <td class="text-center">@segment.TotalDistance</td>
+                            <td class="text-center">
+                                @(segment.CheckinDateTime.Year > 1 ? @segment.CheckinDateTime.ToLocalTime().ToString("ddd h:mm tt") : "")
+                            </td>
+                            <td class="text-center">@segment.SegmentTime</td>
+                            <td class="text-center">@segment.SegmentPace</td>
+                            <td class="text-center">@segment.OverallTime</td>
+                            <td class="text-center">@segment.OverallPace</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

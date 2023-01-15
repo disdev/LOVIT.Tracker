@@ -1,0 +1,60 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Leaders.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Leader</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Leader.Id" />
+            <div class="form-group">
+                <label asp-for="Leader.ParticipantId" class="control-label"></label>
+                <select asp-for="Leader.ParticipantId" class="form-control" asp-items="ViewBag.ParticipantId"></select>
+                <span asp-validation-for="Leader.ParticipantId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Leader.LastCheckpointId" class="control-label"></label>
+                <select asp-for="Leader.LastCheckpointId" class="form-control" asp-items="ViewBag.LastCheckpointId"></select>
+                <span asp-validation-for="Leader.LastCheckpointId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Leader.LastSegmentId" class="control-label"></label>
+                <select asp-for="Leader.LastSegmentId" class="form-control" asp-items="ViewBag.LastSegmentId"></select>
+                <span asp-validation-for="Leader.LastSegmentId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Leader.LastCheckinId" class="control-label"></label>
+                <select asp-for="Leader.LastCheckinId" class="form-control" asp-items="ViewBag.LastCheckinId"></select>
+                <span asp-validation-for="Leader.LastCheckinId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Leader.OverallTime" class="control-label"></label>
+                <input asp-for="Leader.OverallTime" class="form-control" />
+                <span asp-validation-for="Leader.OverallTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Leader.OverallPace" class="control-label"></label>
+                <input asp-for="Leader.OverallPace" class="form-control" />
+                <span asp-validation-for="Leader.OverallPace" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

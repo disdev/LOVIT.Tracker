@@ -1,0 +1,52 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Segments.IndexModel
+@using LOVIT.Tracker.Utilities;
+@{
+}
+
+<div class="row">
+    <div class="col">
+        <h2>@Model.Race.Code - @Model.Segment.Name</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Place</th>
+                    <th>Participant</th>
+                    <th>Check In</th>
+                    <th>Segment Time</th>
+                    <th>Segment Pace</th>
+                    <th>Overall Time</th>
+                    <th>Overall Pace</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var row in Model.Checkins.Select((x, i) => new { data = x, index = i}))
+            {
+                <tr>
+                    <td>@(row.index + 1)</td>
+                    <td>
+                        <a asp-page="/participants/index" asp-route-id="@row.data.Participant.BibOrId">
+                            @row.data.Participant.FullName
+                        </a>
+                    </td>
+                    <td>
+                        @row.data.When.ToString("ddd, h:mm tt")
+                    </td>
+                    <td>
+                        @TimeHelpers.FormatSeconds((int)row.data.Elapsed)
+                    </td>
+                    <td>
+                        @TimeHelpers.CalculatePace(row.data.Elapsed, Model.Segment.Distance)
+                    </td>
+                    <td>
+                        @TimeHelpers.FormatTime(Model.Race.Start, row.data.When)
+                    </td>
+                    <td>
+                        @TimeHelpers.CalculatePace(Model.Race.Start, row.data.When, Model.Segment.TotalDistance)
+                    </td>
+                </tr>
+            }                
+            </tbody>
+        </table>
+    </div>
+</div>

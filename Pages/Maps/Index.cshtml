@@ -1,0 +1,218 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Maps.IndexModel
+@{
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+<style>
+    #map {
+        height: 600px;
+    }
+
+    .leaflet-measure-path-measurement {
+        position: absolute;
+        font-size: 10px;
+        color: black;
+        text-shadow: -1px 0 0 white,
+            -1px -1px 0 white,
+            0 -1px 0 white,
+            1px -1px 0 white,
+            1px 0 0 white,
+            1px 1px 0 white,
+            0 1px 0 white,
+            -1px 1px 0 white;
+        white-space: nowrap;
+        transform-origin: 0;
+        pointer-events: none;
+    }
+
+    .leaflet-measure-path-measurement>div {
+        position: relative;
+        margin-top: -25%;
+        left: -50%;
+    }
+</style>
+}
+
+<div class="row">
+    <div class="col mb-3">
+        <div id="races-radio-group" class="btn-group" role="group"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col mb-3">
+        <select id="segments-dropdown" class="form-select"></select>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div id="map"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <ul id="segments-list"></ul>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+<script src="/js/leaflet-measure-path.js"></script>
+
+<script>
+    let races, segments, checkpoints, layer, selectedRace;
+    var map = L.map('map', { minZoom: 5, maxZoom: 16 })
+        .on('load', setupMap)
+        .setView([34.55, -93.335], 13);
+
+    L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 20,
+        attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
+    }).addTo(map);
+
+    var lineStyle = {
+        "color": "blue",
+        "weight": 5,
+        "opacity": 1
+    };
+
+    function onEachFeature(f, l) {
+        //console.log(calculateDistance(f.geometry.coordinates[0]));
+        //console.log(f.geometry.coordinates[0]);
+    }
+
+    async function setupMap() {
+        var racesResponse = await fetch('/api/races');
+        races = await racesResponse.json();
+        var checkpointsResponse = await fetch('/api/checkpoints');
+        checkpoints = await checkpointsResponse.json();
+        var segmentsResponse = await fetch('/api/segments');
+        segments = await segmentsResponse.json();
+
+        var racesRadioGroup = document.getElementById("races-radio-group");
+        races.forEach((race) => addRaceToRadioGroup(racesRadioGroup, race));
+
+        var dropdown = document.getElementById("segments-dropdown");
+        dropdown.addEventListener("change", selectSegment);
+
+        layer = L.geoJSON(null, { "onEachFeature": onEachFeature }).addTo(map);
+        layer.setStyle(lineStyle);
+
+        var selectedRace = races.find((r) => r.code === "100M");
+        document.getElementById("btnRace-100M").click();
+    }
+
+    async function drawSegment(segment) {
+        let segmentResponse = await fetch(`/js/maps/segments/${selectedRace.code}/${segment.geoJson}`);
+        let segmentJson = await segmentResponse.json();
+        layer.addData(segmentJson);
+        layer.setStyle(lineStyle);
+    }
+
+    function selectRace(raceCode) {
+        if (layer) {
+            layer.clearLayers();
+        }
+
+        selectedRace = races.find((r) => r.code === raceCode);
+
+        var raceSegments = segments.filter((segment) => segment.raceId === selectedRace.id);
+        var dropdown = document.getElementById("segments-dropdown");
+        dropdown.innerHTML = "";
+
+        var allOption = document.createElement("option");
+        allOption.setAttribute("id", `all-${selectedRace.code}`);
+        allOption.innerText = "Show all segments";
+        allOption.selected = true;
+        dropdown.appendChild(allOption);
+
+        raceSegments.forEach((segment) => {
+            var option = document.createElement("option");
+            option.setAttribute("id", `segment-${segment.id}`);
+            option.setAttribute("value", segment.id);
+            option.innerText = segment.name;
+            dropdown.appendChild(option);
+
+            drawSegment(segment);
+        });
+
+        checkpoints.forEach((c) => {
+            drawCheckpoint(c);
+        });
+
+        return raceSegments;
+    }
+
+    function selectSegment(event) {
+        layer.clearLayers();
+
+        if (event.target.selectedIndex === 0) {
+            selectRace(selectedRace);
+        } else {
+            segmentId = event.target.value;
+            var segment = segments.find((s) => s.id === segmentId);
+            var fromCheckpoint = checkpoints.find((c) => segment.fromCheckpointId == c.id);
+            var toCheckpoint = checkpoints.find((c) => segment.toCheckpointId == c.id);
+            drawCheckpoint(fromCheckpoint);
+            drawCheckpoint(toCheckpoint);
+            drawSegment(segment);
+        }
+
+        map.fitBounds(layer.getBounds());
+    }
+
+    function addRaceToRadioGroup(div, race) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "radio");
+        input.setAttribute("class", "btn-check");
+        input.setAttribute("name", "btnRace");
+        input.setAttribute("id", `btnRace-${race.code}`);
+        input.setAttribute("autocomplete", "off");
+        input.setAttribute("value", race.code);
+        input.addEventListener("change", function () {
+            selectRace(this.value);
+        });
+
+        var label = document.createElement("label");
+        label.setAttribute("class", "btn btn-outline-primary");
+        label.setAttribute("for", `btnRace-${race.code}`);
+        label.innerHTML = race.code;
+
+        div.appendChild(input);
+        div.appendChild(label);
+    }
+
+    function drawCheckpoint(checkpoint) {
+        var checkpointGeoJson = JSON.parse(checkpoint.geoJson);
+
+        var circle = L.circle([checkpointGeoJson.geometry.coordinates[1], checkpointGeoJson.geometry.coordinates[0]], {
+            color: "red",
+            fillColor: "red",
+            fillOpacity: 1,
+            radius: 30
+        }).addTo(map);
+        circle.bindPopup(checkpoint.name);
+    }
+
+    function calculateDistance(coords) {
+        var totalDistance = 0.00;
+
+        for (let i = 0; i < coords.length; i++) {
+            if (i > 0) {
+                var pointA = L.latLng(coords[i - 1][1], coords[i - 1][0]);
+                var pointB = L.latLng(coords[i][1], coords[i][0]);
+                var pointDistance = pointA.distanceTo(pointB);
+                totalDistance = totalDistance + pointDistance;
+            }
+        }
+
+        return totalDistance * 0.000621371192;
+    }
+</script>
+}

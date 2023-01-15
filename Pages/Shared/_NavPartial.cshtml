@@ -1,0 +1,97 @@
+@using LOVIT.Tracker.Services;
+@inject IRaceService raceService;
+@inject ISegmentService segmentService;
+@inject ICheckpointService checkpointService;
+
+@{
+    var races = await raceService.GetRacesAsync();
+    var segments = await segmentService.GetSegmentsAsync();
+    var checkpoints = await checkpointService.GetCheckpointsAsync();
+}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">LOViT Tracking</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#raceNavbar"
+            aria-controls="raceNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="raceNavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/index">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/participants/watchlist">Watchlist</a>
+                </li>
+                @foreach (var race in races)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                            @race.Code
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-page="/races/index" asp-route-id="@race.Code">Full Leaderboard</a>
+                            <div class="dropdown-divider"></div>
+                            @foreach (var segment in segments.Where(x => x.RaceId == race.Id))
+                            {
+                                <a class="dropdown-item" asp-page="/segments/index" asp-route-id="@segment.Id">@segment.Name</a>
+                            }
+                        </div>
+                    </li>
+                }
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                        Checkpoints
+                    </a>
+                    <div class="dropdown-menu">
+                        @foreach (var checkpoint in checkpoints)
+                        {
+                            <a class="dropdown-item" asp-page="/checkpoints/index" asp-route-id="@checkpoint.Id">@checkpoint.Name</a>
+                        }
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/maps/index">Maps</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                        Charts
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" asp-page="/charts/checkins">Checkins by Checkpoint</a>
+                        <a class="dropdown-item" asp-page="/charts/participanttimeline">Participant Timeline</a>
+                    </div>
+                </li>
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                            Admin
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-page="/admin/checkins/unconfirmed">Unconfirmed Checkins</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-page="/admin/alerts/index">Alerts</a>
+                            <a class="dropdown-item" asp-page="/admin/events/index">Race Events</a>
+                            <a class="dropdown-item" asp-page="/admin/races/index">Races</a>
+                            <a class="dropdown-item" asp-page="/admin/segments/index">Segments</a>
+                            <a class="dropdown-item" asp-page="/admin/checkpoints/index">Checkpoints</a>
+                            <a class="dropdown-item" asp-page="/admin/monitors/index">Monitors</a>
+                            <a class="dropdown-item" asp-page="/admin/participants/index">Participants</a>
+                            <a class="dropdown-item" asp-page="/admin/leaders/index">Leaders</a>
+                            <a class="dropdown-item" asp-page="/admin/checkins/index">Checkins</a>
+                            <a class="dropdown-item" asp-page="/admin/messages/index">Messages</a>
+                            <a class="dropdown-item" asp-page="/admin/watchers/index">Watchers</a>
+                            <a class="dropdown-item" asp-page="/admin/settings/index">Settings</a>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <partial name="_LoginPartial" />
+        </div>
+    </div>
+</nav>
+<a href=""></a>

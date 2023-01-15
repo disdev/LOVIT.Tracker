@@ -1,0 +1,95 @@
+﻿@page
+@model IndexModel
+@using LOVIT.Tracker.Models
+@using LOVIT.Tracker.Utilities;
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="row-fluid">
+    <div class="col">
+        <ul class="nav nav-pills nav-justified device-small d-lg-none pb-3 mx-auto" role="tablist" id="race-tabs">
+            @foreach (var race in Model.Races)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code" type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<div class="tab-content d-flex">
+    @foreach (var race in Model.Races)
+    {
+        <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">@race.Code</h2>
+                    <table class="table compact stripe">
+                        <thead>
+                            <tr>
+                                <th class="text-center" scope="col">
+                                    <span class="d-sm-none">#</span>
+                                    <span class="d-none d-sm-block">Place</span>
+                                </th>
+                                <th scope="col">Participant</th>
+                                <th class="text-center" scope="col">Last Checkpoint</th>
+                                <th class="text-center" scope="col">Overall Time</th>
+                                <th class="text-center" scope="col">Overall Pace</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var row in Model.Leaderboard.Where(x => x.Participant.RaceId == race.Id).Select((x, i) => new { leader = x, index = i }))
+                        {
+                            <tr>
+                                <td class="text-center align-middle" scope="row">@(row.index + 1)</td>
+                                <td>
+                                    <div class="d-flex">
+                                        <div class="d-none d-md-flex p-md-2 align-items-center">
+                                            <img src="@row.leader.Participant.ProfilePicture(48)" class="avatar rounded-circle img-responsive" style="width: 64px; height: 64px; object-fit: cover;"/>
+                                        </div>
+                                        <div class="d-flex flex-column p-md-2">
+                                            <div><a asp-page="/participants/details" asp-route-id="@row.leader.Participant.BibOrId">@row.leader.Participant.FullName</a></div>
+                                            <div><small class="text-muted">@row.leader.Participant.Hometown</small></div>
+                                            @if (!String.IsNullOrEmpty(@row.leader.Participant.Bib))
+                                            {
+                                                <div><small class="text-muted">#@row.leader.Participant.Bib</small></div>
+                                            }
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            @if (@row.leader.Participant.Status != Status.Registered && @row.leader.Participant.Status != Status.Started)
+                                            {
+                                                <span class="d-inline badge @row.leader.Participant.StatusClass" style="margin-left: 5px;">@row.leader.Participant.Status.ToString()</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center align-middle">@row.leader.LastSegment.TotalDistance miles</td>
+                                <td class="text-center align-middle">@TimeHelpers.FormatSeconds((int)row.leader.OverallTime)</td>
+                                <td class="text-center align-middle">@TimeHelpers.FormatSeconds((int)row.leader.OverallPace)</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.table').DataTable({
+            "paging": false,
+            "ordering": false,
+            "fixedColumns": true
+        });
+    });
+
+    var firstTabEl = document.querySelector('#race-tabs li:first-child a')
+    var firstTab = new bootstrap.Tab(firstTabEl);
+    firstTab.show()
+</script>
+}

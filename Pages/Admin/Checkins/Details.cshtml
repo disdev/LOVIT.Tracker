@@ -1,0 +1,61 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Checkins.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Checkin</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.When)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.When)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Participant)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Participant.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Segment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Segment.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Confirmed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Confirmed)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Note)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Note)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Message)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Message.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Checkin.Elapsed)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Checkin.Elapsed)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Checkin?.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

@@ -1,0 +1,58 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Leaders.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Leader</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.Participant)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.Participant.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastCheckpoint)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastCheckpoint.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastSegment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastSegment.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastCheckin)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastCheckin.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.OverallTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.OverallTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.OverallPace)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.OverallPace)
+        </dd>
+    </dl>
+    
+    <form method="post">
+        <input type="hidden" asp-for="Leader.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-page="./Index">Back to List</a>
+    </form>
+</div>

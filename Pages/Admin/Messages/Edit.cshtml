@@ -1,0 +1,65 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Messages.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Message</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Message.Id" />
+            <div class="form-group">
+                <label asp-for="Message.From" class="control-label"></label>
+                <input asp-for="Message.From" class="form-control" />
+                <span asp-validation-for="Message.From" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.Body" class="control-label"></label>
+                <input asp-for="Message.Body" class="form-control" />
+                <span asp-validation-for="Message.Body" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.FromCity" class="control-label"></label>
+                <input asp-for="Message.FromCity" class="form-control" />
+                <span asp-validation-for="Message.FromCity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.FromState" class="control-label"></label>
+                <input asp-for="Message.FromState" class="form-control" />
+                <span asp-validation-for="Message.FromState" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.FromCountry" class="control-label"></label>
+                <input asp-for="Message.FromCountry" class="form-control" />
+                <span asp-validation-for="Message.FromCountry" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.FromZip" class="control-label"></label>
+                <input asp-for="Message.FromZip" class="form-control" />
+                <span asp-validation-for="Message.FromZip" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Message.Received" class="control-label"></label>
+                <input asp-for="Message.Received" class="form-control" />
+                <span asp-validation-for="Message.Received" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

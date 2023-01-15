@@ -1,0 +1,49 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.AlertMessages.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>AlertMessage</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="AlertMessage.Message" class="control-label"></label>
+                <input asp-for="AlertMessage.Message" class="form-control" />
+                <span asp-validation-for="AlertMessage.Message" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlertMessage.Type" class="control-label"></label>
+                <input asp-for="AlertMessage.Type" class="form-control" />
+                <span asp-validation-for="AlertMessage.Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlertMessage.Start" class="control-label"></label>
+                <input asp-for="AlertMessage.Start" class="form-control" />
+                <span asp-validation-for="AlertMessage.Start" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlertMessage.End" class="control-label"></label>
+                <input asp-for="AlertMessage.End" class="form-control" />
+                <span asp-validation-for="AlertMessage.End" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

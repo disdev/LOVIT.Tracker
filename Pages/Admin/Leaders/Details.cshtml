@@ -1,0 +1,55 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Leaders.DetailsModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Leader</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.Participant)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.Participant.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastCheckpoint)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastCheckpoint.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastSegment)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastSegment.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.LastCheckin)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.LastCheckin.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.OverallTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.OverallTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Leader.OverallPace)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Leader.OverallPace)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Leader?.Id">Edit</a> |
+    <a asp-page="./Index">Back to List</a>
+</div>

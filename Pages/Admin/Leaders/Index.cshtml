@@ -1,0 +1,73 @@
+@page
+@using Utilities
+@model LOVIT.Tracker.Pages.Admin.Leaders.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].Participant)
+            </th>
+            <th>
+                Race
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].LastCheckpoint)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].LastSegment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].LastCheckin)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].OverallTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Leader[0].OverallPace)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Leader) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Participant.FullName)
+            </td>
+            <td>
+                @item.Participant.Race.Code
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastCheckpoint.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastSegment.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastCheckin.When)
+            </td>
+            <td>
+                @TimeHelpers.FormatSeconds((int)item.OverallTime)
+            </td>
+            <td>
+                @TimeHelpers.FormatPace((int)item.OverallPace)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

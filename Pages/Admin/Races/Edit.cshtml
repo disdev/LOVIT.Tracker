@@ -1,0 +1,75 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Races.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Race</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Race.Id" />
+            <div class="form-group">
+                <label asp-for="Race.Name" class="control-label"></label>
+                <input asp-for="Race.Name" class="form-control" />
+                <span asp-validation-for="Race.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.Code" class="control-label"></label>
+                <input asp-for="Race.Code" class="form-control" />
+                <span asp-validation-for="Race.Code" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.Distance" class="control-label"></label>
+                <input asp-for="Race.Distance" class="form-control" />
+                <span asp-validation-for="Race.Distance" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.Start" class="control-label"></label>
+                <input asp-for="Race.Start" class="form-control" />
+                <span asp-validation-for="Race.Start" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.End" class="control-label"></label>
+                <input asp-for="Race.End" class="form-control" />
+                <span asp-validation-for="Race.End" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.UltraSignupUrl" class="control-label"></label>
+                <input asp-for="Race.UltraSignupUrl" class="form-control" />
+                <span asp-validation-for="Race.UltraSignupUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.RaceEventId" class="control-label"></label>
+                <select asp-for="Race.RaceEventId" class="form-control" asp-items="ViewBag.RaceEventId"></select>
+                <span asp-validation-for="Race.RaceEventId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Race.GeoJson" class="control-label"></label>
+                <input asp-for="Race.GeoJson" class="form-control" />
+                <span asp-validation-for="Race.GeoJson" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Race.Active" /> @Html.DisplayNameFor(model => model.Race.Active)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

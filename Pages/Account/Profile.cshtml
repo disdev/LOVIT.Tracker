@@ -1,0 +1,77 @@
+@page
+@model ProfileModel
+
+<div class="row">
+    <div class="col-lg-6 col-md-6 mt-3">
+        <div class="card">
+            <div class="card-body">
+                <h5>Your Profile</h5>
+                @if(Model.AlertVisible)
+                {
+                    <div class="alert alert-@Model.AlertType" role="alert">
+                        @Model.AlertMessage
+                        <small class="text-muted">Updated @DateTime.Now.ToLocalTime()</small>
+                    </div>
+                }
+                @if (Model.IsParticipant)
+                {
+                    <div class="alert alert-success" role="alert">
+                        Your profile is linked to participant <span>@Model.Participant.FullName</span>.
+                    </div>
+                }
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="UserProfile.EmailAddress" class="form-label"></label>
+                        <input asp-for="UserProfile.EmailAddress" class="form-control" disabled />
+                        <div id="emailHelp" class="form-text">This is set by your authentication provider and cannot be changed here.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="UserProfile.FirstName" class="form-label"></label>
+                        <input asp-for="UserProfile.FirstName" class="form-control" disabled="@(!Model.Auth0User?.UserId.StartsWith("auth0"))" />
+                        @if (!Model.Auth0User.UserId.StartsWith("auth0"))
+                        {
+                            <div id="emailHelp" class="form-text">This is set by your authentication provider and cannot be changed here.</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="UserProfile.LastName" class="form-label"></label>
+                        <input asp-for="UserProfile.LastName" class="form-control" disabled="@(!Model.Auth0User?.UserId.StartsWith("auth0"))" />
+                        @if (!Model.Auth0User.UserId.StartsWith("auth0"))
+                        {
+                            <div class="form-text">This is set by your authentication provider and cannot be changed here.</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="UserProfile.PhoneNumber" class="form-label"></label>
+                        <input asp-for="UserProfile.PhoneNumber" class="form-control" />
+                        <div class="form-text">Format: +1 (501) 555-1212</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 mt-3">
+        <div class="card">
+            <div class="card-body">
+                <h5>Logout</h5>
+                <p>To log out of the race tracking site, click the logout button below.</p>
+                <a href="/account/logout" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/imask"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var element = document.getElementById('UserProfile_PhoneNumber');
+            var maskOptions = {
+                mask: '+{1} (000) 000-0000'
+            };
+            var mask = IMask(element, maskOptions);
+        });
+    </script>
+
+}

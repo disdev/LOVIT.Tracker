@@ -1,0 +1,44 @@
+@page
+@model DropsModel
+@using LOVIT.Tracker.Models
+@using LOVIT.Tracker.Utilities
+
+<div class="row">
+    <div class="col-xs-12 col-xl-6">
+        <div class="card">
+            <h2 class="card-title p-2">Participant Drops</h2>
+            <p class="p-2">The follow participants have dropped from the race at the last recorded location.</p>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <th class="text-center">Bib</th>
+                        <th>Participant</th>
+                        <th>Status</th>
+                        <th class="text-center">Distance</th>
+                        <th class="text-center">Time</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.Leaders.Select((x, i) => new { data = x, index = i }))
+                        {
+                            <tr>
+                                <td class="text-center">@row.data.Participant.Bib</td>
+                                <td>
+                                    <a asp-page="/participants/details" asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a>
+                                </td>
+                                <td>
+                                    <span class="badge @row.data.Participant.StatusClass" style="margin-left: 5px;">@row.data.Participant.Status.ToString()</span>
+                                </td>
+                                <td class="text-center">
+                                    @row.data.LastSegment?.TotalDistance
+                                </td>
+                                <td class="text-center">
+                                    @TimeHelpers.FormatSeconds((int)row.data.OverallTime)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

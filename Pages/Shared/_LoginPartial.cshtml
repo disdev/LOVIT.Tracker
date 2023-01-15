@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+<ul class="navbar-nav">
+@if (User.Identity.IsAuthenticated)
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-page="/account/profile" title="Profile">
+            @User.Identity.Name
+        </a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-area="" asp-page="Account/Login">Sign Up / Login</a>
+    </li>
+}
+</ul>

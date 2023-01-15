@@ -1,0 +1,70 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.Segments.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Segment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Segment.Id" />
+            <div class="form-group">
+                <label asp-for="Segment.Name" class="control-label"></label>
+                <input asp-for="Segment.Name" class="form-control" />
+                <span asp-validation-for="Segment.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.RaceId" class="control-label"></label>
+                <select asp-for="Segment.RaceId" class="form-control" asp-items="ViewBag.RaceId"></select>
+                <span asp-validation-for="Segment.RaceId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.Order" class="control-label"></label>
+                <input asp-for="Segment.Order" class="form-control" />
+                <span asp-validation-for="Segment.Order" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.GeoJson" class="control-label"></label>
+                <input asp-for="Segment.GeoJson" class="form-control" />
+                <span asp-validation-for="Segment.GeoJson" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.FromCheckpointId" class="control-label"></label>
+                <select asp-for="Segment.FromCheckpointId" class="form-control" asp-items="ViewBag.FromCheckpointId"></select>
+                <span asp-validation-for="Segment.FromCheckpointId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.ToCheckpointId" class="control-label"></label>
+                <select asp-for="Segment.ToCheckpointId" class="form-control" asp-items="ViewBag.ToCheckpointId"></select>
+                <span asp-validation-for="Segment.ToCheckpointId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.Distance" class="control-label"></label>
+                <input asp-for="Segment.Distance" class="form-control" />
+                <span asp-validation-for="Segment.Distance" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Segment.TotalDistance" class="control-label"></label>
+                <input asp-for="Segment.TotalDistance" class="form-control" />
+                <span asp-validation-for="Segment.TotalDistance" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
