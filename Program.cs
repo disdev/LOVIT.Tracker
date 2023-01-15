@@ -7,10 +7,10 @@ using Auth0.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<TrackerContext>(options =>
-    options.UseSqlite("Data Source=Tracker.db"));
 //builder.Services.AddDbContext<TrackerContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));
+//    options.UseSqlite("Data Source=Tracker.db"));
+builder.Services.AddDbContext<TrackerContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
