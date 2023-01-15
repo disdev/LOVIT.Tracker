@@ -82,8 +82,8 @@ public class DbInitializer
             Name = "100 Kilometer",
             Code = "100K",
             Distance = 100.0F,
-            Start = new DateTime(2022, 2, 25, 12, 0, 0),
-            End = new DateTime(2022, 2, 26, 9, 0, 0),
+            Start = new DateTime(2023, 2, 25, 12, 0, 0),
+            End = new DateTime(2023, 2, 26, 9, 0, 0),
             UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=76373",
             RaceEvent = e1,
             Segments = new List<Segment>(),
@@ -227,8 +227,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 0),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 1,
-            Distance = 4,
-            TotalDistance = 4,
+            Distance = 4.25,
+            TotalDistance = 4.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -240,8 +240,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 2),
             Order = 2,
-            Distance = 5,
-            TotalDistance = 9,
+            Distance = 5.25,
+            TotalDistance = 9.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -253,8 +253,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 2),
             ToCheckpoint = checkpoints.First(x => x.Number == 3),
             Order = 3,
-            Distance = 4,
-            TotalDistance = 13,
+            Distance = 4.75,
+            TotalDistance = 14.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -266,8 +266,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 3),
             ToCheckpoint = checkpoints.First(x => x.Number == 4),
             Order = 4,
-            Distance = 6,
-            TotalDistance = 19,
+            Distance = 5.5,
+            TotalDistance = 19.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -279,8 +279,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 4),
             ToCheckpoint = checkpoints.First(x => x.Number == 3),
             Order = 5,
-            Distance = 6,
-            TotalDistance = 25,
+            Distance = 5.5,
+            TotalDistance = 25.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -292,7 +292,7 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 3),
             ToCheckpoint = checkpoints.First(x => x.Number == 2),
             Order = 6,
-            Distance = 5,
+            Distance = 4.75,
             TotalDistance = 30,
             Race = races.First(x => x.Code == "100M")
         };
@@ -305,8 +305,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 2),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 7,
-            Distance = 4,
-            TotalDistance = 34,
+            Distance = 5.25,
+            TotalDistance = 35.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -318,8 +318,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 8,
-            Distance = 4,
-            TotalDistance = 38,
+            Distance = 3.5,
+            TotalDistance = 38.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -331,8 +331,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 6),
             Order = 9,
-            Distance = 4,
-            TotalDistance = 42,
+            Distance = 4.5,
+            TotalDistance = 43.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -344,8 +344,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 6),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 10,
-            Distance = 5,
-            TotalDistance = 47,
+            Distance = 4.5,
+            TotalDistance = 47.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -357,8 +357,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 11,
-            Distance = 3,
-            TotalDistance = 50,
+            Distance = 3.5,
+            TotalDistance = 51.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -370,8 +370,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 12,
-            Distance = 8,
-            TotalDistance = 58,
+            Distance = 7.5,
+            TotalDistance = 58.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -383,8 +383,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 13,
-            Distance = 4,
-            TotalDistance = 62,
+            Distance = 3.75,
+            TotalDistance = 62.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -397,7 +397,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 11),
             Order = 14,
             Distance = 3,
-            TotalDistance = 65,
+            TotalDistance = 65.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -410,7 +410,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 15,
             Distance = 3,
-            TotalDistance = 68,
+            TotalDistance = 68.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -422,8 +422,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 16,
-            Distance = 4,
-            TotalDistance = 72,
+            Distance = 3.75,
+            TotalDistance = 72.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -435,8 +435,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 17,
-            Distance = 8,
-            TotalDistance = 80,
+            Distance = 7.5,
+            TotalDistance = 79.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -448,8 +448,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 18,
-            Distance = 3,
-            TotalDistance = 83,
+            Distance = 3.5,
+            TotalDistance = 83.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -461,8 +461,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 6),
             Order = 19,
-            Distance = 4,
-            TotalDistance = 87,
+            Distance = 4.5,
+            TotalDistance = 87.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -474,8 +474,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 6),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 20,
-            Distance = 5,
-            TotalDistance = 92,
+            Distance = 4.5,
+            TotalDistance = 92.25,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -487,8 +487,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 21,
-            Distance = 4,
-            TotalDistance = 96,
+            Distance = 3.5,
+            TotalDistance = 95.75,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -500,7 +500,7 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 0),
             Order = 22,
-            Distance = 4,
+            Distance = 4.25,
             TotalDistance = 100,
             Race = races.First(x => x.Code == "100M")
         };
@@ -515,8 +515,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 0),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 1,
-            Distance = 4,
-            TotalDistance = 4,
+            Distance = 4.25,
+            TotalDistance = 4.25,
             Race = races.First(x => x.Code == "100K")
         };
         var s24 = new Segment()
@@ -528,7 +528,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 2,
             Distance = 3.5,
-            TotalDistance = 7.5,
+            TotalDistance = 7.75,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -540,8 +540,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 3,
-            Distance = 4.5,
-            TotalDistance = 12,
+            Distance = 4,
+            TotalDistance = 11.75,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -554,7 +554,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 4,
             Distance = 3.5,
-            TotalDistance = 15.5,
+            TotalDistance = 15.25,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -567,7 +567,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 5,
             Distance = 7.5,
-            TotalDistance = 23,
+            TotalDistance = 22.75,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -579,8 +579,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 6,
-            Distance = 4,
-            TotalDistance = 27,
+            Distance = 3.75,
+            TotalDistance = 36.25,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -593,7 +593,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 11),
             Order = 7,
             Distance = 3,
-            TotalDistance = 30,
+            TotalDistance = 29.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -606,7 +606,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 8,
             Distance = 3,
-            TotalDistance = 33,
+            TotalDistance = 32.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -618,8 +618,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 9,
-            Distance = 3,
-            TotalDistance = 37,
+            Distance = 3.75,
+            TotalDistance = 36.25,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -632,7 +632,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 10,
             Distance = 7.5,
-            TotalDistance = 44.5,
+            TotalDistance = 43.75,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -645,7 +645,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 11,
             Distance = 3.5,
-            TotalDistance = 48,
+            TotalDistance = 47.25,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -657,8 +657,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 12,
-            Distance = 4.5,
-            TotalDistance = 52.5,
+            Distance = 4,
+            TotalDistance = 51.25,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -671,7 +671,7 @@ public class DbInitializer
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 13,
             Distance = 3.5,
-            TotalDistance = 56,
+            TotalDistance = 53.75,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -683,8 +683,8 @@ public class DbInitializer
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 0),
             Order = 14,
-            Distance = 4,
-            TotalDistance = 60,
+            Distance = 4.25,
+            TotalDistance = 59,
             Race = races.First(x => x.Code == "100K")
         };
 
