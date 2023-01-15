@@ -113,7 +113,7 @@ resource webSiteStaging 'Microsoft.Web/sites/slots@2021-02-01' = {
 resource webSiteConnectionStrings 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${webSite.name}/connectionstrings'
   properties: {
-    DefaultConnection: {
+    TrackerContext: {
       value: 'Data Source=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Initial Catalog=${databaseName};User Id=${sqlAdministratorLogin}@${sqlserver.properties.fullyQualifiedDomainName};Password=${sqlAdministratorLoginPassword};'
       type: 'SQLAzure'
     }
