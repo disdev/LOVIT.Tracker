@@ -101,6 +101,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseMigrationsEndPoint();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
