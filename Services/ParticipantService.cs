@@ -137,7 +137,7 @@ public class ParticipantService : IParticipantService
     public async Task<Participant> AddParticipantAsync(Participant participant)
     {
         participant.Id = Guid.NewGuid();
-        await _context.Participants.AddAsync(participant);
+        _context.Participants.Add(participant);
         await _context.SaveChangesAsync();
 
         await _leaderService.AddLeaderAsync(participant);

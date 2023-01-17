@@ -65,7 +65,7 @@ public class MonitorService : IMonitorService
                     Checkpoint = checkpoint
                 };
                 
-                await _context.Monitors.AddAsync(monitor);
+                _context.Monitors.Add(monitor);
                 await _context.SaveChangesAsync();
             }
 

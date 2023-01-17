@@ -16,7 +16,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
 builder.Services.Configure<Auth0Config>(builder.Configuration.GetSection("Auth0Config"));
 
-builder.Services.AddTransient<DbInitializer>();
+builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<ICheckinService, CheckinService>();
 builder.Services.AddScoped<ICheckpointService, CheckpointService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
@@ -118,14 +118,14 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.MapGet("/api/seed", async (DbInitializer initializer) =>
+app.MapGet("/api/seed", async (ISeedService seedService) =>
 {
-    await initializer.Initialize();
+    await seedService.Initialize();
 });
 
-app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, DbInitializer initializer) =>
+app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, int numberOfParticipants, ISeedService seedService) =>
 {
-    await initializer.SimulateRace(raceId, hourLimit);
+    await seedService.SimulateRace(raceId, numberOfParticipants, hourLimit);
 });
 
 app.MapGet("/api/races", async (IRaceService raceService) =>
@@ -179,9 +179,10 @@ app.MapGet("/api/checkins", async (ICheckinService checkinService) =>
     return await checkinService.GetCheckinsAsync();
 });
 
+/*
 app.MapPost("/api/messages", async (IMessageService messageService) =>
 {
-    /*
+    
     var message = await messageService.AddMessageAsync(incomingSms);
     var responseBody = await messageService.HandleMessageAsync(message);
 
@@ -190,7 +191,8 @@ app.MapPost("/api/messages", async (IMessageService messageService) =>
     var response = new MessagingResponse();
     response.Message(responseBody);
     return new TwiMLResult(response);
-    */
+    
 });
+*/
 
 app.Run();

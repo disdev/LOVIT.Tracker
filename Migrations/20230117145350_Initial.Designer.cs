@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LOVIT.Tracker.Migrations
 {
     [DbContext(typeof(TrackerContext))]
-    [Migration("20230117130754_Initial")]
+    [Migration("20230117145350_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

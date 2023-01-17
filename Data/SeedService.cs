@@ -11,14 +11,20 @@ using LOVIT.Tracker.Utilities;
 
 namespace LOVIT.Tracker.Models;
 
-public class DbInitializer
+public interface ISeedService
+{
+    Task Initialize();
+    Task SimulateRace(Guid raceId, int numberOfParticipants, int hours);
+}
+
+public class SeedService : ISeedService
 {
     private readonly TrackerContext _context;
     private readonly IMessageService _messageService;
     private readonly ICheckinService _checkinService;
     private readonly IParticipantService _participantService;
 
-    public DbInitializer(TrackerContext context, IMessageService messageService, ICheckinService checkinService, IParticipantService participantService)
+    public SeedService(TrackerContext context, IMessageService messageService, ICheckinService checkinService, IParticipantService participantService)
     {
         _context = context;
         _messageService = messageService;
@@ -40,10 +46,10 @@ public class DbInitializer
         var monitors = AddMonitors(checkpoints);
     }
 
-    public async Task SimulateRace(Guid raceId, int hours = 0)
+    public async Task SimulateRace(Guid raceId, int numberOfParticipants, int hours)
     {
         var race = await _context.Races.Where(x => x.Id == raceId).Include(x => x.Segments).FirstAsync();
-        var participants = await AddParticipants(race);
+        var participants = await AddParticipants(race, numberOfParticipants);
 
         var result = await AddCheckins(race, participants, (hours > 0), hours);
     }
@@ -730,11 +736,11 @@ public class DbInitializer
         return monitors;
     }
 
-    private async Task<List<Participant>> AddParticipants(Race race)
+    private async Task<List<Participant>> AddParticipants(Race race, int numberOfParticipants = 10)
     {
         var participants = new List<Participant>();
 
-        for (int i = 1; i <= 50; i++)
+        for (int i = 1; i <= numberOfParticipants; i++)
         {
             var bibStart = (race.Code == "100M") ? 100 : 1000;
             var participant = new Participant()

@@ -31,7 +31,7 @@ public class LeaderService : ILeaderService
         leader.ParticipantId = participant.Id;
         leader.Participant = participant;
 
-        await _context.Leaders.AddAsync(leader);
+        _context.Leaders.Add(leader);
         await _context.SaveChangesAsync();
 
         return leader;

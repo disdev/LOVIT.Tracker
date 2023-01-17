@@ -86,7 +86,7 @@ public class WatcherService : IWatcherService
                 Disabled = false,
                 UserId = userId
             };
-            await _context.Watchers.AddAsync(watcher);
+            _context.Watchers.Add(watcher);
             await _context.SaveChangesAsync();
         }
         else
