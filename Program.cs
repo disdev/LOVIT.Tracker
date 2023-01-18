@@ -15,6 +15,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
 builder.Services.Configure<Auth0Config>(builder.Configuration.GetSection("Auth0Config"));
+builder.Services.Configure<PredictionConfig>(builder.Configuration.GetSection("PredictionConfig"));
 
 builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<ICheckinService, CheckinService>();

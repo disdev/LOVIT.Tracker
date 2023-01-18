@@ -1,6 +1,7 @@
 using LOVIT.Tracker.Models;
 using static LOVIT.Tracker.Pages.Participants.IndexModel;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 
 namespace LOVIT.Tracker.Services;
 
@@ -12,7 +13,12 @@ public interface IPredictionService
 
 public class PredictionService : IPredictionService
 {
-    public const string BASE_URL = "https://lovit-tracker-predictions.azurewebsites.net/";
+    private readonly PredictionConfig _predictionConfig;
+
+    public PredictionService(IOptions<PredictionConfig> predictionConfig)
+    {
+        _predictionConfig = predictionConfig.Value;
+    }
 
     public async Task<SegmentPredictionModelInput> GetEstimateAsync(Participant participant, Segment segment, string raceCode, double lastTotalElapsed)
     {
@@ -29,7 +35,7 @@ public class PredictionService : IPredictionService
             LastTotalElapsed = (float)lastTotalElapsed
         };
         
-        var resultString = await SendRequest<SegmentPredictionModelInput>(input, "estimate/single");
+        var resultString = await SendRequest<SegmentPredictionModelInput>(input, "api/predict/single");
         return JsonConvert.DeserializeObject<SegmentPredictionModelInput>(resultString);
     }
 
@@ -55,20 +61,17 @@ public class PredictionService : IPredictionService
 
         inputs.First().LastTotalElapsed = (float)lastTotalElapsed;
 
-        var resultString = await SendRequest<List<SegmentPredictionModelInput>>(inputs, "estimate/multiple");
+        var resultString = await SendRequest<List<SegmentPredictionModelInput>>(inputs, "api/predict/multiple");
         return JsonConvert.DeserializeObject<List<SegmentPredictionModelInput>>(resultString);
     }
 
     private async Task<string> SendRequest<T>(T bodyObject, string actionUrl)
     {
-        /*
         var client = new HttpClient();
         var body = JsonConvert.SerializeObject(bodyObject);
         
-        var response = await client.PostAsync($"{BASE_URL}/{actionUrl}", new StringContent(body, System.Text.Encoding.Default, "application/json"));
+        var response = await client.PostAsync($"{_predictionConfig.Url}/{actionUrl}", new StringContent(body, System.Text.Encoding.Default, "application/json"));
         return await response.Content.ReadAsStringAsync();
-        */
-        return "";
     }
 }
 

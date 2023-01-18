@@ -29,6 +29,7 @@ param sqlAdministratorLoginPassword string
 param location string = resourceGroup().location
 
 var hostingPlanName = '${applicationName}-hostingplan-${environmentName}'
+var predictionsName = '${applicationName}-predictions-${environmentName}'
 var webSiteName = '${applicationName}-website-${environmentName}'
 var webSiteStagingSlotName = 'staging'
 var sqlserverName = '${applicationName}-sqlserver-${environmentName}'
@@ -75,6 +76,26 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   sku: {
     name: skuName
     capacity: skuCapacity
+  }
+}
+
+resource webSite_predictions 'Microsoft.Web/sites@2020-06-01' = {
+  name: predictionsName
+  location: location
+  tags: {
+    'hidden-related:${hostingPlan.id}': 'empty'
+    displayName: 'Predictions'
+  }
+  properties: {
+    serverFarmId: hostingPlan.id
+    httpsOnly: true
+    siteConfig: {
+      linuxFxVersion: 'DOTNETCORE|Latest'
+      http20Enabled: true
+      alwaysOn: true
+      ftpsState: 'Disabled'
+      minTlsVersion: '1.2'
+    }
   }
 }
 
