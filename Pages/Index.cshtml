@@ -25,7 +25,7 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="card-title">@race.Code</h2>
-                    <table class="table compact stripe">
+                    @* <table class="table compact stripe">
                         <thead>
                             <tr>
                                 <th class="text-center" scope="col">
@@ -70,7 +70,8 @@
                             </tr>
                         }
                         </tbody>
-                    </table>
+                    </table> *@
+                    <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-alpine"></div>
                 </div>
             </div>
         </div>
@@ -78,13 +79,79 @@
 </div>
 
 @section Scripts {
-<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('.table').DataTable({
-            "paging": false,
-            "ordering": false,
-            "fixedColumns": true
+    let races, leaders, gridOptions;
+
+    async function getData() {
+        races = await getRaces();
+        leaders = await getLeaders();
+    }
+
+    async function getRaces() {
+        const response = await fetch("/api/races");
+        return response.json();
+    }
+
+    async function getLeaders() {
+        const response = await fetch("/api/leaders");
+        return response.json();
+    }
+
+    function calculatePaceInSeconds(paceInSeconds) {
+        var minutes = (paceInSeconds / 60).ToString();
+        var seconds = String(paceInSeconds % 60).padStart(2, "0");
+    }
+
+    function formatSecondsToTime(secondsElapsed) {
+        var hours = Math.floor(secondsElapsed / 3600);
+        var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
+        var seconds = Math.round(secondsElapsed - hours * 3600 - minutes * 60);
+        
+        if (secondsElapsed >= 3600) {
+            return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        } else {
+            return `${minutes}:${String(seconds).padStart(2, "0")}`;
+        }
+    }
+
+    getData().then((data) => {
+        var columns = [
+            {headerName: "Place", field: "place"},
+            {headerName: "Participant", field: "participant"},
+            {headerName: "Last Checkpoint", field: "lastCheckpoint"},
+            {headerName: "Overall Time", field: "overallTime"},
+            {headerName: "Overall Pace", field: "overallPace"}
+        ];
+        
+        var tableData = [];
+        races.forEach((race) => {
+            var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id );
+            var placeIndex = 1;
+            raceLeaders.forEach((raceLeader) => {
+                tableData.push({
+                    place: placeIndex,
+                    participant: raceLeader.participant.fullName,
+                    lastCheckpoint: `${raceLeader.lastSegment.totalDistance} miles`,
+                    overallTime: formatSecondsToTime(raceLeader.overallTime),
+                    overallPace: formatSecondsToTime(raceLeader.overallPace),
+                    race: race.code
+                });
+
+                placeIndex++;
+            });
+        });
+
+        races.forEach((race) => {
+            var gridOptions = {
+                domLayout:  "autoHeight",
+                columnDefs: columns,
+                rowData: tableData.filter((row) => row.race === race.code)
+            };
+
+            var gridDiv = document.getElementById(`race-grid-${race.code}`);
+            new agGrid.Grid(gridDiv, gridOptions);
+            gridOptions.api.sizeColumnsToFit();
         });
     });
 

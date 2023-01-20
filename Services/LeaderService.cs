@@ -78,6 +78,7 @@ public class LeaderService : ILeaderService
             .Include(x => x.LastCheckin)
             .OrderByDescending(x => x.LastSegment.TotalDistance)
             .ThenBy(x => x.OverallTime)
+            .AsNoTracking()
             .ToListAsync();
     }
 

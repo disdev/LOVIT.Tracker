@@ -175,9 +175,19 @@ app.MapGet("/api/leaders", async (ILeaderService leaderService) =>
     return await leaderService.GetLeadersAsync();
 });
 
+app.MapGet("/api/leaders/{raceId}", async (Guid raceId, ILeaderService leaderService) => 
+{
+    return await leaderService.GetLeadersByRaceIdAsync(raceId);
+});
+
 app.MapGet("/api/checkins", async (ICheckinService checkinService) =>
 {
     return await checkinService.GetCheckinsAsync();
+});
+
+app.MapGet("/api/checkins/{raceId}", async (Guid raceId, ICheckinService checkinService) =>
+{
+    return await checkinService.GetCheckinsAsync(raceId);
 });
 
 /*

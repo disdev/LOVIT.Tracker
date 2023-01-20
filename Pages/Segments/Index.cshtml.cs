@@ -25,12 +25,14 @@ namespace LOVIT.Tracker.Pages.Segments
         public List<Participant> Participants = new();
         public List<Checkin> Checkins = new();
         
-        public async void OnGet(Guid id)
+        public async Task<ActionResult> OnGet(Guid id)
         {
             Segment = await _segmentService.GetSegmentAsync(id);
             Race = await _raceService.GetRaceAsync(Segment.RaceId);
             Participants = await _participantService.GetParticipantsAsync(Race.Id);
             Checkins = await _checkinService.GetCheckinsForSegmentAsync(Segment.Id);
+
+            return Page();
         }
     }
 }
