@@ -529,7 +529,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Hickory Nut Mountain to Forest Road 47A",
-            GeoJson = @"",
+            GeoJson = @"segment-2.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 2,
@@ -542,7 +542,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Forest Road 47A to Crystal Springs",
-            GeoJson = @"",
+            GeoJson = @"segment-3.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 3,
@@ -555,7 +555,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Crystal Springs to Bear Creek",
-            GeoJson = @"",
+            GeoJson = @"segment-4.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 4,
@@ -568,7 +568,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Bear Creek to Brady Mountain Road",
-            GeoJson = @"",
+            GeoJson = @"segment-5.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 5,
@@ -581,7 +581,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Brady Mountain Road to Spillway",
-            GeoJson = @"",
+            GeoJson = @"segment-6.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 6,
@@ -594,7 +594,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Spillway to Avery Rec Area",
-            GeoJson = @"",
+            GeoJson = @"segment-7.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 11),
             Order = 7,
@@ -607,7 +607,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Avery Rec Area to Spillway",
-            GeoJson = @"",
+            GeoJson = @"segment-8.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 11),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 8,
@@ -620,7 +620,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Spillway to Brady Mountain Road",
-            GeoJson = @"",
+            GeoJson = @"segment-9.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 9,
@@ -633,7 +633,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Brady Mountain Road to Bear Creek",
-            GeoJson = @"",
+            GeoJson = @"segment-10.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 10,
@@ -646,7 +646,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Bear Creek to Crystal Springs",
-            GeoJson = @"",
+            GeoJson = @"segment-11.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 11,
@@ -659,7 +659,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Crystal Springs to Forest Road 47A",
-            GeoJson = @"",
+            GeoJson = @"segment-12.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 12,
@@ -672,7 +672,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Forest Road 47A to Hickory Nut Mountain",
-            GeoJson = @"",
+            GeoJson = @"segment-13.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 13,
@@ -685,7 +685,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Hickory Nut Mountain to Finish",
-            GeoJson = @"",
+            GeoJson = @"segment-14.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 0),
             Order = 14,
