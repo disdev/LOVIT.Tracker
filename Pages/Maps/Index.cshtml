@@ -8,7 +8,7 @@
     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
 <style>
     #map {
-        height: 600px;
+        height: 100%;
     }
 
     .leaflet-measure-path-measurement {
@@ -37,36 +37,52 @@
 }
 
 <div class="row">
-    <div class="col mb-3">
-        <div id="races-radio-group" class="btn-group" role="group"></div>
+    <div class="col-xs-12 col-lg-3">
+        <div id="races-radio-group" class="btn-group mb-3" role="group"></div>
+        <div class="mb-3">
+            <select id="segments-dropdown" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+            <dl class="row">
+                <dt class="col-xs-6 col-lg-12">Starting Checkpoint</dt>
+                <dd id="segment-checkpoint-start" class="col-xs-6 col-lg-12"></dd>
+                <dt class="col-xs-6 col-lg-12">Ending Checkpoint</dt>
+                <dd id="segment-checkpoint-end" class="col-xs-6 col-lg-12"></dd>
+                <dt class="col-xs-6 col-lg-12">Segment Distance</dt>
+                <dd id="segment-distance" class="col-xs-6 col-lg-12"></dd>
+                <dt class="col-xs-6 col-lg-12">Total Distance</dt>
+                <dd id="segment-total-distance" class="col-xs-6 col-lg-12"></dd>
+            </dl>
+        </div>
+        
     </div>
-</div>
-
-<div class="row">
-    <div class="col mb-3">
-        <select id="segments-dropdown" class="form-select"></select>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-xs-12">
+    <div class="col-xs-12 col-lg-9">
         <div id="map"></div>
     </div>
 </div>
 
 <div class="row">
-    <div class="col-xs-12">
-        <ul id="segments-list"></ul>
+    <div class="col">
+        <div id="elevation-chart" class="mb-3"></div>
     </div>
 </div>
 
 @section Scripts {
-<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 <script src="/js/leaflet-measure-path.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.2/themes/grid-light.min.js"
+    integrity="sha512-Hsek8k83ikrWUFBEBxui5ePxtBxcXIuVHhiwSKMBJT5pucTIfW4Uuu9m0vw8qCVLGmw58YS0g8WiwcI5TXVgCg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
     let races, segments, checkpoints, layer, selectedRace;
+    var elevationData = []; // [distance, elevation]
+
     var map = L.map('map', { minZoom: 5, maxZoom: 16 })
         .on('load', setupMap)
         .setView([34.55, -93.335], 13);
@@ -113,11 +129,55 @@
         let segmentJson = await segmentResponse.json();
         layer.addData(segmentJson);
         layer.setStyle(lineStyle);
+        addElevationChartData(segmentJson, segment);
+    }
+
+    function addElevationChartData(geoJson, segment) {
+        var firstPoint, secondPoint;
+        var totalDistance = segment.totalDistance - segment.distance;
+        var coordinates = geoJson.features[0].geometry.coordinates[0];
+        
+        for (var i = 0; i < coordinates.length; i++) {
+            var coordinate = coordinates[i];
+            var elevation = coordinate[2] * 3.2808;
+            var data = [];
+            if (i === 0) {
+                elevationData.push([totalDistance, elevation]);
+            } else {
+                var previousCoordinate = coordinates[i - 1];
+                firstPoint = L.latLng(previousCoordinate[1], previousCoordinate[0]);
+                secondPoint = L.latLng(coordinate[1], coordinate[0]);
+                totalDistance = totalDistance + ((map.distance(firstPoint, secondPoint) * 3.2808) / 5280);
+                elevationData.push([totalDistance, elevation]);
+            }
+        }
+    }
+
+    function drawElevationChart() {
+        Highcharts.chart("elevation-chart", {
+            title: {
+                text: "Segment Elevation"
+            },
+            yAxis: {
+                title: {
+                    text: 'Elevation (feet)'
+                }
+            },
+            tooltip: {
+                pointFormat: '<span>Distance: {point.x:.2f} miles</span><br/><span>Elevation: {point.y:.2f} feet</span>'
+            },
+            series: [{
+                data: elevationData,
+                lineWidth: 1,
+                name: "Elevation"
+            }]
+        });
     }
 
     function selectRace(raceCode) {
         if (layer) {
             layer.clearLayers();
+            elevationData = [];
         }
 
         selectedRace = races.find((r) => r.code === raceCode);
@@ -143,28 +203,46 @@
         });
 
         checkpoints.forEach((c) => {
-            drawCheckpoint(c);
+            //drawCheckpoint(c);
         });
+
+        setTimeout(drawElevationChart, 100);
 
         return raceSegments;
     }
 
     function selectSegment(event) {
         layer.clearLayers();
+        elevationData = [];
 
         if (event.target.selectedIndex === 0) {
             selectRace(selectedRace);
+            drawElevationChart();
         } else {
             segmentId = event.target.value;
             var segment = segments.find((s) => s.id === segmentId);
             var fromCheckpoint = checkpoints.find((c) => segment.fromCheckpointId == c.id);
             var toCheckpoint = checkpoints.find((c) => segment.toCheckpointId == c.id);
-            drawCheckpoint(fromCheckpoint);
-            drawCheckpoint(toCheckpoint);
+            //drawCheckpoint(fromCheckpoint);
+            //drawCheckpoint(toCheckpoint);
             drawSegment(segment);
+            setSegmentDetails(fromCheckpoint, toCheckpoint, segment);
+            setTimeout(drawElevationChart, 100);
         }
 
-        map.fitBounds(layer.getBounds());
+        setTimeout(fitMap, 100);
+    }
+
+    function fitMap() {
+        var bounds = layer.getBounds();
+        map.fitBounds(bounds);
+    }
+
+    function setSegmentDetails(fromCheckpoint, toCheckpoint, segment) {
+        document.getElementById("segment-checkpoint-start").innerText = fromCheckpoint.name;
+        document.getElementById("segment-checkpoint-end").innerText = toCheckpoint.name;
+        document.getElementById("segment-distance").innerText = `${segment.distance} miles`;
+        document.getElementById("segment-total-distance").innerText = `${segment.totalDistance} miles`;
     }
 
     function addRaceToRadioGroup(div, race) {
