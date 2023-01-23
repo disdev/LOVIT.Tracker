@@ -64,11 +64,13 @@
 </div>
 
 @section Scripts {
+<script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
     let race, leaders, segments, checkins, gridOptions;
-    var raceId = "@Html.Raw(Model.Race.Id)";
+    let raceId = "@Html.Raw(Model.Race.Id)";
+    let spinner = loadingOverlay.activate();
 
     async function getData() {
         race = await getRace();
@@ -114,7 +116,7 @@
         }
     }
 
-    function autoSizeAll(skipHeader) {
+    function autoSizeColumns(skipHeader) {
         const allColumnIds = [];
         gridOptions.columnApi.getColumns().forEach((column) => {
             allColumnIds.push(column.getId());
@@ -127,9 +129,17 @@
         var raceStart = new Date(race.start);
 
         var columns = [
-            { headerName: "Place", field: "place" },
-            { headerName: "Bib", field: "bib" },
-            { headerName: "Participant", field: "participant" }
+            { headerName: "#", field: "place", pinned: "left" },
+            { headerName: "Bib", field: "bib", pinned: "left" },
+            { headerName: "Participant", field: "participant", pinned: "left", cellRenderer: function(params) {
+                let id = "";
+                if (params.data.bib) {
+                    id = params.data.bib;
+                } else {
+                    id = params.data.participantId;
+                }
+                return `<a href="/participants?id=${id}">${params.value}</a>`;
+            }}
         ];
 
         segments.forEach((segment) => {
@@ -145,7 +155,8 @@
             var leaderData = {
                 place: placeIndex,
                 bib: leader.participant.bib,
-                participant: leader.participant.fullName
+                participant: leader.participant.fullName,
+                participantId: leader.participant.id
             };
 
             var leaderCheckins = checkins.filter((checkin) => checkin.participantId === leader.participantId);
@@ -163,31 +174,17 @@
             placeIndex++;
         });
 
-        var gridOptions = {
+        gridOptions = {
             domLayout: "autoHeight",
             columnDefs: columns,
-            rowData: tableData
+            rowData: tableData,
+            suppressColumnVirtualisation: true
         };
 
         var gridDiv = document.getElementById(`race-grid-${race.code}`);
         new agGrid.Grid(gridDiv, gridOptions);
-        
-        
-        const allColumnIds = [];
-        gridOptions.columnApi.getColumns().forEach((column) => {
-            allColumnIds.push(column.getId());
-        });
-
-        gridOptions.columnApi.autoSizeColumns(allColumnIds, false);
-
-    });
-
-    $(document).ready(function () {
-        $('#race-leaderboard').DataTable({
-            "paging": false,
-            "ordering": false,
-            "fixedColumns": true
-        });
+        autoSizeColumns(false);
+        loadingOverlay.cancel(spinner);
     });
 </script>
 }

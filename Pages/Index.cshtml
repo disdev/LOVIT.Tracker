@@ -71,7 +71,7 @@
                         }
                         </tbody>
                     </table> *@
-                    <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-alpine"></div>
+                    <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-material"></div>
                 </div>
             </div>
         </div>
@@ -79,9 +79,11 @@
 </div>
 
 @section Scripts {
+<script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <script type="text/javascript">
     let races, leaders, gridOptions;
+    let spinner = loadingOverlay.activate();
 
     async function getData() {
         races = await getRaces();
@@ -153,6 +155,8 @@
             new agGrid.Grid(gridDiv, gridOptions);
             gridOptions.api.sizeColumnsToFit();
         });
+
+        loadingOverlay.cancel(spinner);
     });
 
     var firstTabEl = document.querySelector('#race-tabs li:first-child a')
