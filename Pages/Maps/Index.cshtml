@@ -10,29 +10,6 @@
     #map {
         height: 100%;
     }
-
-    .leaflet-measure-path-measurement {
-        position: absolute;
-        font-size: 10px;
-        color: black;
-        text-shadow: -1px 0 0 white,
-            -1px -1px 0 white,
-            0 -1px 0 white,
-            1px -1px 0 white,
-            1px 0 0 white,
-            1px 1px 0 white,
-            0 1px 0 white,
-            -1px 1px 0 white;
-        white-space: nowrap;
-        transform-origin: 0;
-        pointer-events: none;
-    }
-
-    .leaflet-measure-path-measurement>div {
-        position: relative;
-        margin-top: -25%;
-        left: -50%;
-    }
 </style>
 }
 
@@ -82,6 +59,7 @@
 <script>
     let races, segments, checkpoints, layer, selectedRace;
     var elevationData = []; // [distance, elevation]
+    let segmentCache = {}; // this includes all elevationData for individual segments.
 
     var map = L.map('map', { minZoom: 5, maxZoom: 16 })
         .on('load', setupMap)
@@ -111,6 +89,9 @@
         var segmentsResponse = await fetch('/api/segments');
         segments = await segmentsResponse.json();
 
+        selectedRace = races.find((r) => r.code === "100M");
+
+
         var racesRadioGroup = document.getElementById("races-radio-group");
         races.forEach((race) => addRaceToRadioGroup(racesRadioGroup, race));
 
@@ -120,27 +101,29 @@
         layer = L.geoJSON(null, { "onEachFeature": onEachFeature }).addTo(map);
         layer.setStyle(lineStyle);
 
-        var selectedRace = races.find((r) => r.code === "100M");
         document.getElementById("btnRace-100M").click();
     }
 
     async function drawSegment(segment) {
-        let segmentResponse = await fetch(`/js/maps/segments/${selectedRace.code}/${segment.geoJson}`);
-        let segmentJson = await segmentResponse.json();
+        let segmentJson;
+        if (!segmentCache[segment.geoJson]) {
+            segmentJson = await (await fetch(`/js/maps/segments/${selectedRace.code}/${segment.geoJson}`)).json();
+            segmentCache[segment.geoJson] = segmentJson;
+        } else {
+            segmentJson = segmentCache[segment.geoJson];
+        }
         layer.addData(segmentJson);
         layer.setStyle(lineStyle);
         addElevationChartData(segmentJson, segment);
     }
 
     function addElevationChartData(geoJson, segment) {
-        var firstPoint, secondPoint;
+        /*var firstPoint, secondPoint;
         var totalDistance = segment.totalDistance - segment.distance;
         var coordinates = geoJson.features[0].geometry.coordinates[0];
-        
         for (var i = 0; i < coordinates.length; i++) {
             var coordinate = coordinates[i];
             var elevation = coordinate[2] * 3.2808;
-            var data = [];
             if (i === 0) {
                 elevationData.push([totalDistance, elevation]);
             } else {
@@ -150,6 +133,22 @@
                 totalDistance = totalDistance + ((map.distance(firstPoint, secondPoint) * 3.2808) / 5280);
                 elevationData.push([totalDistance, elevation]);
             }
+        }*/
+        //OPTIMIZED
+
+        let totalDistance = segment.totalDistance - segment.distance;
+        let coordinates = geoJson.features[0].geometry.coordinates[0];
+        for (i = 0; i < coordinates.length; i++) {
+            let coordinate = coordinates[i];
+
+            let previousCoordinate = coordinates[i > 0 ? i - 1 : 0];
+
+            let firstPoint = L.latLng(previousCoordinate[1],previousCoordinate[0]);
+            let secondPoint = L.latLng(coordinate[1],coordinate[0]);
+
+            totalDistance+=((map.distance(firstPoint, secondPoint) * 3.2808) / 5280);
+            
+            elevationData.push([totalDistance,coordinate[2]*3.2808])
         }
     }
 
@@ -206,7 +205,7 @@
             //drawCheckpoint(c);
         });
 
-        setTimeout(drawElevationChart, 100);
+        setTimeout(drawElevationChart,100)
 
         return raceSegments;
     }
@@ -216,8 +215,18 @@
         elevationData = [];
 
         if (event.target.selectedIndex === 0) {
-            selectRace(selectedRace);
-            drawElevationChart();
+            selectRace(selectedRace.code);
+            /*
+                Replacing this method with a manual draw, as it's causing issues with caching
+
+                - Luke
+
+                EDIT: You weren't supplying the code of the race when calling selectRace, so it was throwing an error trying to gather the segments.
+                I have no clue how this wasn't noticed earlier, but it was probably because you weren't reselecting to view all segments from
+                just the segment selector.
+            */
+
+            setTimeout(drawElevationChart,100);
         } else {
             segmentId = event.target.value;
             var segment = segments.find((s) => s.id === segmentId);
@@ -227,7 +236,7 @@
             //drawCheckpoint(toCheckpoint);
             drawSegment(segment);
             setSegmentDetails(fromCheckpoint, toCheckpoint, segment);
-            setTimeout(drawElevationChart, 100);
+            drawElevationChart()
         }
 
         setTimeout(fitMap, 100);
