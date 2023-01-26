@@ -190,6 +190,11 @@ app.MapGet("/api/checkins/{raceId}", async (Guid raceId, ICheckinService checkin
     return await checkinService.GetCheckinsAsync(raceId);
 });
 
+app.MapGet("/api/participants/sync", async (IRaceService raceService) => 
+{
+    await raceService.SyncParticipantsWithUltraSignup();
+});
+
 /*
 app.MapPost("/api/messages", async (IMessageService messageService) =>
 {
