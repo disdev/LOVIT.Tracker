@@ -2,6 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using HtmlAgilityPack;
 
 namespace LOVIT.Tracker.Services;
 
@@ -14,6 +15,7 @@ public interface IRaceService
     Task<List<Race>> GetRacesWithSegmentsAsync();
     Task<List<Race>> GetRacesWithSegmentsAndCheckpointsAsync();
     Task<List<Race>> GetRacesFromCheckpointAsync(Guid checkpointId);
+    Task SyncParticipantsWithUltraSignup();
 }
 
 public class RaceService : IRaceService
@@ -106,5 +108,60 @@ public class RaceService : IRaceService
             .Include(x => x.Segments)
             .Where(x => x.Active == true)
             .Where(x => x.Segments.Any(y => y.ToCheckpointId == checkpointId)).ToListAsync();
+    }
+
+    public async Task SyncParticipantsWithUltraSignup()
+    {
+        var races = await GetRacesAsync();
+        var scrapedParticipants = new List<Participant>();
+
+        foreach (var race in races)
+        {
+            var existingParticipants = await _participantService.GetParticipantsAsync(race.Id);
+            var html = new HtmlWeb().Load(race.UltraSignupUrl);
+            var participantNodes = html
+                .GetElementbyId("ContentPlaceHolder1_gvEntrants")
+                .Descendants("tr");
+            
+            foreach (var participantNode in participantNodes)
+            {
+                if (participantNode.ChildNodes[1].Name != "th")
+                {
+                    var gender = participantNode.ChildNodes[5].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim().Substring(0, 1) == "M" ? Gender.Male : Gender.Female;
+                    var age = participantNode.ChildNodes[5].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim().Substring(1);
+                    float rank = 0.0F;
+                    float.TryParse(participantNode.ChildNodes[1].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Replace("%", "").Trim(), out rank);
+                    var participant = new Participant()
+                    {
+                        Bib = participantNode.ChildNodes[12].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim(),
+                        FirstName = participantNode.ChildNodes[7].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim(),
+                        LastName = participantNode.ChildNodes[8].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim(),
+                        City = participantNode.ChildNodes[9].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim(),
+                        Region = participantNode.ChildNodes[10].InnerText.Replace("\r\n", "").Replace("&nbsp;", "").Trim(),
+                        Age = age,
+                        Gender = gender,
+                        Rank = rank,
+                        RaceId = race.Id,
+                        Status = Status.Registered,
+                    };
+
+                    scrapedParticipants.Add(participant);
+
+                    var completedParticipant = existingParticipants.SingleOrDefault(x => x.FirstName == participant.FirstName && x.LastName == participant.LastName && x.City == participant.City);
+                    existingParticipants.Remove(completedParticipant);
+                }
+            }
+
+            foreach (var participant in existingParticipants)
+            {
+                participant.Status = Status.DNS;
+                scrapedParticipants.Add(participant);
+            }
+
+            foreach (var participant in scrapedParticipants)
+            {
+                await _participantService.AddOrUpdateParticipantAsync(participant);
+            }
+        }
     }
 }

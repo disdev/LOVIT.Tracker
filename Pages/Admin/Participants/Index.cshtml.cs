@@ -7,22 +7,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using LOVIT.Tracker.Services;
 
 namespace LOVIT.Tracker.Pages.Admin.Participants
 {
     public class IndexModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;
+        private readonly IRaceService _raceService;
 
-        public IndexModel(LOVIT.Tracker.Data.TrackerContext context)
+        public IndexModel(LOVIT.Tracker.Data.TrackerContext context, IRaceService raceService)
         {
             _context = context;
+            _raceService = raceService;
         }
 
         public IList<Participant> Participant { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
+            await _raceService.SyncParticipantsWithUltraSignup();
+
             if (_context.Participants != null)
             {
                 Participant = await _context.Participants
