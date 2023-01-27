@@ -131,15 +131,20 @@
             var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id );
             var placeIndex = 1;
             raceLeaders.forEach((raceLeader) => {
-                tableData.push({
-                    place: placeIndex,
+                var row = {
                     participant: raceLeader.participant.fullName,
-                    lastCheckpoint: `${raceLeader.lastSegment.totalDistance} miles`,
-                    overallTime: formatSecondsToTime(raceLeader.overallTime),
-                    overallPace: formatSecondsToTime(raceLeader.overallPace),
                     race: race.code
-                });
+                };
 
+                if (raceLeader.overallTime > 0) {
+                    row.place = placeIndex;
+                    row.participant = raceLeader.participant.fullName;
+                    row.lastCheckpoint = `${raceLeader.lastSegment.totalDistance} miles`;
+                    row.overallTime = formatSecondsToTime(raceLeader.overallTime);
+                    row.overallPace = formatSecondsToTime(raceLeader.overallPace);
+                }
+
+                tableData.push(row);
                 placeIndex++;
             });
         });
