@@ -48,19 +48,22 @@ public class Participant
 
     public string BibOrId => string.IsNullOrWhiteSpace(Bib) ? Id.ToString() : Bib;
 
-    public string ProfilePicture(int size)
+    public string ProfilePicture
     {
-        if (String.IsNullOrEmpty(PictureUrl) || PictureUrl == "empty")
+        get
         {
-            return $"https://ui-avatars.com/api/?name={FirstName?.Substring(0, 1)}+{LastName?.Substring(0, 1)}&rounded=true&size={size}";
-        }
-        else if (PictureUrl.Contains("graph.facebook.com"))
-        {
-            return $"{PictureUrl}";
-        }
-        else
-        {
-            return PictureUrl;
+            if (String.IsNullOrEmpty(PictureUrl) || PictureUrl == "empty")
+            {
+                return $"https://ui-avatars.com/api/?name={FirstName?.Substring(0, 1)}+{LastName?.Substring(0, 1)}&rounded=true&size={128}";
+            }
+            else if (PictureUrl.Contains("graph.facebook.com"))
+            {
+                return $"{PictureUrl}";
+            }
+            else
+            {
+                return PictureUrl;
+            }
         }
     }
 
