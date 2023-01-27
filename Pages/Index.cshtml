@@ -25,52 +25,6 @@
             <div class="card">
                 <div class="card-body">
                     <h2 class="card-title">@race.Code</h2>
-                    @* <table class="table compact stripe">
-                        <thead>
-                            <tr>
-                                <th class="text-center" scope="col">
-                                    <span class="d-sm-none">#</span>
-                                    <span class="d-none d-sm-block">Place</span>
-                                </th>
-                                <th scope="col">Participant</th>
-                                <th class="text-center" scope="col">Last Checkpoint</th>
-                                <th class="text-center" scope="col">Overall Time</th>
-                                <th class="text-center" scope="col">Overall Pace</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var row in Model.Leaderboard.Where(x => x.Participant.RaceId == race.Id).Select((x, i) => new { leader = x, index = i }))
-                        {
-                            <tr>
-                                <td class="text-center align-middle" scope="row">@(row.index + 1)</td>
-                                <td>
-                                    <div class="d-flex">
-                                        <div class="d-none d-md-flex p-md-2 align-items-center">
-                                            <img src="@row.leader.Participant.ProfilePicture(48)" class="avatar rounded-circle img-responsive" style="width: 64px; height: 64px; object-fit: cover;"/>
-                                        </div>
-                                        <div class="d-flex flex-column p-md-2">
-                                            <div><a asp-page="/participants/index" asp-route-id="@row.leader.Participant.BibOrId">@row.leader.Participant.FullName</a></div>
-                                            <div><small class="text-muted">@row.leader.Participant.Hometown</small></div>
-                                            @if (!String.IsNullOrEmpty(@row.leader.Participant.Bib))
-                                            {
-                                                <div><small class="text-muted">#@row.leader.Participant.Bib</small></div>
-                                            }
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            @if (@row.leader.Participant.Status != Status.Registered && @row.leader.Participant.Status != Status.Started)
-                                            {
-                                                <span class="d-inline badge @row.leader.Participant.StatusClass" style="margin-left: 5px;">@row.leader.Participant.Status.ToString()</span>
-                                            }
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-center align-middle">@row.leader.LastSegment.TotalDistance miles</td>
-                                <td class="text-center align-middle">@TimeHelpers.FormatSeconds((int)row.leader.OverallTime)</td>
-                                <td class="text-center align-middle">@TimeHelpers.FormatSeconds((int)row.leader.OverallPace)</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table> *@
                     <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-material"></div>
                 </div>
             </div>
@@ -120,7 +74,16 @@
     getData().then((data) => {
         var columns = [
             {headerName: "Place", field: "place"},
-            {headerName: "Participant", field: "participant"},
+            {headerName: "Participant", field: "participant", cellRenderer: function(params) {
+                let id = "";
+                console.log(params);
+                if (params.data.bib) {
+                    id = params.data.bib;
+                } else {
+                    id = params.data.participantId;
+                }
+                return `<a href="/participants?id=${id}">${params.value}</a>`;
+            }},
             {headerName: "Last Checkpoint", field: "lastCheckpoint"},
             {headerName: "Overall Time", field: "overallTime"},
             {headerName: "Overall Pace", field: "overallPace"}
@@ -133,7 +96,8 @@
             raceLeaders.forEach((raceLeader) => {
                 var row = {
                     participant: raceLeader.participant.fullName,
-                    race: race.code
+                    race: race.code,
+                    participantId: raceLeader.participantId
                 };
 
                 if (raceLeader.overallTime > 0) {
