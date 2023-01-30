@@ -6,6 +6,20 @@
     ViewData["Title"] = "Home page";
 }
 
+
+@section Styles {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.0.0/styles/ag-grid.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.0.0/styles/ag-theme-material.css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
+<style>
+    .ag-theme-material {
+        --ag-grid-size: 6px;
+        --ag-list-item-height: 18px;
+        --ag-cell-horizontal-padding: 4px;
+    }
+</style>
+}
+
 <div class="row-fluid">
     <div class="col">
         <ul class="nav nav-pills nav-justified device-small d-lg-none pb-3 mx-auto" role="tablist" id="race-tabs">
@@ -18,15 +32,41 @@
         </ul>
     </div>
 </div>
+<div class="d-none">
+    <li id="row-template" class="list-group-item">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0 p-2">
+                <span id="place"></span>
+            </div>
+            <div class="flex-shrink-0 p-2">
+                <img id="profile-image" style="max-width: 60px;" src="https://via.placeholder.com/60">
+            </div>
+            <div class="flex-grow-1 p-2">
+                <span id="participant-name"></span>
+            </div>
+            <div class="p-2">
+                <span id="distance"></span>
+            </div>
+            <div class="p-2">
+                <span id="time"></span>
+            </div>
+            <div class="p-2">
+                <span id="pace"></span>
+            </div>
+        </div>
+    </li>
+</div>
 <div class="tab-content d-flex">
     @foreach (var race in Model.Races)
     {
         <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
             <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title">@race.Code</h2>
-                    <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-material"></div>
-                </div>
+                <ul id="leaderboard-@race.Code" class="list-group list-group-flush">
+                </ul>
+                @* <div class="card-body">
+                    <h2 class="card-title">@race.Code</h2> *@
+                    @* <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-material"></div> *@
+                @* </div> *@
             </div>
         </div>
     }
@@ -34,10 +74,10 @@
 
 @section Scripts {
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
 <script type="text/javascript">
-    let races, leaders, gridOptions;
+    let races, leaders;
     let spinner = loadingOverlay.activate();
+    let rowTemplate = document.getElementById("row-template");
 
     async function getData() {
         races = await getRaces();
@@ -72,57 +112,26 @@
     }
 
     getData().then((data) => {
-        var columns = [
-            {headerName: "Place", field: "place"},
-            {headerName: "Participant", field: "participant", cellRenderer: function(params) {
-                let id = "";
-                console.log(params);
-                if (params.data.bib) {
-                    id = params.data.bib;
-                } else {
-                    id = params.data.participantId;
-                }
-                return `<a href="/participants?id=${id}">${params.value}</a>`;
-            }},
-            {headerName: "Last Checkpoint", field: "lastCheckpoint"},
-            {headerName: "Overall Time", field: "overallTime"},
-            {headerName: "Overall Pace", field: "overallPace"}
-        ];
-        
-        var tableData = [];
         races.forEach((race) => {
+            var leaderboard = document.getElementById(`leaderboard-${race.code}`);
             var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id );
             var placeIndex = 1;
             raceLeaders.forEach((raceLeader) => {
-                var row = {
-                    participant: raceLeader.participant.fullName,
-                    race: race.code,
-                    participantId: raceLeader.participantId
-                };
+                var leaderboardEntry = rowTemplate.cloneNode(true);
+                
+                leaderboardEntry.querySelector("#profile-image").src = raceLeader.participant.profilePicture;
+                leaderboardEntry.querySelector("#participant-name").innerText = raceLeader.participant.fullName;
 
                 if (raceLeader.overallTime > 0) {
-                    row.place = placeIndex;
-                    row.participant = raceLeader.participant.fullName;
-                    row.lastCheckpoint = `${raceLeader.lastSegment.totalDistance} miles`;
-                    row.overallTime = formatSecondsToTime(raceLeader.overallTime);
-                    row.overallPace = formatSecondsToTime(raceLeader.overallPace);
+                    leaderboardEntry.querySelector("#place").innerText = placeIndex;
+                    leaderboardEntry.querySelector("#distance").innerText = `${raceLeader.lastSegment.totalDistance} miles`;
+                    leaderboardEntry.querySelector("#time").innerText = formatSecondsToTime(raceLeader.overallTime);
+                    leaderboardEntry.querySelector("#pace").innerText = formatSecondsToTime(raceLeader.overallPace);
                 }
-
-                tableData.push(row);
+                
+                leaderboard.appendChild(leaderboardEntry);
                 placeIndex++;
             });
-        });
-
-        races.forEach((race) => {
-            var gridOptions = {
-                domLayout:  "autoHeight",
-                columnDefs: columns,
-                rowData: tableData.filter((row) => row.race === race.code)
-            };
-
-            var gridDiv = document.getElementById(`race-grid-${race.code}`);
-            new agGrid.Grid(gridDiv, gridOptions);
-            gridOptions.api.sizeColumnsToFit();
         });
 
         loadingOverlay.cancel(spinner);
