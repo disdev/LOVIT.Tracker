@@ -32,8 +32,6 @@ public class IndexModel : PageModel
     public async Task OnGetAsync(string id)
     {
         Race = await _raceService.GetRaceAsync(id);
-        // Leaders = await _leaderService.GetLeadersByRaceIdAsync(Race.Id);
-        // Segments = await _segmentService.GetSegmentsAsync(Race.Id);
-        // Checkins = await _checkinService.GetCheckinsAsync(Race.Id);
+        ViewData["Title"] = Race.Code;
     }
 }

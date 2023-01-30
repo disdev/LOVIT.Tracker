@@ -5,6 +5,10 @@
     ViewData["Title"] = "Index";
 }
 
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+}
+
 <h1>Index</h1>
 
 <p>
@@ -52,9 +56,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Participant[0].UltraSignupEmail)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Participant[0].UserId)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -101,9 +102,6 @@
                 @Html.DisplayFor(modelItem => item.UltraSignupEmail)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
@@ -112,3 +110,12 @@
 }
     </tbody>
 </table>
+
+@section Scripts {
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable();
+    });
+</script>
+}

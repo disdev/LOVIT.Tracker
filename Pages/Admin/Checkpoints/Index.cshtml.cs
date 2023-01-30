@@ -25,7 +25,7 @@ namespace LOVIT.Tracker.Pages.Admin.Checkpoints
         {
             if (_context.Checkpoints != null)
             {
-                Checkpoint = await _context.Checkpoints.ToListAsync();
+                Checkpoint = await _context.Checkpoints.OrderBy(x => x.Number).ToListAsync();
             }
         }
     }

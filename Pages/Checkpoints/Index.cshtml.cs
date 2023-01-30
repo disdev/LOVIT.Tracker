@@ -44,6 +44,8 @@ public class IndexModel : PageModel
         Segments = await _segmentService.GetSegmentsAsync();
         Leaders = await _leaderService.GetLeadersAsync();
         Checkins = await _checkinService.GetCheckinsForCheckpointAsync(checkpointId);
+
+        ViewData["Title"] = Checkpoint.Name;
     }
 }
 

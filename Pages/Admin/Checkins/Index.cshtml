@@ -1,11 +1,16 @@
 @page
+@using Utilities
 @model LOVIT.Tracker.Pages.Admin.Checkins.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Checkins";
 }
 
-<h1>Index</h1>
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+}
+
+<h1>Checkins</h1>
 
 <p>
     <a asp-page="Create">Create New</a>
@@ -59,7 +64,7 @@
                 @Html.DisplayFor(modelItem => item.Message.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Elapsed)
+                @TimeHelpers.FormatSeconds(item.Elapsed)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
@@ -70,3 +75,12 @@
 }
     </tbody>
 </table>
+
+@section Scripts {
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready( function () {
+        $('.table').DataTable();
+    });
+</script>
+}

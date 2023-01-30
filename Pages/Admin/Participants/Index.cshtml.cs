@@ -26,12 +26,14 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
 
         public async Task OnGetAsync()
         {
-            await _raceService.SyncParticipantsWithUltraSignup();
+            //await _raceService.SyncParticipantsWithUltraSignup();
 
             if (_context.Participants != null)
             {
                 Participant = await _context.Participants
-                .Include(p => p.Race).ToListAsync();
+                .Include(p => p.Race)
+                .OrderBy(p => p.LastName)
+                .ThenBy(p => p.FirstName).ToListAsync();
             }
         }
     }

@@ -2,13 +2,14 @@
 @using Models
 @using Utilities
 @model LOVIT.Tracker.Pages.Races.IndexModel
-@{
-}
 
 <div class="row">
     <div class="col">
-        <h4>@Model.Race.Name</h4>
-
+        <h1 class="p-2">@Model.Race.Code</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
         <div id="race-grid-@Model.Race.Code" data-race="@Model.Race.Code" class="grid ag-theme-alpine"></div>
     </div>
 </div>

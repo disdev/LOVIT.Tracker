@@ -3,6 +3,10 @@
 @using LOVIT.Tracker.Models
 @using LOVIT.Tracker.Utilities
 
+@{
+    ViewData["Title"] = "Drops";
+}
+
 <div class="row">
     <div class="col-xs-12 col-xl-6">
         <div class="card">
@@ -32,7 +36,7 @@
                                     @row.data.LastSegment?.TotalDistance
                                 </td>
                                 <td class="text-center">
-                                    @TimeHelpers.FormatSeconds((int)row.data.OverallTime)
+                                    @TimeHelpers.FormatSeconds(row.data.OverallTime)
                                 </td>
                             </tr>
                         }

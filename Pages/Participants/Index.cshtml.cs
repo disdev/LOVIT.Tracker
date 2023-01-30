@@ -41,6 +41,7 @@ public class IndexModel : PageModel
     {
         await LoadData(id);
         await SetNotificationOptions();
+        ViewData["Title"] = Participant.FullName;
     }
 
     private async Task SetNotificationOptions()

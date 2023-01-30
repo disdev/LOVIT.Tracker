@@ -2,8 +2,12 @@
 @model LOVIT.Tracker.Pages.Checkpoints.IndexModel;
 @using LOVIT.Tracker.Models;
 @using LOVIT.Tracker.Utilities;
-@{
-}
+
+<div class="row">
+    <div class="col">
+        <h1 class="p-2">@Model.Checkpoint.Name</h1>
+    </div>
+</div>
 
 @if (Model.Races.Count > 1)
 {

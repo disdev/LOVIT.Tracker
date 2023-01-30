@@ -26,7 +26,8 @@ namespace LOVIT.Tracker.Pages.Admin.Monitors
             if (_context.Monitors != null)
             {
                 Monitor = await _context.Monitors
-                .Include(m => m.Checkpoint).ToListAsync();
+                .Include(m => m.Checkpoint)
+                .OrderBy(m => m.Checkpoint.Number).ToListAsync();
             }
         }
     }

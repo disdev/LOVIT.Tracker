@@ -28,7 +28,8 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
                 Checkin = await _context.Checkins
                 .Include(c => c.Message)
                 .Include(c => c.Participant)
-                .Include(c => c.Segment).ToListAsync();
+                .Include(c => c.Segment)
+                .OrderBy(c => c.When).ToListAsync();
             }
         }
     }

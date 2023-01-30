@@ -28,7 +28,9 @@ namespace LOVIT.Tracker.Pages.Admin.Segments
                 Segment = await _context.Segments
                 .Include(s => s.FromCheckpoint)
                 .Include(s => s.Race)
-                .Include(s => s.ToCheckpoint).ToListAsync();
+                .Include(s => s.ToCheckpoint)
+                .OrderBy(s => s.Race)
+                .ThenBy(s => s.Order).ToListAsync();
             }
         }
     }

@@ -39,7 +39,7 @@ public static class TimeHelpers
         return FormatSpan(end - start);
     }
 
-    public static string FormatSeconds(int seconds)
+    public static string FormatSeconds(uint seconds)
     {
         return FormatSpan(TimeSpan.FromSeconds(seconds));
     }

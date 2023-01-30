@@ -20,8 +20,9 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var row in Model.Checkins.Select((x, i) => new { data = x, index = i}))
+            @foreach (var row in Model.Leaders.Select((x, i) => new { data = x, index = i}))
             {
+                var checkin = Model.Checkins.Where(x => x.ParticipantId == row.data.ParticipantId).FirstOrDefault();
                 <tr>
                     <td>@(row.index + 1)</td>
                     <td>
@@ -30,19 +31,19 @@
                         </a>
                     </td>
                     <td>
-                        @row.data.When.ToString("ddd, h:mm tt")
+                        @(checkin != null ? checkin.When.ToString("ddd, h:mm tt") : "")
                     </td>
                     <td>
-                        @TimeHelpers.FormatSeconds((int)row.data.Elapsed)
+                        @(checkin != null ? TimeHelpers.FormatSeconds(checkin.Elapsed) : "")
                     </td>
                     <td>
-                        @TimeHelpers.CalculatePace(row.data.Elapsed, Model.Segment.Distance)
+                        @(checkin != null ? TimeHelpers.CalculatePace(checkin.Elapsed, Model.Segment.Distance) : "")
                     </td>
                     <td>
-                        @TimeHelpers.FormatTime(Model.Race.Start, row.data.When)
+                        @(checkin != null ? TimeHelpers.FormatTime(Model.Race.Start, checkin.When) : "")
                     </td>
                     <td>
-                        @TimeHelpers.CalculatePace(Model.Race.Start, row.data.When, Model.Segment.TotalDistance)
+                        @(checkin != null ? TimeHelpers.CalculatePace(Model.Race.Start, checkin.When, Model.Segment.TotalDistance) : "")
                     </td>
                 </tr>
             }                

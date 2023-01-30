@@ -1,31 +1,30 @@
 @page
+@using Utilities
 @model LOVIT.Tracker.Pages.Admin.Checkins.EditModel
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>Checkin</h4>
+<h1>Edit Checkin</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Checkin.Id" />
-            <div class="form-group">
-                <label asp-for="Checkin.When" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Checkin.When" class="form-label"></label>
                 <input asp-for="Checkin.When" class="form-control" />
                 <span asp-validation-for="Checkin.When" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Checkin.ParticipantId" class="control-label"></label>
+            <div class="mb-3">
+                <label class="form-label">Participant</label>
                 <select asp-for="Checkin.ParticipantId" class="form-control" asp-items="ViewBag.ParticipantId"></select>
                 <span asp-validation-for="Checkin.ParticipantId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Checkin.SegmentId" class="control-label"></label>
+            <div class="mb-3">
+                <label class="form-label">Segment</label>
                 <select asp-for="Checkin.SegmentId" class="form-control" asp-items="ViewBag.SegmentId"></select>
                 <span asp-validation-for="Checkin.SegmentId" class="text-danger"></span>
             </div>
@@ -34,22 +33,23 @@
                     <input class="form-check-input" asp-for="Checkin.Confirmed" /> @Html.DisplayNameFor(model => model.Checkin.Confirmed)
                 </label>
             </div>
-            <div class="form-group">
-                <label asp-for="Checkin.Note" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Checkin.Note" class="form-label"></label>
                 <input asp-for="Checkin.Note" class="form-control" />
                 <span asp-validation-for="Checkin.Note" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Checkin.MessageId" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Checkin.MessageId" class="form-label"></label>
                 <select asp-for="Checkin.MessageId" class="form-control" asp-items="ViewBag.MessageId"></select>
                 <span asp-validation-for="Checkin.MessageId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Checkin.Elapsed" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Checkin.Elapsed" class="form-label"></label>
                 <input asp-for="Checkin.Elapsed" class="form-control" />
+                <div class="form-text">@TimeHelpers.FormatSeconds(Model.Checkin.Elapsed)</div>
                 <span asp-validation-for="Checkin.Elapsed" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
