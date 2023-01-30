@@ -6,20 +6,6 @@
     ViewData["Title"] = "Home page";
 }
 
-
-@section Styles {
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.0.0/styles/ag-grid.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.0.0/styles/ag-theme-material.css" />
-<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" />
-<style>
-    .ag-theme-material {
-        --ag-grid-size: 6px;
-        --ag-list-item-height: 18px;
-        --ag-cell-horizontal-padding: 4px;
-    }
-</style>
-}
-
 <div class="row-fluid">
     <div class="col">
         <ul class="nav nav-pills nav-justified device-small d-lg-none pb-3 mx-auto" role="tablist" id="race-tabs">
@@ -32,36 +18,43 @@
         </ul>
     </div>
 </div>
+
 <div class="d-none">
     <li id="row-template" class="list-group-item">
         <div class="d-flex align-items-center">
-            <div class="flex-shrink-0 p-2">
+            <div class="flex-shrink-0 px-2">
                 <span id="place"></span>
             </div>
-            <div class="flex-shrink-0 p-2 d-none d-md-flex">
+            <div class="flex-shrink-0 px-4 d-none d-md-flex">
                 <img id="profile-image" style="max-width: 60px;" src="https://via.placeholder.com/60">
             </div>
-            <div class="flex-grow-1 p-2">
-                <span id="first-name" class="d-none d-sm-inline"></span>
-                <span id="last-name" class="d-xs-inline"></span>
+            <div class="flex-grow-1 px-4">
+                <a id="link">
+                    <span id="first-name" class="d-none d-sm-inline"></span>
+                    <span id="last-name" class="d-xs-inline"></span>
+                </a>
             </div>
-            <div class="p-2">
+            <div class="px-4">
                 <span id="distance"></span>
             </div>
-            <div class="p-2">
+            <div class="px-4">
                 <span id="time"></span>
             </div>
-            <div class="p-2 d-none d-md-flex">
+            <div class="px-2 d-none d-md-flex">
                 <span id="pace"></span>
             </div>
         </div>
     </li>
 </div>
+
 <div class="tab-content d-flex">
     @foreach (var race in Model.Races)
     {
         <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
             <div class="card">
+                <div class="card-header">
+                    <h1 class="text-center p-2">@race.Code</h1>
+                </div>
                 <ul id="leaderboard-@race.Code" class="list-group list-group-flush"></ul>
             </div>
         </div>
@@ -118,6 +111,7 @@
                 leaderboardEntry.querySelector("#profile-image").src = raceLeader.participant.profilePicture;
                 leaderboardEntry.querySelector("#first-name").innerText = raceLeader.participant.firstName;
                 leaderboardEntry.querySelector("#last-name").innerText = raceLeader.participant.lastName;
+                leaderboardEntry.querySelector("#link").href = `/participants?id=${raceLeader.participant.bibOrId}`;
 
                 if (raceLeader.overallTime > 0) {
                     leaderboardEntry.querySelector("#place").innerText = placeIndex;
