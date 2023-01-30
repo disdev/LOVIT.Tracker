@@ -2,7 +2,14 @@
 @model LOVIT.Tracker.Pages.Participants.IndexModel
 @using LOVIT.Tracker.Utilities;
 @using LOVIT.Tracker.Models;
-@{
+
+
+@section Styles {
+<style>
+.table {
+    min-width: 1000px;
+}
+</style>
 }
 
 <div class="row">
@@ -79,7 +86,7 @@
                     {
                         <tr class="@(segment.Estimated ? "fst-italic table-secondary" : "")">
                             <th scope="row">
-                                <a asp-page="/segments/details" asp-route-segmentId="@segment.SegmentId">
+                                <a asp-page="/segments/index" asp-route-id="@segment.SegmentId">
                                     <span class="d-none d-md-inline">@segment.SegmentName</span>
                                     <span class="d-xs-inline d-md-none">@segment.Order</span>
                                 </a>
