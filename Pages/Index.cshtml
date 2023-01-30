@@ -38,11 +38,12 @@
             <div class="flex-shrink-0 p-2">
                 <span id="place"></span>
             </div>
-            <div class="flex-shrink-0 p-2">
+            <div class="flex-shrink-0 p-2 d-none d-md-flex">
                 <img id="profile-image" style="max-width: 60px;" src="https://via.placeholder.com/60">
             </div>
             <div class="flex-grow-1 p-2">
-                <span id="participant-name"></span>
+                <span id="first-name" class="d-none d-sm-inline"></span>
+                <span id="last-name" class="d-xs-inline"></span>
             </div>
             <div class="p-2">
                 <span id="distance"></span>
@@ -50,7 +51,7 @@
             <div class="p-2">
                 <span id="time"></span>
             </div>
-            <div class="p-2">
+            <div class="p-2 d-none d-md-flex">
                 <span id="pace"></span>
             </div>
         </div>
@@ -61,12 +62,7 @@
     {
         <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
             <div class="card">
-                <ul id="leaderboard-@race.Code" class="list-group list-group-flush">
-                </ul>
-                @* <div class="card-body">
-                    <h2 class="card-title">@race.Code</h2> *@
-                    @* <div id="race-grid-@race.Code" data-race="@race.Code" class="grid ag-theme-material"></div> *@
-                @* </div> *@
+                <ul id="leaderboard-@race.Code" class="list-group list-group-flush"></ul>
             </div>
         </div>
     }
@@ -120,7 +116,8 @@
                 var leaderboardEntry = rowTemplate.cloneNode(true);
                 
                 leaderboardEntry.querySelector("#profile-image").src = raceLeader.participant.profilePicture;
-                leaderboardEntry.querySelector("#participant-name").innerText = raceLeader.participant.fullName;
+                leaderboardEntry.querySelector("#first-name").innerText = raceLeader.participant.firstName;
+                leaderboardEntry.querySelector("#last-name").innerText = raceLeader.participant.lastName;
 
                 if (raceLeader.overallTime > 0) {
                     leaderboardEntry.querySelector("#place").innerText = placeIndex;
