@@ -13,7 +13,7 @@ public interface IMessageService
     Task<List<Message>> GetMessagesAsync();
     Task<Message> GetMessageAsync(Guid messageId);
     Task<Message> AddMessageAsync(Message message);
-    Task<Message> AddMessageAsync(SmsRequest incomingSms);
+    Task<Message> AddMessageAsync(HttpContext httpContext);
     Task<string> HandleMessageAsync(Message message);
 }
 
@@ -51,6 +51,7 @@ public class MessageService : IMessageService
     public async Task<Message> AddMessageAsync(Message message)
     {
         message.Id = Guid.NewGuid();
+        message.Received = DateTime.Now;
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
 
@@ -59,17 +60,17 @@ public class MessageService : IMessageService
         return message;
     }
 
-    public async Task<Message> AddMessageAsync(SmsRequest incomingSms)
+    public async Task<Message> AddMessageAsync(HttpContext httpContext)
     {
-        var message = new Message()
+        var formData = httpContext.Request.Form;
+        var message = new Message() 
         {
-            Id = Guid.NewGuid(),
-            From = incomingSms.From,
-            Body = incomingSms.Body.Trim(),
-            FromCity = incomingSms.FromCity,
-            FromState = incomingSms.FromState,
-            FromZip = incomingSms.FromZip,
-            FromCountry = incomingSms.FromCountry,
+            From = formData["From"],
+            FromCity = formData["FromCity"],
+            FromState = formData["FromState"],
+            FromCountry = formData["FromCountry"],
+            FromZip = formData["FromZip"],
+            Body = formData["Body"],
             Received = DateTime.UtcNow
         };
 
@@ -120,7 +121,7 @@ public class MessageService : IMessageService
         
         if (messageBody.Replace(" ", "").All(char.IsDigit))
         {
-            return new ("CHECKIN", messageParts.Skip(1).ToArray());
+            return new ("CHECKIN", messageParts.ToArray());
         }
 
         if (messageParts[0].Trim().ToUpper(CultureInfo.InvariantCulture) == "START")

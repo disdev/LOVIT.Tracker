@@ -1,0 +1,36 @@
+@page
+@using LOVIT.Tracker.Utilities
+@model LOVIT.Tracker.Pages.Admin.Checkins.UnconfirmedModel
+
+<h1>Unconfirmed Checkins</h1>
+
+<div class="row">
+    @foreach (var checkin in Model.Checkins)
+    {
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        <h5><a asp-page="/participants/index" asp-route-id="@checkin.Participant.Bib">#@checkin.Participant.Bib - @checkin.Participant.FullName</a></h5>
+                        <input type="hidden" id="checkinId" name="checkinId" value="@checkin.Id" />
+                        <div class="mb-3">
+                            <label for="checkinWhen" class="form-label">Checkin Time</label>
+                            <input type="datetime-local" class="form-control" id="checkinWhen" name="checkinWhen" value="@checkin.When.ToLocalTime().ToString("s")">
+                        </div>
+                        <div class="mb-3">
+                            <label for="checkinSegmentId" class="form-label">Segment</label>
+                            <select id="checkinSegmentId" name="checkinSegmentId" asp-for="@checkin.SegmentId" class="form-select" asp-items="ViewBag.Segments"></select>
+                        </div>
+                        <div class="mb-3">
+                            <p>Segment Time: @TimeHelpers.FormatSeconds(checkin.Elapsed)</p>
+                            <p>Segment Pace: @TimeHelpers.CalculatePace(checkin.Elapsed, checkin.Segment.Distance)</p>
+                            <p>From: @Model.Monitors.Where(x => x.PhoneNumber == @checkin.Message.From).First().Name (@checkin.Message.From)</p>
+                        </div>
+                        <button type="submit" name="confirm" class="btn btn-primary mb-3">Confirm</button>
+                        <a asp-page="/admin/checkins/delete" asp-route-id="@checkin.Id" class="btn btn-danger mb-3">Delete</a>
+                    </form>
+                </div>
+            </div>
+        </div>   
+    }
+</div>

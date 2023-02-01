@@ -29,19 +29,19 @@ public class CheckinService : ICheckinService
     private readonly IMonitorService _monitorService;
     private readonly IWatcherService _watcherService;
     private readonly ISegmentService _segmentService;
-    // private readonly ITwilioService _twilioService;
+    private readonly ITwilioService _twilioService;
     //private readonly ILeaderboardService _leaderboardService;
     private readonly SlackService _slackService;
     private readonly ILeaderService _leaderService;
 
-    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService)
+    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITwilioService twilioService)
     {
         _context = context;
         _participantService = participantService;
         _monitorService = monitorService;
         _watcherService = watcherService;
         _segmentService = segmentService;
-        // _twilioService = twilioService;
+        _twilioService = twilioService;
         _slackService = slackService;
         _leaderService = leaderService;
     }
@@ -169,8 +169,8 @@ public class CheckinService : ICheckinService
                 var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
 
                 // Send a message to Slack
-                var slackMessage = $"{participant.FullName} ({participant.Bib}) checked into {segment.ToCheckpoint?.Name}, {segment.TotalDistance} miles. ";
-                slackMessage += $"{segment.Distance} at {segmentPaceString} pace";
+                //var slackMessage = $"{participant.FullName} ({participant.Bib}) checked into {segment.ToCheckpoint?.Name}, {segment.TotalDistance} miles. ";
+                //slackMessage += $"{segment.Distance} at {segmentPaceString} pace";
                 
                 if (confirmAutomatically)
                 {
@@ -182,19 +182,16 @@ public class CheckinService : ICheckinService
                     {
                         await _participantService.SetParticipantStatusAsync(participant.Id, Status.Finished);
                     }
-
-                    // Update the leader record
-
                 }
                 else
                 {
                     // If the checkin isn't automatically confirmed, send a message to the admin.
-                    slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
-                    // await _twilioService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
+                    //slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
+                    await _twilioService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
                 }
 
                 // Post the slack message.
-                await _slackService.PostMessageAsync(slackMessage, SlackService.Channel.Checkins);
+                //await _slackService.PostMessageAsync(slackMessage, SlackService.Channel.Checkins);
                 
                 break;
             }
