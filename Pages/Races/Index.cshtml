@@ -3,6 +3,11 @@
 @using Utilities
 @model LOVIT.Tracker.Pages.Races.IndexModel
 
+@section Styles {
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+}
+
 <div class="row">
     <div class="col">
         <h1 class="p-2">@Model.Race.Code</h1>
@@ -10,14 +15,15 @@
 </div>
 <div class="row">
     <div class="col">
-        <div id="race-grid-@Model.Race.Code" data-race="@Model.Race.Code" class="grid ag-theme-alpine"></div>
+        <div id="race-grid" data-race="@Model.Race.Code" class="grid ag-theme-alpine"></div>
     </div>
 </div>
 
 @section Scripts {
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+<script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
     let race, leaders, segments, checkins, gridOptions;
     let raceId = "@Html.Raw(Model.Race.Id)";
@@ -50,11 +56,6 @@
         return response.json();
     }
 
-    function calculatePaceInSeconds(paceInSeconds) {
-        var minutes = (paceInSeconds / 60).ToString();
-        var seconds = String(paceInSeconds % 60).padStart(2, "0");
-    }
-
     function formatSecondsToTime(secondsElapsed) {
         var hours = Math.floor(secondsElapsed / 3600);
         var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
@@ -77,36 +78,38 @@
     }
 
     getData().then((data) => {
+        var tableData = [];
         var raceStart = new Date(race.start);
 
         var columns = [
-            { headerName: "#", field: "place", pinned: "left" },
-            { headerName: "Bib", field: "bib", pinned: "left" },
-            { headerName: "Participant", field: "participant", pinned: "left", cellRenderer: function(params) {
-                let id = "";
-                if (params.data.bib) {
-                    id = params.data.bib;
-                } else {
-                    id = params.data.participantId;
+            { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
+            { title: "Bib", field: "bib", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+            { title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter:"link", formatterParams: {
+                url: function (cell) { 
+                    var data = cell.getData();
+                    return `/participants?id=${data.participantId}`;
                 }
-                return `<a href="/participants?id=${id}">${params.value}</a>`;
             }}
         ];
 
         segments.forEach((segment) => {
             columns.push({
-                headerName: `${segment.totalDistance}`,
-                field: `segment${segment.order}`
+                title: `${segment.totalDistance}`,
+                field: `segment${segment.order}`,
+                vertAlign: "middle", 
+                hozAlign: "center", 
+                headerHozAlign: "center", 
+                headerSort: false
             });
         });
 
-        var tableData = [];
+        
         var placeIndex = 1;
         leaders.forEach((leader) => {
             var leaderData = {
                 place: placeIndex,
                 bib: leader.participant.bib,
-                participant: leader.participant.fullName,
+                name: leader.participant.fullName,
                 participantId: leader.participant.id
             };
 
@@ -125,16 +128,12 @@
             placeIndex++;
         });
 
-        gridOptions = {
-            domLayout: "autoHeight",
-            columnDefs: columns,
-            rowData: tableData,
-            suppressColumnVirtualisation: true
-        };
+        var table = new Tabulator("#race-grid",{
+            data: tableData,
+            layout: "fitColumns",
+            columns: columns
+        });
 
-        var gridDiv = document.getElementById(`race-grid-${race.code}`);
-        new agGrid.Grid(gridDiv, gridOptions);
-        autoSizeColumns(false);
         loadingOverlay.cancel(spinner);
     });
 </script>

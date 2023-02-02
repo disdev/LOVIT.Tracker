@@ -39,7 +39,8 @@ public class IndexModel : PageModel
 
     public async Task OnGet(string id)
     {
-        await LoadData(id);
+        Participant = await _participantService.GetParticipantAsync(id, true);
+        //await LoadData(id);
         await SetNotificationOptions();
         ViewData["Title"] = Participant.FullName;
     }
@@ -61,7 +62,6 @@ public class IndexModel : PageModel
 
     public async Task LoadData(string participantId)
     {
-        Participant = await _participantService.GetParticipantAsync(participantId, true);
         Segments = await _segmentService.GetSegmentsAsync(Participant.RaceId);
         Race = await _raceService.GetRaceAsync(Participant.RaceId);
 
@@ -70,10 +70,10 @@ public class IndexModel : PageModel
             Participant = await _participantService.GetParticipantWithCheckinsAsync(Participant.Id);
         }
 
-        var predictions = new List<SegmentPredictionModelInput>();
+        //var predictions = new List<SegmentPredictionModelInput>();
         if (Participant.Status == Status.Registered || (Participant.Status == Status.Started && Participant.Checkins.Count == 0))
         {
-            predictions = await _predictionService.GetEstimatesAsync(Participant, Segments, Race.Code, 0);
+            //predictions = await _predictionService.GetEstimatesAsync(Participant, Segments, Race.Code, 0);
         }
         else if (Participant.Status == Status.Started)
         {
@@ -81,7 +81,7 @@ public class IndexModel : PageModel
             var checkinSegmentIds = Participant.Checkins.Where(x => x.Confirmed == true).Select(x => x.SegmentId).ToList();
             var missingSegments = Segments.Where(x => !checkinSegmentIds.Contains(x.Id)).OrderBy(x => x.Order).ToList();
             var lastCheckin = Participant.Checkins.OrderBy(x => x.When).Last();
-            predictions = await _predictionService.GetEstimatesAsync(Participant, missingSegments, Race.Code, (lastCheckin.When - Race.Start).TotalSeconds);
+            //predictions = await _predictionService.GetEstimatesAsync(Participant, missingSegments, Race.Code, (lastCheckin.When - Race.Start).TotalSeconds);
         }
 
         Int64 lastCheckinOverallPace = 0;
@@ -121,6 +121,7 @@ public class IndexModel : PageModel
             }
             else if (Participant.Status == Status.Started || Participant.Status == Status.Registered)
             {
+                /*
                 detail.Estimated = true;
 
                 // get the estimate
@@ -144,6 +145,7 @@ public class IndexModel : PageModel
                 detail.OverallPace = TimeHelpers.FormatPace(TimeHelpers.CalculatePaceInSeconds(Race.Start, detail.CheckinDateTime, segment.TotalDistance));
 
                 lastCheckinDateTime = detail.CheckinDateTime;
+                */
             }/*
             else if (Participant.Status == Status.Registered)
             {

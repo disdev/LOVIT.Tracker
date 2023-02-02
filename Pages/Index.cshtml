@@ -6,63 +6,45 @@
     ViewData["Title"] = "Home";
 }
 
+@section Styles {
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+}
+
 <div class="row-fluid">
     <div class="col">
         <ul class="nav nav-pills nav-justified device-small d-lg-none pb-3 mx-auto" role="tablist" id="race-tabs">
             @foreach (var race in Model.Races)
             {
                 <li class="nav-item">
-                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code" type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
+                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code"
+                    type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
                 </li>
             }
         </ul>
     </div>
 </div>
 
-<div class="d-none">
-    <li id="row-template" class="list-group-item">
-        <div class="d-flex align-items-center">
-            <div class="flex-shrink-0 px-2">
-                <span id="place"></span>
-            </div>
-            <div class="flex-shrink-0 px-1 d-none d-md-flex">
-                <img id="profile-image" style="max-width: 60px;" src="https://via.placeholder.com/60">
-            </div>
-            <div class="flex-grow-1 px-2">
-                <a id="link">
-                    <span id="first-name" class="d-none d-sm-inline"></span>
-                    <span id="last-name" class="d-xs-inline"></span>
-                </a>
-            </div>
-            <div class="px-4">
-                <span id="distance"></span>
-            </div>
-            <div class="px-4">
-                <span id="time"></span>
-            </div>
-            <div class="px-2 d-none d-md-flex">
-                <span id="pace"></span>
-            </div>
-        </div>
-    </li>
-</div>
-
 <div class="tab-content d-flex">
     @foreach (var race in Model.Races)
     {
-        <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
+        <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel"
+        aria-labelledby="tab-@race.Code">
             <div class="card">
                 <div class="card-header">
                     <h1 class="text-center p-2">@race.Code</h1>
                 </div>
-                <ul id="leaderboard-@race.Code" class="list-group list-group-flush"></ul>
-            </div>
+                <div id="leaderboard-@race.Code" style="max-height: 100%;"></div>
+            </div> 
         </div>
     }
 </div>
 
 @section Scripts {
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+<script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
+
 <script type="text/javascript">
     let races, leaders;
     let spinner = loadingOverlay.activate();
@@ -83,16 +65,11 @@
         return response.json();
     }
 
-    function calculatePaceInSeconds(paceInSeconds) {
-        var minutes = (paceInSeconds / 60).ToString();
-        var seconds = String(paceInSeconds % 60).padStart(2, "0");
-    }
-
     function formatSecondsToTime(secondsElapsed) {
         var hours = Math.floor(secondsElapsed / 3600);
         var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
         var seconds = Math.round(secondsElapsed - hours * 3600 - minutes * 60);
-        
+
         if (secondsElapsed >= 3600) {
             return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         } else {
@@ -102,26 +79,44 @@
 
     getData().then((data) => {
         races.forEach((race) => {
-            var leaderboard = document.getElementById(`leaderboard-${race.code}`);
-            var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id );
+            var tableData = [];
+            var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id);
             var placeIndex = 1;
+
             raceLeaders.forEach((raceLeader) => {
-                var leaderboardEntry = rowTemplate.cloneNode(true);
-                
-                leaderboardEntry.querySelector("#profile-image").src = raceLeader.participant.profilePicture;
-                leaderboardEntry.querySelector("#first-name").innerText = raceLeader.participant.firstName;
-                leaderboardEntry.querySelector("#last-name").innerText = raceLeader.participant.lastName;
-                leaderboardEntry.querySelector("#link").href = `/participants?id=${raceLeader.participant.bibOrId}`;
+                var row = {
+                    participantId: raceLeader.participantId,
+                    place: placeIndex,
+                    name: raceLeader.participant.fullName,
+                    picture: raceLeader.participant.profilePicture
+                };
 
                 if (raceLeader.overallTime > 0) {
-                    leaderboardEntry.querySelector("#place").innerText = placeIndex;
-                    leaderboardEntry.querySelector("#distance").innerText = `${raceLeader.lastSegment.totalDistance} miles`;
-                    leaderboardEntry.querySelector("#time").innerText = formatSecondsToTime(raceLeader.overallTime);
-                    leaderboardEntry.querySelector("#pace").innerText = formatSecondsToTime(raceLeader.overallPace);
+                    row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
+                    row.time = formatSecondsToTime(raceLeader.overallTime);
+                    row.pace = formatSecondsToTime(raceLeader.overallPace);
                 }
-                
-                leaderboard.appendChild(leaderboardEntry);
+
+                tableData.push(row);
                 placeIndex++;
+            });
+
+            var table = new Tabulator(`#leaderboard-${race.code}`, {
+                data: tableData,
+                layout: "fitColumns",
+                columns: [
+                    { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
+                    { title: "", field: "picture", formatter: "image", formatterParams: { height: "48px", width: "48px" }, width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
+                    { title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter:"link", formatterParams: {
+                        url: function (cell) { 
+                            var data = cell.getData();
+                            return `/participants?id=${data.participantId}`;
+                        }
+                    }},
+                    { title: "Distance", field: "distance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                    { title: "Time", field: "time", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                    { title: "Pace", field: "pace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false }
+                ]
             });
         });
 

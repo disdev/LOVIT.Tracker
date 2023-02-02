@@ -4,10 +4,12 @@
 @using LOVIT.Tracker.Models;
 
 @section Styles {
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
 <style>
-.table {
-    min-width: 1000px;
-}
+    .table {
+        min-width: 1000px;
+    }
 </style>
 }
 
@@ -36,7 +38,8 @@
     <div class="col-xs-12 col-lg-3 col-auto me-2">
         @if (Model.IsAuthenticated && Model.PhoneNumberSet == false)
         {
-            <div class="alert alert-info">To receive notifications, first set your phone number in your <a asp-page="/account/profile">profile</a>. Then, you can return here to sign up.</div>
+            <div class="alert alert-info">To receive notifications, first set your phone number in your <a
+                asp-page="/account/profile">profile</a>. Then, you can return here to sign up.</div>
         }
         else if (Model.IsAuthenticated && Model.PhoneNumberSet == true)
         {
@@ -44,8 +47,10 @@
             {
                 <div class="w-100 text-end">
                     <a class="btn btn-info" asp-page="/participants/watch" asp-route-participantId="@Model.Participant.Id">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
-                            <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell"
+                    viewBox="0 0 16 16">
+                            <path
+                        d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
                         </svg>
                         Get notifications
                     </a>
@@ -54,55 +59,130 @@
         }
         else
         {
-            <div class="alert alert-info">To receive notifications, create your account and set your phone number in your profile. Then, you can return here to sign up.</div>
+            <div class="alert alert-info">To receive notifications, create your account and set your phone number in your
+                profile. Then, you can return here to sign up.</div>
         }
-        
+
     </div>
 </div>
 
 <div class="row">
     <div class="col">
-        <span class="p-2 fw-light fst-italic">Times in italics are estimates based on our custom prediction algorithm.</span>
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">
-                            <span class="d-md-none">#</span>
-                            <span class="d-none d-md-block">Segment</span>
-                        </th>
-                        <th scope="col" class="text-center">Distance</th>
-                        <th scope="col" class="text-center">Total<br/>Distance</th>
-                        <th scope="col" class="text-center">Checkin</th>
-                        <th scope="col" class="text-center">Segment<br/>Time</th>
-                        <th scope="col" class="text-center">Segment<br/>Pace</th>
-                        <th scope="col" class="text-center">Overall<br/>Time</th>
-                        <th scope="col" class="text-center">Overall<br/>Pace</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var segment in Model.ParticipantData.OrderBy(x => x.Order))
-                    {
-                        <tr class="@(segment.Estimated ? "fst-italic table-secondary" : "")">
-                            <th scope="row">
-                                <a asp-page="/segments/index" asp-route-id="@segment.SegmentId">
-                                    <span class="d-none d-md-inline">@segment.SegmentName</span>
-                                    <span class="d-xs-inline d-md-none">@segment.Order</span>
-                                </a>
-                            </th>
-                            <td class="text-center">@segment.Distance</td>
-                            <td class="text-center">@segment.TotalDistance</td>
-                            <td class="text-center">
-                                @(segment.CheckinDateTime.Year > 1 ? @segment.CheckinDateTime.ToLocalTime().ToString("ddd h:mm tt") : "")
-                            </td>
-                            <td class="text-center">@segment.SegmentTime</td>
-                            <td class="text-center">@segment.SegmentPace</td>
-                            <td class="text-center">@segment.OverallTime</td>
-                            <td class="text-center">@segment.OverallPace</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div id="participant-table" class="max-height: 100%;">
         </div>
     </div>
 </div>
+
+@section Scripts {
+<script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+<script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
+
+<script>
+    let race, segments, participant, checkins;
+    let _participantId = "@Html.Raw(Model.Participant.Id)";
+    let spinner = loadingOverlay.activate();
+
+    async function getData() {
+        participant = await getParticipant(_participantId);
+        race = await getRace(participant.raceId);
+        segments = await getSegments(participant.raceId);
+        checkins = await getCheckins(participant.id);
+    }
+
+    async function getRace(raceId) {
+        const response = await fetch(`/api/races/${raceId}`);
+        return response.json();
+    }
+
+    async function getSegments(raceId) {
+        const response = await fetch(`/api/segments/${raceId}`);
+        return response.json();
+    }
+
+    async function getParticipant(participantId) {
+        const response = await fetch(`/api/participants/${participantId}`);
+        return response.json();
+    }
+
+    async function getCheckins(participantId) {
+        const response = await fetch(`/api/participants/${participantId}/checkins`);
+        return response.json();
+    }
+
+    function formatSecondsToTime(secondsElapsed) {
+        var hours = Math.floor(secondsElapsed / 3600);
+        var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
+        var seconds = Math.round(secondsElapsed - hours * 3600 - minutes * 60);
+
+        if (secondsElapsed >= 3600) {
+            return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        } else {
+            return `${minutes}:${String(seconds).padStart(2, "0")}`;
+        }
+    }
+
+    getData().then(() => {
+        var tableData = [];
+        var previousSegmentEmpty = false;
+
+        segments.forEach((segment) => {
+            var checkin = checkins.find((c) => c.segmentId === segment.id);
+            var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
+
+            var row = {
+                number: segment.order++,
+                name: segment.name,
+                distance: segment.distance,
+                totalDistance: segment.totalDistance,
+                segment: segment
+            };
+
+            if (checkin) {
+                var checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`);
+                row.when = checkinWhen.toFormat("EEE t");
+
+                if (!previousSegmentEmpty) {
+                    row.segmentTime = formatSecondsToTime(checkin.elapsed);
+                    row.segmentPace = formatSecondsToTime(checkin.elapsed / segment.distance);
+                }
+                var totalElapsed = checkinWhen.diff(raceStart).as("seconds");
+                row.overallTime = formatSecondsToTime(totalElapsed);
+                row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
+
+                previousSegmentEmpty = false;
+            } else {
+                previousSegmentEmpty = true;
+            }
+
+            tableData.push(row);
+        });
+
+        var table = new Tabulator("#participant-table", {
+            data: tableData, //assign data to table
+            layout: "fitColumns", //fit columns to width of table (optional)
+            columns: [ //Define Table Columns
+                { title: "Order", field: "number", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                {
+                    title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter: "link", formatterParams: {
+                        url: function (cell) {
+                            var data = cell.getData();
+                            return `/segments?id=${data.participantId}`;
+                        }
+                    }
+                },
+                { title: "Distance", field: "distance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Total Distance", field: "totalDistance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Checkin", field: "when", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Segment Time", field: "segmentTime", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Segment Pace", field: "segmentPace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Overall Time", field: "overallTime", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "OverallPace", field: "overallPace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false }
+            ]
+        });
+
+        loadingOverlay.cancel(spinner);
+    });
+
+</script>
+}

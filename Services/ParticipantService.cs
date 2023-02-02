@@ -90,7 +90,7 @@ public class ParticipantService : IParticipantService
             query = query.Include(x => x.Race);
         }
 
-        return await query.Include(x => x.Checkins).SingleAsync();
+        return await query.Include(x => x.Checkins).AsNoTracking().SingleAsync();
     }
 
     public async Task<List<Participant>> GetParticipantsByDroppedStatusAsync()

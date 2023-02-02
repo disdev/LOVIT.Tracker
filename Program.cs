@@ -4,11 +4,17 @@ using LOVIT.Tracker.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Auth0.AspNetCore.Authentication;
+using Twilio.TwiML;
+using Twilio.AspNet.Core;
+using Twilio.AspNet.Common;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddDbContext<TrackerContext>(options =>
-//    options.UseSqlite("Data Source=Tracker.db"));
+/*
+builder.Services.AddDbContext<TrackerContext>(options =>
+    options.UseSqlite("Data Source=Tracker.db"));
+*/
 builder.Services.AddDbContext<TrackerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -124,9 +130,9 @@ app.MapGet("/api/seed", async (ISeedService seedService) =>
     await seedService.Initialize();
 });
 
-app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, int numberOfParticipants, ISeedService seedService) =>
+app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, int numberOfParticipants, bool addCheckins, ISeedService seedService) =>
 {
-    await seedService.SimulateRace(raceId, numberOfParticipants, hourLimit);
+    await seedService.SimulateRace(raceId, numberOfParticipants, addCheckins, hourLimit);
 });
 
 app.MapGet("/api/races", async (IRaceService raceService) =>
@@ -164,10 +170,14 @@ app.MapGet("/api/participants", async (IParticipantService participantService) =
     return await participantService.GetParticipantsAsync();
 });
 
-
 app.MapGet("/api/participants/{participantId}", async (Guid participantId, IParticipantService participantService) =>
 {
     return await participantService.GetParticipantAsync(participantId);
+});
+
+app.MapGet("/api/participants/{participantId}/checkins", async (Guid participantId, ICheckinService checkinService) =>
+{
+    return await checkinService.GetCheckinsForParticipantAsync(participantId);
 });
 
 app.MapGet("/api/leaders", async (ILeaderService leaderService) => 
@@ -195,20 +205,14 @@ app.MapGet("/api/participants/sync", async (IRaceService raceService) =>
     await raceService.SyncParticipantsWithUltraSignup();
 });
 
-/*
-app.MapPost("/api/messages", async (IMessageService messageService) =>
+app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService messageService) =>
 {
-    
-    var message = await messageService.AddMessageAsync(incomingSms);
+    var message = await messageService.AddMessageAsync(httpContext);
     var responseBody = await messageService.HandleMessageAsync(message);
-
-    // update the leaderboard
-
+    
     var response = new MessagingResponse();
     response.Message(responseBody);
     return new TwiMLResult(response);
-    
 });
-*/
 
 app.Run();
