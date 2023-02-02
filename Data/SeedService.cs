@@ -14,7 +14,7 @@ namespace LOVIT.Tracker.Models;
 public interface ISeedService
 {
     Task Initialize();
-    Task SimulateRace(Guid raceId, int numberOfParticipants, int hours);
+    Task SimulateRace(Guid raceId, int numberOfParticipants, bool addCheckins, int hours);
 }
 
 public class SeedService : ISeedService
@@ -46,12 +46,15 @@ public class SeedService : ISeedService
         var monitors = AddMonitors(checkpoints);
     }
 
-    public async Task SimulateRace(Guid raceId, int numberOfParticipants, int hours)
+    public async Task SimulateRace(Guid raceId, int numberOfParticipants, bool addCheckins, int hours)
     {
         var race = await _context.Races.Where(x => x.Id == raceId).Include(x => x.Segments).FirstAsync();
         var participants = await AddParticipants(race, numberOfParticipants);
 
-        var result = await AddCheckins(race, participants, (hours > 0), hours);
+        if (addCheckins) 
+        { 
+            var result = await AddCheckins(race, participants, (hours > 0), hours);
+        }
     }
 
     private List<Race> AddRaces()
