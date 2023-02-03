@@ -9,6 +9,12 @@
 @section Styles {
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+<style>
+.leaderboard {
+    max-height: 100%;
+    width: 100%;
+}
+</style>
 }
 
 <div class="row-fluid">
@@ -34,7 +40,7 @@
                 <div class="card-header">
                     <h1 class="text-center p-2">@race.Code</h1>
                 </div>
-                <div id="leaderboard-@race.Code" style="max-height: 100%;"></div>
+                <div id="leaderboard-@race.Code" class="leaderboard"></div>
             </div> 
         </div>
     }

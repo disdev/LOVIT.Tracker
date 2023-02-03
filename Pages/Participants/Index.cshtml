@@ -7,9 +7,12 @@
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
 <style>
-    .table {
-        min-width: 1000px;
-    }
+.tabulator-row.tabulator-row-even {
+    background-color: #fff;
+}
+.tabulator-row {
+    border-bottom: 1px solid #ccc;
+}
 </style>
 }
 
@@ -68,7 +71,13 @@
 
 <div class="row">
     <div class="col">
-        <div id="participant-table" class="max-height: 100%;">
+        <p class="fst-italic">Times in italics are estimated based on our machine learning algorithm.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div id="participant-table" style="max-height: 100%;">
         </div>
     </div>
 </div>
@@ -79,7 +88,7 @@
 <script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
 
 <script>
-    let race, segments, participant, checkins;
+    let race, segments, participant, checkins, predictions, table;
     let _participantId = "@Html.Raw(Model.Participant.Id)";
     let spinner = loadingOverlay.activate();
 
@@ -88,6 +97,7 @@
         race = await getRace(participant.raceId);
         segments = await getSegments(participant.raceId);
         checkins = await getCheckins(participant.id);
+        predictions = await getPredictions();
     }
 
     async function getRace(raceId) {
@@ -110,6 +120,59 @@
         return response.json();
     }
 
+    async function getPredictions() {
+        var segmentsToPredict = [];
+        var previousCheckin;
+        var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
+
+        segments.forEach((segment) => {
+            var checkin = checkins.find((c) => c.segmentId === segment.id);
+            var totalElapsed = 0;
+            if (!checkin) {
+                segmentsToPredict.push({
+                    fullName: participant.fullName,
+                    age: participant.age,
+                    rank: participant.rank,
+                    gender: participant.gender,
+                    raceCode: race.code,
+                    segmentOrder: segment.order,
+                    segmentDistance: segment.distance,
+                    totalDistance: segment.totalDistance,
+                    lastTotalElapsed: previousCheckin ? luxon.DateTime.fromISO(`${previousCheckin.when}Z`).diff(raceStart).as("seconds") : 0,
+                    segmentElapsed: 0
+                });
+            } else {
+                previousCheckin = checkin;
+            }
+        });
+
+        return await getMultiplePredictions(segmentsToPredict);
+    }
+
+    async function getMultiplePredictions(modelInput) {
+        const response = await fetch("https://lovit-predictions-website-dev.azurewebsites.net/api/predict/multiple",{
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(modelInput)
+        });
+        return response.json();
+    }
+
+    async function getSinglePrediction(modelInput) {
+        const response = await fetch("https://lovit-predictions-website-dev.azurewebsites.net/api/predict/single",{
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(modelInput)
+        });
+        return response.json();
+    }
+
     function formatSecondsToTime(secondsElapsed) {
         var hours = Math.floor(secondsElapsed / 3600);
         var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
@@ -122,62 +185,86 @@
         }
     }
 
+    function cellFormatter(cell) {
+        var data = cell.getData();
+        if ((data.previousSegmentPredicted && cell.getColumn().getField().startsWith("segment")) || data.predicted) {
+            cell.getElement().classList.add("fst-italic");
+            cell.getElement().style.background = "#33669924";
+        }
+        return cell.getValue();
+    }
+
     getData().then(() => {
         var tableData = [];
-        var previousSegmentEmpty = false;
+        var previousCheckin = {};
+        var previousSegmentPredicted = false;
 
         segments.forEach((segment) => {
             var checkin = checkins.find((c) => c.segmentId === segment.id);
             var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
 
             var row = {
-                number: segment.order++,
+                number: segment.order,
                 name: segment.name,
                 distance: segment.distance,
                 totalDistance: segment.totalDistance,
-                segment: segment
+                segment: segment,
+                previousSegmentPredicted: previousSegmentPredicted
             };
 
+            var checkinWhen, segmentElapsed;
             if (checkin) {
-                var checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`);
-                row.when = checkinWhen.toFormat("EEE t");
+                checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`);
+                segmentElapsed = checkin.elapsed;
 
-                if (!previousSegmentEmpty) {
-                    row.segmentTime = formatSecondsToTime(checkin.elapsed);
-                    row.segmentPace = formatSecondsToTime(checkin.elapsed / segment.distance);
-                }
-                var totalElapsed = checkinWhen.diff(raceStart).as("seconds");
-                row.overallTime = formatSecondsToTime(totalElapsed);
-                row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
-
-                previousSegmentEmpty = false;
+                previousCheckin = checkin;
+                previousSegmentPredicted = true;
             } else {
-                previousSegmentEmpty = true;
+                var prediction = predictions.find((p) => p.segmentOrder === segment.order);
+                var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}`);
+
+                segmentElapsed = prediction.segmentElapsed;
+                checkinWhen = previousCheckinWhen.plus({ seconds: prediction.segmentElapsed });
+                
+                previousCheckin = {
+                    when: checkinWhen
+                };
+                previousSegmentPredicted = true;
+                row.predicted = true;
             }
+            
+            row.when = checkinWhen.toFormat("EEE t");
+            
+            row.segmentTime = formatSecondsToTime(segmentElapsed);
+            row.segmentPace = formatSecondsToTime(segmentElapsed / segment.distance);
+
+            var totalElapsed = checkinWhen.diff(raceStart).as("seconds");
+            row.overallTime = formatSecondsToTime(totalElapsed);
+            row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
 
             tableData.push(row);
         });
 
-        var table = new Tabulator("#participant-table", {
-            data: tableData, //assign data to table
-            layout: "fitColumns", //fit columns to width of table (optional)
-            columns: [ //Define Table Columns
-                { title: "Order", field: "number", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+        table = new Tabulator("#participant-table", {
+            data: tableData, 
+            layout: "fitColumns",
+            columns: [ 
+                { title: "Order", field: "number", width: 70, frozen: true, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
                 {
-                    title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter: "link", formatterParams: {
+                    title: "Name", field: "name", width: 325, vertAlign: "middle", headerSort: false, formatter: "link", formatterParams: {
                         url: function (cell) {
                             var data = cell.getData();
                             return `/segments?id=${data.participantId}`;
                         }
                     }
                 },
-                { title: "Distance", field: "distance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "Total Distance", field: "totalDistance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "Checkin", field: "when", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "Segment Time", field: "segmentTime", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "Segment Pace", field: "segmentPace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "Overall Time", field: "overallTime", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                { title: "OverallPace", field: "overallPace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false }
+                { title: "Distance", field: "distance", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Total Distance", field: "totalDistance", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
+                { title: "Checkin", field: "when", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, formatter: cellFormatter },
+                { title: "Segment Time", field: "segmentTime", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, formatter: cellFormatter },
+                { title: "Segment Pace", field: "segmentPace", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, formatter: cellFormatter },
+                { title: "Overall Time", field: "overallTime", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, formatter: cellFormatter },
+                { title: "OverallPace", field: "overallPace", minWidth: 120, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, formatter: cellFormatter }
             ]
         });
 

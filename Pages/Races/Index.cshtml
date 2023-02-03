@@ -6,6 +6,12 @@
 @section Styles {
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+<style>
+    #race-grid {
+        max-height: 100%;
+        width: 100%;
+    }
+</style>
 }
 
 <div class="row">
@@ -15,7 +21,7 @@
 </div>
 <div class="row">
     <div class="col">
-        <div id="race-grid" data-race="@Model.Race.Code" class="grid ag-theme-alpine"></div>
+        <div id="race-grid"></div>
     </div>
 </div>
 
@@ -82,9 +88,9 @@
         var raceStart = new Date(race.start);
 
         var columns = [
-            { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
-            { title: "Bib", field: "bib", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-            { title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter:"link", formatterParams: {
+            { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, frozen: true },
+            { title: "Bib", field: "bib", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false, frozen: true },
+            { title: "Name", field: "name", vertAlign: "middle", headerSort: false, frozen: true, formatter:"link", formatterParams: {
                 url: function (cell) { 
                     var data = cell.getData();
                     return `/participants?id=${data.participantId}`;
