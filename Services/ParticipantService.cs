@@ -13,6 +13,7 @@ public interface IParticipantService
     Task<List<Participant>> GetParticipantsAsync(Guid raceId);
     Task<List<Participant>> GetParticipantsAsync(string raceCode);
     Task<Participant> GetParticipantAsync(string id, bool includeRace = false);
+    Task<Participant> GetParticipantFromLinkCodeAsync(Guid linkCode);
     Task<Participant> GetParticipantAsync(Guid participantId, bool includeRace = false);
     Task<Participant> GetParticipantWithCheckinsAsync(Guid participantId, bool includeRace = false);
     Task<Participant> AddOrUpdateParticipantAsync(Participant participant);
@@ -63,6 +64,11 @@ public class ParticipantService : IParticipantService
         }
 
         return await _context.Participants.Where(x => x.Id == participantId).SingleAsync();
+    }
+
+    public async Task<Participant> GetParticipantFromLinkCodeAsync(Guid linkCode) 
+    {
+        return await _context.Participants.Where(x => x.LinkCode == linkCode).SingleAsync();
     }
 
     public async Task<Participant> GetParticipantAsync(string id, bool includeRace = false)
@@ -169,9 +175,9 @@ public class ParticipantService : IParticipantService
         return participant;
     }
 
-    public async Task<Participant> LinkParticipantToUserIdAsync(Guid participantId, string userId, string profileImageUrl = "")
+    public async Task<Participant> LinkParticipantToUserIdAsync(Guid linkCode, string userId, string profileImageUrl = "")
     {
-        var participant = await GetParticipantAsync(participantId);
+        var participant = await GetParticipantFromLinkCodeAsync(linkCode);
         participant.UserId = userId;
         if (!String.IsNullOrEmpty(profileImageUrl))
         {

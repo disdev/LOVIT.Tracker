@@ -22,10 +22,10 @@ public class LinkModel : PageModel
 
     public Participant Participant { get; set; } = new();
 
-    public async Task OnGetAsync(Guid participantId)
+    public async Task OnGetAsync(Guid linkCode)
     {
         var userId = User.Claims?.FirstOrDefault(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", StringComparison.OrdinalIgnoreCase))?.Value;
         var user = await _auth0Service.GetUserAsync(userId);
-        Participant = await _participantService.LinkParticipantToUserIdAsync(participantId, userId, user.Picture);
+        Participant = await _participantService.LinkParticipantToUserIdAsync(linkCode, userId, user.Picture);
     }
 }

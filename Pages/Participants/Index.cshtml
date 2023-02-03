@@ -218,7 +218,7 @@
                 segmentElapsed = checkin.elapsed;
 
                 previousCheckin = checkin;
-                previousSegmentPredicted = true;
+                previousSegmentPredicted = false;
             } else {
                 var prediction = predictions.find((p) => p.segmentOrder === segment.order);
                 var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}`);

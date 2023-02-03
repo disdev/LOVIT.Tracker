@@ -39,6 +39,7 @@ public class Participant
     public float Rank { get; set; }
     public string UltraSignupEmail { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
+    public Guid? LinkCode { get; set; }
     public List<Checkin> Checkins { get; set; } = new();
     public List<Watcher> Watchers { get; set; } = new();
     [NotMapped]
