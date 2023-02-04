@@ -203,6 +203,10 @@
             var checkin = checkins.find((c) => c.segmentId === segment.id);
             var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
 
+            if (segment.order === 1) {
+                previousCheckin.when = raceStart;
+            }
+
             var row = {
                 number: segment.order,
                 name: segment.name,
@@ -212,7 +216,6 @@
                 previousSegmentPredicted: previousSegmentPredicted
             };
 
-            var checkinWhen, segmentElapsed;
             if (checkin) {
                 checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`);
                 segmentElapsed = checkin.elapsed;
