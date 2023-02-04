@@ -257,7 +257,7 @@
                     title: "Name", field: "name", width: 325, vertAlign: "middle", headerSort: false, formatter: "link", formatterParams: {
                         url: function (cell) {
                             var data = cell.getData();
-                            return `/segments?id=${data.participantId}`;
+                            return `/segments?id=${data.segment.id}`;
                         }
                     }
                 },
