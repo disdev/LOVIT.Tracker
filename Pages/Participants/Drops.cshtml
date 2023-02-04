@@ -18,8 +18,10 @@
                         <th class="text-center">Bib</th>
                         <th>Participant</th>
                         <th>Status</th>
+                        <th class="text-center">Segment</th>
                         <th class="text-center">Distance</th>
                         <th class="text-center">Time</th>
+                        <th class="text-center">Time Of Day</th>
                     </thead>
                     <tbody>
                         @foreach (var row in Model.Leaders.Select((x, i) => new { data = x, index = i }))
@@ -27,16 +29,22 @@
                             <tr>
                                 <td class="text-center">@row.data.Participant.Bib</td>
                                 <td>
-                                    <a asp-page="/participants/details" asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a>
+                                    <a asp-page="/participants/index" asp-route-id="@row.data.Participant.BibOrId">@row.data.Participant.FullName</a>
                                 </td>
                                 <td>
                                     <span class="badge @row.data.Participant.StatusClass" style="margin-left: 5px;">@row.data.Participant.Status.ToString()</span>
+                                </td>
+                                <td class="text-center">
+                                    @row.data.LastSegment.Name
                                 </td>
                                 <td class="text-center">
                                     @row.data.LastSegment?.TotalDistance
                                 </td>
                                 <td class="text-center">
                                     @TimeHelpers.FormatSeconds(row.data.OverallTime)
+                                </td>
+                                <td class="text-center">
+                                    @row.data.LastCheckin.When.ToLocalTime().ToString("ddd h:mm tt")
                                 </td>
                             </tr>
                         }
