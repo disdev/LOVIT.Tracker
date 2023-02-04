@@ -27,3 +27,11 @@ public class SegmentPredictionModelOuput
 {
     public float SegmentElapsed { get; set; }
 }
+
+public class SegmentPredictionInput
+{
+    public Leader Leader { get; set; }
+    public Segment Segment { get; set; }
+    public double LastTotalElapsed { get; set; }
+    public string RaceCode { get; set; }
+}
