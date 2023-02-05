@@ -22,6 +22,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
 builder.Services.Configure<Auth0Config>(builder.Configuration.GetSection("Auth0Config"));
 builder.Services.Configure<PredictionConfig>(builder.Configuration.GetSection("PredictionConfig"));
+builder.Services.Configure<GraphMailConfig>(builder.Configuration.GetSection("GraphMailConfig"));
 
 builder.Services.AddScoped<ISeedService, SeedService>();
 builder.Services.AddScoped<ICheckinService, CheckinService>();
@@ -38,6 +39,7 @@ builder.Services.AddScoped<ITwilioService, TwilioService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddSingleton<SlackService>();
+builder.Services.AddScoped<IGraphMailService, GraphMailService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -213,6 +215,16 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
     var response = new MessagingResponse();
     response.Message(responseBody);
     return new TwiMLResult(response);
+});
+
+app.MapGet("/api/mail", async (IParticipantService participantService) => 
+{
+    await participantService.SendParticipantProfileEmails();
+});
+
+app.MapGet("/api/mail/{participantId}", async (Guid participantId, IParticipantService participantService) => 
+{
+    await participantService.SendParticipantProfileEmail(participantId);
 });
 
 app.Run();

@@ -25,17 +25,21 @@ public interface IParticipantService
     Task<Participant?> GetParticipantByUserIdAsync(string userId);
     Task<List<Participant>> GetParticipantsByDroppedStatusAsync();
     Task<Participant> UpdateParticipantWithCheckinAsync(Checkin checkin, Segment segment);
+    Task SendParticipantProfileEmails();
+    Task SendParticipantProfileEmail(Guid participantId);
 }
 
 public class ParticipantService : IParticipantService
 {
     private readonly TrackerContext _context;
     private readonly ILeaderService _leaderService;
+    private readonly IGraphMailService _graphMailService;
 
-    public ParticipantService(TrackerContext context, ILeaderService leaderService)
+    public ParticipantService(TrackerContext context, ILeaderService leaderService, IGraphMailService graphMailService)
     {
         _context = context;
         _leaderService = leaderService;
+        _graphMailService = graphMailService;
     }
 
     public async Task<List<Participant>> GetParticipantsAsync()
@@ -179,6 +183,7 @@ public class ParticipantService : IParticipantService
     {
         var participant = await GetParticipantFromLinkCodeAsync(linkCode);
         participant.UserId = userId;
+        participant.Linked = true;
         if (!String.IsNullOrEmpty(profileImageUrl))
         {
             participant.PictureUrl = profileImageUrl;
@@ -202,5 +207,27 @@ public class ParticipantService : IParticipantService
     public async Task<Participant?> GetParticipantByUserIdAsync(string userId)
     {
         return await _context.Participants.SingleOrDefaultAsync(p => p.UserId == userId);
+    }
+
+    public async Task SendParticipantProfileEmails()
+    {
+        var template = File.ReadAllText("Templates/ParticipantRegistration.html");
+        var participants = await GetParticipantsAsync();
+
+        foreach (var participant in participants)
+        {
+            var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
+            emailBody = template.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
+            await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail,participant.FullName, "LOViT Tracking Profile", emailBody);
+        }
+    }
+
+    public async Task SendParticipantProfileEmail(Guid participantId)
+    {
+        var template = File.ReadAllText("Templates/ParticipantRegistration.html");
+        var participant = await GetParticipantAsync(participantId);
+        var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
+        emailBody = template.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
+        await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail, participant.FullName, "LOViT Tracking Profile", emailBody);
     }
 }
