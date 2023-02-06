@@ -217,8 +217,8 @@ public class ParticipantService : IParticipantService
         foreach (var participant in participants)
         {
             var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
-            emailBody = template.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
-            await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail,participant.FullName, "LOViT Tracking Profile", emailBody);
+            emailBody = emailBody.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
+            await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail, participant.FullName, "LOViT Tracking Profile", emailBody);
         }
     }
 
@@ -227,7 +227,7 @@ public class ParticipantService : IParticipantService
         var template = File.ReadAllText("Templates/ParticipantRegistration.html");
         var participant = await GetParticipantAsync(participantId);
         var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
-        emailBody = template.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
+        emailBody = emailBody.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
         await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail, participant.FullName, "LOViT Tracking Profile", emailBody);
     }
 }
