@@ -1,0 +1,249 @@
+﻿@page
+@model LOVIT.Tracker.Pages.Maps.ParticipantsModel
+@{
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+<style>
+    #map {
+        height: 800px;
+    }
+</style>
+}
+
+<div class="row">
+    <div class="col">
+        <div id="map"></div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<script src="/js/leaflet-measure-path.js"></script>
+<script>
+    let leaders, races, segments, checkpoints, predictions, layer;
+    let segmentCache = {}; // this includes all elevationData for individual segments.
+
+    async function getLeaders() {
+        const response = await fetch("/api/leaders");
+        return response.json();
+    }
+
+    async function getRaces() {
+        const response = await fetch("/api/races");
+        return response.json();
+    }
+
+    async function getSegments() {
+        const response = await fetch("/api/segments");
+        return response.json();
+    }
+
+    async function getCheckpoints() {
+        const response = await fetch("/api/checkpoints");
+        return response.json();
+    }
+
+    async function getPredictions() {
+        var segmentsToPredict = [];
+        races.forEach((race) => {
+            race.start = luxon.DateTime.fromISO(`${race.start}Z`);
+        });
+
+        leaders.forEach((leader) => {
+            var race = races.find((race) => race.id === leader.participant.raceId);
+            
+            if (leader.participant.status = 2) {
+                var nextSegment = getNextSegment(leader);
+                
+                segmentsToPredict.push({
+                    fullName: leader.participant.fullName,
+                    age: leader.participant.age,
+                    rank: leader.participant.rank,
+                    gender: leader.participant.gender,
+                    raceCode: race.code,
+                    segmentOrder: nextSegment.order,
+                    segmentDistance: nextSegment.distance,
+                    totalDistance: nextSegment.totalDistance,
+                    lastTotalElapsed: leader.lastCheckin ? luxon.DateTime.fromISO(`${leader.lastCheckin.when}Z`).diff(race.start).as("seconds") : 0,
+                    segmentElapsed: 0
+                })
+            }
+        });
+
+        return await getMultiplePredictions(segmentsToPredict);
+    }
+
+    async function getMultiplePredictions(modelInput) {
+        const response = await fetch("https://lovit-predictions-website-dev.azurewebsites.net/api/predict/multiple",{
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(modelInput)
+        });
+        return response.json();
+    }
+
+    var map = L.map('map', { minZoom: 5, maxZoom: 16 })
+        .on('load', setupMap)
+        .setView([34.55, -93.335], 13);
+
+    var basemaps = {
+        USGSTopo: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 20,
+            attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
+        })
+    };
+
+    L.control.layers(basemaps).addTo(map);
+
+    basemaps.USGSTopo.addTo(map);
+
+    var lineStyle = {
+        "color": "blue",
+        "weight": 5,
+        "opacity": 1
+    };
+
+    layer = L.geoJSON(null, { "onEachFeature": onEachFeature }).addTo(map);
+    layer.setStyle(lineStyle);
+
+    function onEachFeature(f, l) {
+        //console.log(calculateDistance(f.geometry.coordinates[0]));
+        //console.log(f.geometry.coordinates[0]);
+    }
+
+    function getNextSegment(leader) {
+        var nextSegment;
+        if (!leader.lastSegment) {
+            nextSegment = segments.find((s) => s.order === 1);
+        } else {
+            nextSegment = segments.find((s) => s.order === (leader.lastSegment.order + 1));
+        }
+
+        return nextSegment;
+    }
+
+    async function setupMap() {
+        races = await getRaces();
+        segments = await getSegments();
+        checkpoints = await getCheckpoints();
+        leaders = await getLeaders();
+        predictions = await getPredictions();
+        
+        for (var race of races) {
+            for (var segment of segments.filter((segment) => segment.raceId === race.id)) {
+                await drawSegment(segment, race.code);
+            }
+        }
+        
+        for (var checkpoint of checkpoints) {
+            // drawCheckpoint(checkpoint);
+        }
+
+        for (var prediction of predictions) {
+            var leader = leaders.find((leader) => leader.participant.fullName === prediction.fullName);
+            var nextSegment = getNextSegment(leader);
+            var lastCheckinTime = luxon.DateTime.fromISO(`${leader.lastCheckin ? leader.lastCheckin.when : race.start}Z`);
+            var predictedCheckinTime = lastCheckinTime.plus({ seconds: prediction.segmentElapsed });
+            var elapsed = luxon.DateTime.now().diff(lastCheckinTime).as("seconds");
+            var percentDone = elapsed / prediction.segmentElapsed;
+            var distanceEstimate = Math.min(percentDone * nextSegment.distance, nextSegment.distance);
+            var segmentGeoJson = segmentCache[nextSegment.geoJson];
+            expectedPoint = getClosestPoint(distanceEstimate, segmentGeoJson.features[0].geometry.coordinates[0]);
+            var participantIcon = L.icon({
+                iconUrl: leader.participant.profilePicture,
+                iconSize:     [24, 24], // size of the icon
+                iconAnchor:   [12, 12], // point of the icon which will correspond to marker's location
+                popupAnchor:  [0, -12] // point from which the popup should open relative to the iconAnchor
+            });
+            L.marker(expectedPoint, { icon: participantIcon })
+                .bindPopup(`<a href="/participants?id=${leader.participant.id}" target="_blank">${leader.participant.fullName}</a>`)
+                .addTo(map);
+        }
+
+        
+    }
+
+    function fitMap() {
+        var bounds = layer.getBounds();
+        map.fitBounds(bounds);
+    }
+
+    async function drawSegment(segment, code) {
+        let segmentJson;
+        if (!segmentCache[segment.geoJson]) {
+            segmentJson = await (await fetch(`/js/maps/segments/${code}/${segment.geoJson}`)).json();
+            segmentCache[segment.geoJson] = segmentJson;
+        } else {
+            segmentJson = segmentCache[segment.geoJson];
+        }
+        layer.addData(segmentJson);
+        layer.setStyle(lineStyle);
+    }
+
+    function drawCheckpoint(checkpoint) {
+        var checkpointGeoJson = JSON.parse(checkpoint.geoJson);
+
+        var circle = L.circle([checkpointGeoJson.geometry.coordinates[1], checkpointGeoJson.geometry.coordinates[0]], {
+            color: "red",
+            fillColor: "red",
+            fillOpacity: 1,
+            radius: 30
+        }).addTo(map);
+        circle.bindPopup(checkpoint.name);
+    }
+
+    function calculateDistance(coords) {
+        var totalDistance = 0.00;
+
+        for (let i = 0; i < coords.length; i++) {
+            if (i > 0) {
+                var pointA = L.latLng(coords[i - 1][1], coords[i - 1][0]);
+                var pointB = L.latLng(coords[i][1], coords[i][0]);
+                var pointDistance = pointA.distanceTo(pointB);
+                totalDistance = totalDistance + pointDistance;
+            }
+        }
+
+        return totalDistance * 0.000621371192;
+    }
+
+    function getClosestPoint(distance, coords) {
+        var totalDistance = 0.00;
+        var distanceGap = 0;
+        var closestPoint;
+
+        for (let i = 0; i < coords.length; i++) {
+            if (i > 0) {
+                var pointA = L.latLng(coords[i - 1][1], coords[i - 1][0]);
+                var pointB = L.latLng(coords[i][1], coords[i][0]);
+                var pointDistance = pointA.distanceTo(pointB);
+                totalDistance = totalDistance + (pointDistance * 0.000621371192);
+                
+                if (distanceGap >= 0) {
+                    distanceGap = distance - totalDistance;
+
+                    if (distanceGap <= 0) {
+                        closestPoint = pointB;
+                    }
+                }
+            }
+        }
+
+        if (!closestPoint) {
+            closestPoint = L.latLng(coords[coords.length - 1][1], coords[coords.length - 1][0]);
+        }
+
+        return closestPoint;
+    }
+
+</script>
+}

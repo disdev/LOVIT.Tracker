@@ -50,8 +50,8 @@ public class MessageService : IMessageService
 
     public async Task<Message> AddMessageAsync(Message message)
     {
+        // THIS IS ONLY USED BY THE SEED SERVICE
         message.Id = Guid.NewGuid();
-        message.Received = DateTime.Now;
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
 
@@ -62,6 +62,7 @@ public class MessageService : IMessageService
 
     public async Task<Message> AddMessageAsync(HttpContext httpContext)
     {
+        // THIS IS USED BY THE MESSAGE HANDLER
         var formData = httpContext.Request.Form;
         var message = new Message() 
         {

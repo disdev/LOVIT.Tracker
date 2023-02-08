@@ -23,13 +23,15 @@ public class SeedService : ISeedService
     private readonly IMessageService _messageService;
     private readonly ICheckinService _checkinService;
     private readonly IParticipantService _participantService;
+    private readonly IRaceService _raceService;
 
-    public SeedService(TrackerContext context, IMessageService messageService, ICheckinService checkinService, IParticipantService participantService)
+    public SeedService(TrackerContext context, IMessageService messageService, ICheckinService checkinService, IParticipantService participantService, IRaceService raceService)
     {
         _context = context;
         _messageService = messageService;
         _checkinService = checkinService;
         _participantService = participantService;
+        _raceService = raceService;
     }
 
     public async Task Initialize()
@@ -52,7 +54,8 @@ public class SeedService : ISeedService
         var participants = await AddParticipants(race, numberOfParticipants);
 
         if (addCheckins) 
-        { 
+        {
+            await _raceService.StartRace("+1111111111", race.Code, DateTime.UtcNow.AddHours(hours * -1));
             var result = await AddCheckins(race, participants, (hours > 0), hours);
         }
     }
