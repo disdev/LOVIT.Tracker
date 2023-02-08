@@ -27,11 +27,11 @@
     mixpanel.track('Page');
     var identity = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(7).First().Value : "")";
     if (identity != "") {
-      var firstName = "@Html.Raw(User.Claims.Skip(1).First().Value)";
-      var lastName = "@Html.Raw(User.Claims.Skip(2).First().Value)";
+      var firstName = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(1).First().Value : "")";
+      var lastName = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(2).First().Value : ""))";
       mixpanel.identify(identity);
-      mixpanel.people.set_once({ "Account Name": "@Html.Raw(User.Identity.Name)" });
-      mixpanel.people.set({ "Name": `${firstName} ${lastName}` });
+      mixpanel.people.set({ "email": "@(User.Identity.IsAuthenticated ? User.Identity.Name : "")" });
+      mixpanel.people.set({ "name": `${firstName} ${lastName}` });
     }
     </script>
     <script type="text/javascript">
