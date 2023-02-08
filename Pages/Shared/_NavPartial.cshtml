@@ -21,7 +21,7 @@
         <div class="collapse navbar-collapse" id="raceNavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" asp-page="/index">Dashboard</a>
+                    <a class="nav-link" asp-page="/index">Leaderboard</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-page="/participants/watchlist">Watchlist</a>
@@ -53,25 +53,32 @@
                         }
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-page="/maps/index">Maps</a>
-                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
-                        Charts
+                        Maps
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-page="/charts/checkins">Checkins by Checkpoint</a>
-                        <a class="dropdown-item" asp-page="/charts/participanttimeline">Participant Timeline</a>
+                        <a class="dropdown-item" asp-page="/maps/index">Course</a>
+                        <a class="dropdown-item" asp-page="/maps/weather">Weather</a>
                     </div>
                 </li>
                 @if (User.Identity.IsAuthenticated && User.IsInRole("Administrator"))
                 {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                            Charts
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-page="/charts/checkins">Checkins by Checkpoint</a>
+                            <a class="dropdown-item" asp-page="/charts/participanttimeline">Participant Timeline</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
                             Admin
                         </a>
                         <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-page="/admin/dashboard">Dashboard</a>
                             <a class="dropdown-item" asp-page="/admin/checkins/unconfirmed">Unconfirmed Checkins</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" asp-page="/admin/alertmessages/index">Alerts</a>

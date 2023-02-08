@@ -1,0 +1,116 @@
+@page
+@model LOVIT.Tracker.Pages.Admin.DashboardModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles {
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+<style>
+    #race-grid {
+        max-height: 100%;
+        width: 100%;
+    }
+</style>
+}
+
+
+@foreach (var race in Model.Races)
+{
+<div class="row">
+    <div class="col">
+        <h2>@race.Code Participants By Status</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Registered</h5>
+                <h1>@Model.IncomingParticipants.Count(x => x.Leader.Participant.Status == Models.Status.Registered && x.RaceCode == @race.Code)</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">DNS</h5>
+                <h1>@Model.IncomingParticipants.Count(x => x.Leader.Participant.Status == Models.Status.DNS && x.RaceCode == @race.Code)</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Started</h5>
+                <h1>@Model.IncomingParticipants.Count(x => x.Leader.Participant.Status == Models.Status.Started && x.RaceCode == @race.Code)</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Finished</h5>
+                <h1>@Model.IncomingParticipants.Count(x => x.Leader.Participant.Status == Models.Status.Finished && x.RaceCode == @race.Code)</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">DNF</h5>
+                <h1>@Model.IncomingParticipants.Count(x => x.Leader.Participant.Status == Models.Status.DNF && x.RaceCode == @race.Code)</h1>
+            </div>
+        </div>
+    </div>
+</div>   
+}
+
+<h2>Overdue Runners</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Participant</th>
+            <th>Race</th>
+            <th>Status</th>
+            <th>Last Checkin</th>
+            <th>Next Segment</th>
+            <th>Due Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.IncomingParticipants.OrderBy(x => x.DueDate)) {
+        <tr>
+            <td>@item.Leader.Participant.FullName</td>
+            <td>@item.RaceCode</td>
+            <td>@item.Leader.Participant.Status</td>
+            @if (item.Leader.LastCheckin != null) {
+                <td>@item.Leader.LastCheckin.When</td>
+            } else {
+                <td></td>
+            }
+            @if (item.Leader.Participant.Status == Models.Status.Started || item.Leader.Participant.Status == Models.Status.Registered) {
+                <td>@item.NextSegment.Name</td>
+            } else {
+                <td></td>
+            }
+            @if (item.Prediction != null) {
+                <td class="@item.RowClass">@item.DueDate.ToLocalTime()</td>
+            } else {
+                <td></td>
+            }
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
+<script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
+<script>
+
+</script>
+}

@@ -9,7 +9,7 @@
     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
 <style>
     #map {
-        height: 400px;
+        height: 600px;
     }
 </style>
 }
@@ -66,10 +66,16 @@
         .on('load', setupMap)
         .setView([34.55, -93.335], 13);
 
-    L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 20,
-        attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
-    }).addTo(map);
+    var basemaps = {
+        USGSTopo: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 20,
+            attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
+        })
+    };
+
+    L.control.layers(basemaps).addTo(map);
+
+    basemaps.USGSTopo.addTo(map);
 
     var lineStyle = {
         "color": "blue",

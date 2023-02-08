@@ -1,5 +1,6 @@
 @page
 @model LOVIT.Tracker.Pages.Admin.Participants.EditModel
+@using LOVIT.Tracker.Models
 
 @{
     ViewData["Title"] = "Edit";
@@ -12,7 +13,6 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Participant.Id" />
             <div class="form-group">
                 <label asp-for="Participant.Bib" class="control-label"></label>
@@ -46,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Gender" class="control-label"></label>
-                <select asp-for="Participant.Gender" class="form-control"></select>
+                <select asp-for="Participant.Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-control"></select>
                 <span asp-validation-for="Participant.Gender" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -56,7 +56,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Status" class="control-label"></label>
-                <select asp-for="Participant.Status" class="form-control"></select>
+                <select asp-for="Participant.Status" asp-items="Html.GetEnumSelectList<Status>()" class="form-control"></select>
                 <span asp-validation-for="Participant.Status" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -78,11 +78,6 @@
                 <label asp-for="Participant.UltraSignupEmail" class="control-label"></label>
                 <input asp-for="Participant.UltraSignupEmail" class="form-control" />
                 <span asp-validation-for="Participant.UltraSignupEmail" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Participant.UserId" class="control-label"></label>
-                <input asp-for="Participant.UserId" class="form-control" />
-                <span asp-validation-for="Participant.UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

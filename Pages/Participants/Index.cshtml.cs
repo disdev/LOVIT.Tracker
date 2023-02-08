@@ -40,6 +40,7 @@ public class IndexModel : PageModel
     public async Task OnGet(string id)
     {
         Participant = await _participantService.GetParticipantAsync(id, true);
+        Race = await _raceService.GetRaceAsync(Participant.RaceId);
         //await LoadData(id);
         await SetNotificationOptions();
         ViewData["Title"] = Participant.FullName;
@@ -63,8 +64,7 @@ public class IndexModel : PageModel
     public async Task LoadData(string participantId)
     {
         Segments = await _segmentService.GetSegmentsAsync(Participant.RaceId);
-        Race = await _raceService.GetRaceAsync(Participant.RaceId);
-
+        
         if (Participant.Status != Status.Registered || Participant.Status != Status.DNS)
         {
             Participant = await _participantService.GetParticipantWithCheckinsAsync(Participant.Id);

@@ -86,11 +86,11 @@ public class MessageService : IMessageService
     {
         // First check that we know who this is.
         var isValidMonitor = await _monitorService.IsValidMonitor(message.From);
-        if (!isValidMonitor)
+        if (!isValidMonitor && !message.Body.ToUpper().StartsWith("SETUP"))
         {
             await _twilioService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
             await _slackService.PostMessageAsync($"{message.From} sent an unhandled message: {message.Body}", SlackService.Channel.Exceptions);
-            return $"This is an automated system that handles race updates. We cannot respond personally to incoming messages.";
+            return $"This is an automated system that handles race updates. We cannot respond to incoming messages.";
         }   
 
         // Get the message intent

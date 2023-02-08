@@ -4,6 +4,8 @@
 @using LOVIT.Tracker.Models;
 
 @section Styles {
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
 <link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
 <style>
@@ -24,7 +26,8 @@
             </div>
             <div>
                 <h2>
-                    @Model.Participant.FullName
+                    @Model.Participant.FullName 
+                    <button id="map-modal-button" class="mx-4 btn btn-primary" data-bs-toggle="modal" data-bs-target="#map-modal"><i class="bi bi-map"></i></button>
                 </h2>
                 @if (!String.IsNullOrEmpty(Model.Participant.Bib))
                 {
@@ -65,7 +68,6 @@
             <div class="alert alert-info">To receive notifications, create your account and set your phone number in your
                 profile. Then, you can return here to sign up.</div>
         }
-
     </div>
 </div>
 
@@ -82,15 +84,60 @@
     </div>
 </div>
 
+<div class="modal fade" id="map-modal" tabindex="-1" aria-labelledby="map-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-fullscreen-md-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="map-modal-label">Participant Location</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="map" style="width: 100%; height: 400px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section Scripts {
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
 <script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+    integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+<script src="/js/leaflet-measure-path.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/10.3.2/themes/grid-light.min.js"
+    integrity="sha512-Hsek8k83ikrWUFBEBxui5ePxtBxcXIuVHhiwSKMBJT5pucTIfW4Uuu9m0vw8qCVLGmw58YS0g8WiwcI5TXVgCg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-    let race, segments, participant, checkins, predictions, table;
+    let race, segments, participant, checkins, predictions, table, lastSegment, lastCheckin, map, mapLayer, expectedPoint;
     let _participantId = "@Html.Raw(Model.Participant.Id)";
+    let _raceCode = "@Html.Raw(Model.Race.Code)";
     let spinner = loadingOverlay.activate();
+
+    const mapModal = document.getElementById("map-modal");
+    mapModal.addEventListener("shown.bs.modal", modalShown);
+    mapModal.addEventListener("show.bs.modal", modalShow);
+
+    function modalShow() {
+        spinner = loadingOverlay.activate();
+    }
+
+    function modalShown() {
+        map.invalidateSize();
+        setTimeout(() => {
+            var bounds = mapLayer.getBounds();
+            map.fitBounds(bounds);
+            loadingOverlay.cancel(spinner);
+        }, 1000);
+    }
 
     async function getData() {
         participant = await getParticipant(_participantId);
@@ -142,6 +189,7 @@
                     segmentElapsed: 0
                 });
             } else {
+                lastSegment = segment;
                 previousCheckin = checkin;
             }
         });
@@ -194,7 +242,78 @@
         return cell.getValue();
     }
 
+    function getClosestPoint(distance, coords) {
+        var totalDistance = 0.00;
+        var distanceGap = 0;
+        var closestPoint;
+
+        for (let i = 0; i < coords.length; i++) {
+            if (i > 0) {
+                var pointA = L.latLng(coords[i - 1][1], coords[i - 1][0]);
+                var pointB = L.latLng(coords[i][1], coords[i][0]);
+                var pointDistance = pointA.distanceTo(pointB);
+                totalDistance = totalDistance + (pointDistance * 0.000621371192);
+                
+                if (distanceGap >= 0) {
+                    distanceGap = distance - totalDistance;
+
+                    if (distanceGap <= 0) {
+                        closestPoint = pointB;
+                    }
+                }
+            }
+        }
+
+        if (!closestPoint) {
+            closestPoint = L.latLng(coords[coords.length - 1][1], coords[coords.length - 1][0]);
+        }
+
+        return closestPoint;
+    }
+
+    function setupMap() {
+        map = L.map('map', { minZoom: 5, maxZoom: 16 })
+        .setView([34.55, -93.335], 13);
+
+        L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 20,
+            attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
+        }).addTo(map);
+
+        var nextSegment;
+        if (!lastSegment) {
+            nextSegment = segments.find((s) => s.order === 1);
+        } else {
+            nextSegment = segments.find((s) => s.order === (lastSegment.order + 1));
+        }
+
+        fetch(`/js/maps/segments/${_raceCode}/${nextSegment.geoJson}`)
+            .then((response) => response.json())
+            .then((data) => {
+                mapLayer = L.geoJson().addTo(map);
+                mapLayer.addData(data);
+
+                var prediction = predictions.find((p) => p.segmentOrder === nextSegment.order);
+                var lastCheckinTime = luxon.DateTime.fromISO(`${lastCheckin ? lastCheckin.when : race.start}Z`);
+                var predictedCheckinTime = lastCheckinTime.plus({ seconds: prediction.segmentElapsed });
+                var elapsed = luxon.DateTime.now().diff(lastCheckinTime).as("seconds");
+                var percentDone = elapsed / prediction.segmentElapsed;
+                var distanceEstimate = Math.min(percentDone * nextSegment.distance, nextSegment.distance);
+                console.log(distanceEstimate, data);
+
+                expectedPoint = getClosestPoint(distanceEstimate, data.features[0].geometry.coordinates[0]);
+                L.marker(expectedPoint).addTo(map);    
+            });
+    }
+
     getData().then(() => {
+        if (participant.status == 2) {
+            setupMap();
+        } else {
+            var button = document.getElementById("map-modal-button");
+            button.style.display = "none";
+        }
+        
         var tableData = [];
         var previousCheckin = {};
         var previousSegmentPredicted = false;
@@ -222,6 +341,7 @@
 
                 previousCheckin = checkin;
                 previousSegmentPredicted = false;
+                lastCheckin = checkin;
             } else {
                 var prediction = predictions.find((p) => p.segmentOrder === segment.order);
                 var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}`);

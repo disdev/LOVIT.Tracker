@@ -9,9 +9,9 @@ using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
 using LOVIT.Tracker.Services;
 
-namespace LOVIT.Tracker.Pages.Admin.Participants
+namespace LOVIT.Tracker.Pages.Admin
 {
-    public class IncomingModel : PageModel
+    public class DashboardModel : PageModel
     {
         private readonly IRaceService _raceService;
         private readonly ISegmentService _segmentService;
@@ -19,7 +19,7 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
         private readonly ILeaderService _leaderService;
         private readonly IPredictionService _predictionService;
 
-        public IncomingModel(IRaceService raceService, ISegmentService segmentService, IParticipantService participantService, ILeaderService leaderService, IPredictionService predictionService)
+        public DashboardModel(IRaceService raceService, ISegmentService segmentService, IParticipantService participantService, ILeaderService leaderService, IPredictionService predictionService)
         {
             _raceService = raceService;
             _segmentService = segmentService;
@@ -29,9 +29,9 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
         }
 
         public IList<Leader> Leaders { get;set; } = default!;
-        public IList<Segment> Segments { get; set; }
-        public IList<Race> Races { get; set; }
-        public List<IncomingViewModel> IncomingParticipants { get; set; }
+        public IList<Segment> Segments { get; set; } = default!;
+        public IList<Race> Races { get; set; } = default!;
+        public List<IncomingViewModel> IncomingParticipants { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
@@ -86,9 +86,8 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
                 var race = Races.Where(x => x.Id == incomingParticipant.Leader.Participant.RaceId).First();
                 incomingParticipant.Prediction = prediction;
                 incomingParticipant.DueDate = race.Start.AddSeconds(incomingParticipant.Leader.OverallTime).AddSeconds(prediction.SegmentElapsed);
-                var gap = (incomingParticipant.DueDate - DateTime.Now).Minutes;
-                gap = 35;
-
+                var gap = (DateTime.UtcNow - incomingParticipant.DueDate).TotalMinutes;
+                
                 if (gap >= 30)
                 {
                     incomingParticipant.RowClass = "table-danger";
@@ -103,7 +102,7 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
                 }
                 else
                 {
-                    incomingParticipant.RowClass = "table-light";
+                    IncomingParticipants.Remove(incomingParticipant);
                 }
 
             }
