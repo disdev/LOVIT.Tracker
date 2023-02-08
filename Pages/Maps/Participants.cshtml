@@ -29,6 +29,8 @@
     let leaders, races, segments, checkpoints, predictions, layer;
     let segmentCache = {}; // this includes all elevationData for individual segments.
 
+    luxon.Settings.defaultZoneName = "America/Chicago";
+
     async function getLeaders() {
         const response = await fetch("/api/leaders");
         return response.json();
@@ -58,7 +60,7 @@
         leaders.forEach((leader) => {
             var race = races.find((race) => race.id === leader.participant.raceId);
             
-            if (leader.participant.status = 2) {
+            if (leader.participant.status == 2) {
                 var nextSegment = getNextSegment(leader);
                 
                 segmentsToPredict.push({

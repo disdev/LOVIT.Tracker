@@ -28,7 +28,7 @@
     var identity = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(7).First().Value : "")";
     if (identity != "") {
       var firstName = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(1).First().Value : "")";
-      var lastName = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(2).First().Value : ""))";
+      var lastName = "@(User.Identity.IsAuthenticated ? User.Claims.Skip(2).First().Value : "")";
       mixpanel.identify(identity);
       mixpanel.people.set({ "email": "@(User.Identity.IsAuthenticated ? User.Identity.Name : "")" });
       mixpanel.people.set({ "name": `${firstName} ${lastName}` });

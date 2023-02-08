@@ -121,6 +121,7 @@
     let _participantId = "@Html.Raw(Model.Participant.Id)";
     let _raceCode = "@Html.Raw(Model.Race.Code)";
     let spinner = loadingOverlay.activate();
+    luxon.Settings.defaultZoneName = "America/Chicago";
 
     const mapModal = document.getElementById("map-modal");
     mapModal.addEventListener("shown.bs.modal", modalShown);
@@ -294,13 +295,12 @@
                 mapLayer.addData(data);
 
                 var prediction = predictions.find((p) => p.segmentOrder === nextSegment.order);
+                //var lastCheckinTime = new Date(`${lastCheckin ? lastCheckin.when : race.start}Z`);
                 var lastCheckinTime = luxon.DateTime.fromISO(`${lastCheckin ? lastCheckin.when : race.start}Z`);
                 var predictedCheckinTime = lastCheckinTime.plus({ seconds: prediction.segmentElapsed });
                 var elapsed = luxon.DateTime.now().diff(lastCheckinTime).as("seconds");
                 var percentDone = elapsed / prediction.segmentElapsed;
                 var distanceEstimate = Math.min(percentDone * nextSegment.distance, nextSegment.distance);
-                console.log(distanceEstimate, data);
-
                 expectedPoint = getClosestPoint(distanceEstimate, data.features[0].geometry.coordinates[0]);
                 L.marker(expectedPoint).addTo(map);    
             });
@@ -344,8 +344,7 @@
                 lastCheckin = checkin;
             } else {
                 var prediction = predictions.find((p) => p.segmentOrder === segment.order);
-                var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}`);
-
+                var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}${previousSegmentPredicted ? '' : 'Z'}`);
                 segmentElapsed = prediction.segmentElapsed;
                 checkinWhen = previousCheckinWhen.plus({ seconds: prediction.segmentElapsed });
                 
@@ -362,6 +361,7 @@
             row.segmentPace = formatSecondsToTime(segmentElapsed / segment.distance);
 
             var totalElapsed = checkinWhen.diff(raceStart).as("seconds");
+            
             row.overallTime = formatSecondsToTime(totalElapsed);
             row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
 

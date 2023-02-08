@@ -182,6 +182,9 @@ public class CheckinService : ICheckinService
                     {
                         await _participantService.SetParticipantStatusAsync(participant.Id, Status.Finished);
                     }
+                    
+                    // if confirmed, and it's the first notification for a segment, send a notification to the monitors
+                    await NotifyMonitorIfFirst(segments.Skip(skipIndex + 1).First());
                 }
                 else
                 {
@@ -205,6 +208,17 @@ public class CheckinService : ICheckinService
         }
 
         return 1;
+    }
+
+    private async Task NotifyMonitorIfFirst(Segment nextSegment)
+    {
+        if (await _context.Checkins.CountAsync(x => x.SegmentId == nextSegment.Id) == 1) {
+            var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(nextSegment.ToCheckpointId.Value);
+            foreach (var checkpointMonitor in checkpointMonitors)
+            {
+                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed your way.");
+            }
+        }
     }
 
     private async Task<Checkin> InsertCheckinAsync(Guid participantId, Segment segment, DateTime when, bool confirmed, Guid messageId, uint segmentElapsed)
@@ -237,6 +251,7 @@ public class CheckinService : ICheckinService
         var checkins = await GetCheckinsForParticipantAsync(checkin.ParticipantId.GetValueOrDefault());
         var participant = await _participantService.GetParticipantAsync(checkin.ParticipantId.GetValueOrDefault(), true);
         var segment = await _segmentService.GetSegmentAsync(checkin.SegmentId.GetValueOrDefault());
+        
         var finishSegment = await _segmentService.GetFinishSegment(participant.RaceId);
 
         var lastCheckinTime = checkins.Count > 0 ? checkins.OrderByDescending(x => x.When).First().When : participant.Race!.Start;
@@ -257,6 +272,10 @@ public class CheckinService : ICheckinService
         if (segment.Id == finishSegment.Id)
         {
             await _participantService.SetParticipantStatusAsync(participant.Id, Status.Finished);
+        }
+        else
+        {
+            await NotifyMonitorIfFirst(await _segmentService.GetNextSegment(segment.RaceId, segment.Order));
         }
         
         await _context.SaveChangesAsync();

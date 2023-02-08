@@ -93,6 +93,10 @@ public class TwilioService : ITwilioService
                 await _slackService.PostMessageAsync($"Error in TwilioService: {ex.ToString()}", SlackService.Channel.Exceptions);
             }
         }
+        else
+        {
+            _logger.LogInformation($"Message not sent: {body}");
+        }
     }
 
     public async Task CreateBindingAsync(string userId, string phoneNumber)
