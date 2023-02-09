@@ -144,7 +144,6 @@
             raceLeaders.forEach((raceLeader) => {
                 var row = {
                     place: placeIndex,
-                    lastSegment: raceLeader.lastSegment.name,
                     participant: raceLeader.participant,
                     picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
                 };
@@ -154,6 +153,7 @@
                 }
 
                 if (raceLeader.overallTime > 0) {
+                    row.lastSegment = raceLeader.lastSegment.name,
                     row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
                     row.time = formatSecondsToTime(raceLeader.overallTime);
                     row.pace = formatSecondsToTime(raceLeader.overallPace);
