@@ -24,7 +24,7 @@ public enum Gender
 public class Participant
 {
     public Guid Id { get; set; }
-    public string Bib { get; set; } = string.Empty;
+    public string? Bib { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string City { get; set; } = string.Empty;
@@ -35,10 +35,10 @@ public class Participant
     public Race? Race { get; set; }
     public Status Status { get; set; }
     public bool Linked { get; set; }
-    public string PictureUrl { get; set; } = string.Empty;
+    public string? PictureUrl { get; set; }
     public float Rank { get; set; }
-    public string UltraSignupEmail { get; set; } = string.Empty;
-    public string UserId { get; set; } = string.Empty;
+    public string? UltraSignupEmail { get; set; } = string.Empty;
+    public string? UserId { get; set; } = string.Empty;
     public Guid? LinkCode { get; set; }
     public List<Checkin> Checkins { get; set; } = new();
     public List<Watcher> Watchers { get; set; } = new();

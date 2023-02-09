@@ -44,11 +44,6 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
             _context.Attach(Participant).State = EntityState.Modified;
 
             try
