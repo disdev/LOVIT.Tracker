@@ -99,4 +99,12 @@ public class Participant
             return result;
         }
     }
+
+    public string StatusText
+    {
+        get
+        {
+            return Status.ToString();
+        }
+    }
 }

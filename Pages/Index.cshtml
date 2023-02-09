@@ -40,7 +40,7 @@
                 <div class="card-header">
                     <h1 class="text-center p-2">@race.Code</h1>
                 </div>
-                <div id="leaderboard-@race.Code" class="leaderboard"></div>
+                <div id="leaderboard-container-@race.Code"></div>
             </div> 
         </div>
     }
@@ -50,11 +50,50 @@
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
 <script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script id="leaderboard-template" type="text/x-handlebars">
+    <table id="table-{{race.code}}" class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th scope="col text-center">#</th>
+                <th scope="col">Participant</th>
+                <th scope="col text-center">Distance</th>
+                <th scope="col text-center">Time</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            {{#each participants}}
+            <tr>
+                <th scope="row">{{this.place}}</th>
+                <td>
+                    <div class="d-flex">
+                        <div class="d-none d-sm-flex p-sm-2 align-items-center">
+                            <img src="{{this.participant.profilePicture}}" class="avatar rounded-3 img-responsive" style="width: 72px; height: 72px; object-fit: cover;"/>
+                        </div>
+                        <div class="d-flex flex-column p-md-2 justify-content-center">
+                            <div><a href="/participants/index?id={{this.participant.id}}">{{this.participant.fullName}}</a></div>
+                            <div><small class="text-muted">{{this.participant.hometown}}</small></div>
+                            {{#if this.participant.bib}}
+                            <div><small class="text-muted">#{{this.participant.bib}}</small></div>
+                            {{/if}}
+                        </div>
+                        <div class="d-flex align-items-center">
+                            {{#if this.includeBadge}}
+                            <span class="d-inline badge {{this.participant.statusClass}}" style="margin-left: 5px;">{{this.participant.statusText}}</span>
+                            {{/if}}
+                        </div>
+                    </div>
+                </td>
+                <td>{{this.distance}}</td>
+                <td>{{this.time}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</script>
 <script type="text/javascript">
     let races, leaders;
     let spinner = loadingOverlay.activate();
-    let rowTemplate = document.getElementById("row-template");
 
     async function getData() {
         races = await getRaces();
@@ -91,11 +130,14 @@
 
             raceLeaders.forEach((raceLeader) => {
                 var row = {
-                    participantId: raceLeader.participantId,
                     place: placeIndex,
-                    name: raceLeader.participant.fullName,
+                    participant: raceLeader.participant,
                     picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
                 };
+
+                if (raceLeader.participant.status != 0 && raceLeader.participant.status != 2) {
+                    row.includeBadge = true;
+                }
 
                 if (raceLeader.overallTime > 0) {
                     row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
@@ -107,23 +149,12 @@
                 placeIndex++;
             });
 
-            var table = new Tabulator(`#leaderboard-${race.code}`, {
-                data: tableData,
-                layout: "fitColumns",
-                columns: [
-                    { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
-                    { title: "", field: "picture", formatter: "html", formatterParams: { height: "48px", width: "48px" }, width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
-                    { title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter:"link", formatterParams: {
-                        url: function (cell) { 
-                            var data = cell.getData();
-                            return `/participants?id=${data.participantId}`;
-                        }
-                    }},
-                    { title: "Distance", field: "distance", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                    { title: "Time", field: "time", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false },
-                    { title: "Pace", field: "pace", vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false }
-                ]
-            });
+            let leaderboardTemplate = Handlebars.compile(document.getElementById("leaderboard-template").innerHTML);
+            let leaderboardData = {
+                race: race,
+                participants: tableData
+            };
+            document.getElementById(`leaderboard-container-${race.code}`).innerHTML = leaderboardTemplate(leaderboardData);
         });
 
         loadingOverlay.cancel(spinner);
