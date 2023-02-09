@@ -94,7 +94,7 @@
                     participantId: raceLeader.participantId,
                     place: placeIndex,
                     name: raceLeader.participant.fullName,
-                    picture: raceLeader.participant.profilePicture
+                    picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
                 };
 
                 if (raceLeader.overallTime > 0) {
@@ -112,7 +112,7 @@
                 layout: "fitColumns",
                 columns: [
                     { title: "Place", field: "place", width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
-                    { title: "", field: "picture", formatter: "image", formatterParams: { height: "48px", width: "48px" }, width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
+                    { title: "", field: "picture", formatter: "html", formatterParams: { height: "48px", width: "48px" }, width: 60, vertAlign: "middle", hozAlign: "center", headerHozAlign: "center", headerSort: false},
                     { title: "Name", field: "name", vertAlign: "middle", headerSort: false, formatter:"link", formatterParams: {
                         url: function (cell) { 
                             var data = cell.getData();
