@@ -6,17 +6,6 @@
     ViewData["Title"] = "Home";
 }
 
-@section Styles {
-<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator.min.css" rel="stylesheet">
-<link href="https://unpkg.com/tabulator-tables@5.4.3/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
-<style>
-.leaderboard {
-    max-height: 100%;
-    width: 100%;
-}
-</style>
-}
-
 <div class="row-fluid">
     <div class="col">
         <ul class="nav nav-pills nav-justified flex-colum d-xxl-none pb-3 mx-auto" role="tablist" id="race-tabs">
@@ -46,8 +35,6 @@
 
 @section Scripts {
 <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/luxon@3.2.1/build/global/luxon.min.js"></script>
-<script src="https://unpkg.com/tabulator-tables@5.4.3/dist/js/tabulator.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <script id="leaderboard-template" type="text/x-handlebars">
     <table id="table-{{race.code}}" class="table table-responsive table-striped">
