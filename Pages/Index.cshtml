@@ -19,12 +19,11 @@
 
 <div class="row-fluid">
     <div class="col">
-        <ul class="nav nav-pills nav-justified device-small d-lg-none pb-3 mx-auto" role="tablist" id="race-tabs">
+        <ul class="nav nav-pills nav-justified flex-colum d-xxl-none pb-3 mx-auto" role="tablist" id="race-tabs">
             @foreach (var race in Model.Races)
             {
-                <li class="nav-item">
-                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code"
-                    type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
+                <li class="nav-item" role="presentation ">
+                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code" type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
                 </li>
             }
         </ul>
@@ -34,8 +33,7 @@
 <div class="tab-content d-flex">
     @foreach (var race in Model.Races)
     {
-        <div class="flex-grow-1 d-lg-block tab-pane col-xs-12 col-xl-6 mt-2 px-md-2" id="race-@race.Code" role="tabpanel"
-        aria-labelledby="tab-@race.Code">
+        <div class="flex-grow-1 d-xxl-block tab-pane col-xs-12 col-xxl-6 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
             <div class="card">
                 <div class="card-header">
                     <h1 class="text-center p-2">@race.Code</h1>
@@ -55,16 +53,17 @@
     <table id="table-{{race.code}}" class="table table-responsive table-striped">
         <thead>
             <tr>
-                <th scope="col text-center">#</th>
+                <th scope="col" class="text-center">#</th>
                 <th scope="col">Participant</th>
-                <th scope="col text-center">Distance</th>
-                <th scope="col text-center">Time</th>
+                <th scope="col" class="d-none d-lg-table-cell text-center">Last Segment</th>
+                <th scope="col" class="text-center">Distance</th>
+                <th scope="col" class="text-center">Time</th>
             </tr>
         </thead>
         <tbody class="table-group-divider">
             {{#each participants}}
             <tr>
-                <th scope="row">{{this.place}}</th>
+                <th class="text-center align-middle" scope="row">{{this.place}}</th>
                 <td>
                     <div class="d-flex">
                         <div class="d-none d-sm-flex p-sm-2 align-items-center">
@@ -79,13 +78,27 @@
                         </div>
                         <div class="d-flex align-items-center">
                             {{#if this.includeBadge}}
-                            <span class="d-inline badge {{this.participant.statusClass}}" style="margin-left: 5px;">{{this.participant.statusText}}</span>
+                            <span class="d-inline badge {{this.participant.statusClass}} m-3">{{this.participant.statusText}}</span>
                             {{/if}}
                         </div>
                     </div>
                 </td>
-                <td>{{this.distance}}</td>
-                <td>{{this.time}}</td>
+                <td class="text-center align-middle d-none d-lg-table-cell">
+                    {{#if this.lastSegment}}
+                    {{this.lastSegment}}
+                    {{/if}}
+                </td>
+                <td class="text-center align-middle">{{this.distance}}</td>
+                <td class="text-center align-middle">
+                    <div class="d-flex flex-column justify-content-center">
+                        {{#if this.time}}
+                        <div>{{this.time}}</div>
+                        {{/if}}
+                        {{#if this.pace}}
+                        <div>{{this.pace}} pace</div>
+                        {{/if}}
+                    </div>
+                </td>
             </tr>
             {{/each}}
         </tbody>
@@ -131,6 +144,7 @@
             raceLeaders.forEach((raceLeader) => {
                 var row = {
                     place: placeIndex,
+                    lastSegment: raceLeader.lastSegment.name,
                     participant: raceLeader.participant,
                     picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
                 };
