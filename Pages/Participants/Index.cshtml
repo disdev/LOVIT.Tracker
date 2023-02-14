@@ -122,7 +122,7 @@
     let _raceCode = "@Html.Raw(Model.Race.Code)";
     let spinner = loadingOverlay.activate();
     luxon.Settings.defaultZoneName = "America/Chicago";
-
+    
     const mapModal = document.getElementById("map-modal");
     mapModal.addEventListener("shown.bs.modal", modalShown);
     mapModal.addEventListener("show.bs.modal", modalShow);
@@ -171,7 +171,7 @@
     async function getPredictions() {
         var segmentsToPredict = [];
         var previousCheckin;
-        var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
+        var raceStart = luxon.DateTime.fromISO(`${race.start}Z`, { zone: "America/Chicago" });
 
         segments.forEach((segment) => {
             var checkin = checkins.find((c) => c.segmentId === segment.id);
@@ -186,7 +186,7 @@
                     segmentOrder: segment.order,
                     segmentDistance: segment.distance,
                     totalDistance: segment.totalDistance,
-                    lastTotalElapsed: previousCheckin ? luxon.DateTime.fromISO(`${previousCheckin.when}Z`).diff(raceStart).as("seconds") : 0,
+                    lastTotalElapsed: previousCheckin ? luxon.DateTime.fromISO(`${previousCheckin.when}Z`, { zone: "America/Chicago" }).diff(raceStart).as("seconds") : 0,
                     segmentElapsed: 0
                 });
             } else {
@@ -296,9 +296,9 @@
 
                 var prediction = predictions.find((p) => p.segmentOrder === nextSegment.order);
                 //var lastCheckinTime = new Date(`${lastCheckin ? lastCheckin.when : race.start}Z`);
-                var lastCheckinTime = luxon.DateTime.fromISO(`${lastCheckin ? lastCheckin.when : race.start}Z`);
+                var lastCheckinTime = luxon.DateTime.fromISO(`${lastCheckin ? lastCheckin.when : race.start}Z`, { zone: "America/Chicago" });
                 var predictedCheckinTime = lastCheckinTime.plus({ seconds: prediction.segmentElapsed });
-                var elapsed = luxon.DateTime.now().diff(lastCheckinTime).as("seconds");
+                var elapsed = luxon.DateTime.now({ zone: "America/Chicago" }).diff(lastCheckinTime).as("seconds");
                 var percentDone = elapsed / prediction.segmentElapsed;
                 var distanceEstimate = Math.min(percentDone * nextSegment.distance, nextSegment.distance);
                 expectedPoint = getClosestPoint(distanceEstimate, data.features[0].geometry.coordinates[0]);
@@ -320,10 +320,10 @@
 
         segments.forEach((segment) => {
             var checkin = checkins.find((c) => c.segmentId === segment.id);
-            var raceStart = luxon.DateTime.fromISO(`${race.start}Z`);
+            var raceStart = luxon.DateTime.fromISO(`${race.start}Z`, { zone: "America/Chicago" });
 
             if (segment.order === 1) {
-                previousCheckin.when = raceStart;
+                previousCheckin.when = race.start;
             }
 
             var row = {
@@ -344,7 +344,7 @@
                 lastCheckin = checkin;
             } else {
                 var prediction = predictions.find((p) => p.segmentOrder === segment.order);
-                var previousCheckinWhen = luxon.DateTime.fromISO(`${previousCheckin.when}${previousSegmentPredicted ? '' : 'Z'}`);
+                var previousCheckinWhen = previousSegmentPredicted ? previousCheckin.when : luxon.DateTime.fromISO(`${previousCheckin.when}Z`, { zone: "America/Chicago" });
                 segmentElapsed = prediction.segmentElapsed;
                 checkinWhen = previousCheckinWhen.plus({ seconds: prediction.segmentElapsed });
                 
@@ -366,6 +366,7 @@
             row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
 
             tableData.push(row);
+            console.log(row);   
         });
 
         table = new Tabulator("#participant-table", {
