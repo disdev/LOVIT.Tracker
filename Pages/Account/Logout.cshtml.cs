@@ -14,7 +14,7 @@ namespace LOVIT.Tracker.Pages
             // Indicate here where Auth0 should redirect the user after a logout.
             // Note that the resulting absolute Uri must be added to the
             // **Allowed Logout URLs** settings for the app.
-            .WithRedirectUri(Url.Action("Index", "Home")!)
+            .WithRedirectUri(Url.RouteUrl("/")!)
             .Build();
 
         await HttpContext.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
