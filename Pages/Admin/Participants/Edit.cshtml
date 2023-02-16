@@ -13,30 +13,37 @@
 <div class="row">
     <div class="col-md-4">
         <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Participant.Id" />
             <div class="form-group">
                 <label asp-for="Participant.Bib" class="control-label"></label>
                 <input asp-for="Participant.Bib" class="form-control" />
+                <span asp-validation-for="Participant.Bib" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.FirstName" class="control-label"></label>
                 <input asp-for="Participant.FirstName" class="form-control" />
+                <span asp-validation-for="Participant.FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.LastName" class="control-label"></label>
                 <input asp-for="Participant.LastName" class="form-control" />
+                <span asp-validation-for="Participant.LastName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.City" class="control-label"></label>
                 <input asp-for="Participant.City" class="form-control" />
+                <span asp-validation-for="Participant.City" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Region" class="control-label"></label>
                 <input asp-for="Participant.Region" class="form-control" />
+                <span asp-validation-for="Participant.Region" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Age" class="control-label"></label>
                 <input asp-for="Participant.Age" class="form-control" />
+                <span asp-validation-for="Participant.Age" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Gender" class="control-label"></label>
@@ -45,6 +52,7 @@
             <div class="form-group">
                 <label asp-for="Participant.RaceId" class="control-label"></label>
                 <select asp-for="Participant.RaceId" class="form-control" asp-items="ViewBag.RaceId"></select>
+                <span asp-validation-for="Participant.RaceId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Status" class="control-label"></label>
@@ -57,15 +65,23 @@
             </div>
             <div class="form-group">
                 <label asp-for="Participant.PictureUrl" class="control-label"></label>
-                <input data-val="false" asp-for="Participant.PictureUrl" class="form-control" />
+                <input asp-for="Participant.PictureUrl" class="form-control" />
+                <span asp-validation-for="Participant.PictureUrl" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Rank" class="control-label"></label>
                 <input asp-for="Participant.Rank" class="form-control" />
+                <span asp-validation-for="Participant.Rank" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Participant.UltraSignupEmail" class="control-label"></label>
                 <input asp-for="Participant.UltraSignupEmail" class="form-control" />
+                <span asp-validation-for="Participant.UltraSignupEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Participant.UserId" class="control-label"></label>
+                <input asp-for="Participant.UserId" class="form-control" />
+                <span asp-validation-for="Participant.UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
