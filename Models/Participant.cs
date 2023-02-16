@@ -53,7 +53,11 @@ public class Participant
     {
         get
         {
-            if (String.IsNullOrEmpty(PictureUrl) || PictureUrl == "empty")
+            if (String.IsNullOrEmpty(FirstName) || String.IsNullOrEmpty(LastName))
+            {
+                return $"https://ui-avatars.com/api/?name=X+X&rounded=true&size={128}";
+            }
+            else if (String.IsNullOrEmpty(PictureUrl) || PictureUrl == "empty")
             {
                 return $"https://ui-avatars.com/api/?name={FirstName?.Substring(0, 1)}+{LastName?.Substring(0, 1)}&rounded=true&size={128}";
             }

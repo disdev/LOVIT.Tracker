@@ -1,5 +1,6 @@
 @page
 @model LOVIT.Tracker.Pages.Admin.Participants.CreateModel
+@using LOVIT.Tracker.Models
 
 @{
     ViewData["Title"] = "Create";
@@ -45,7 +46,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Gender" class="control-label"></label>
-                <select asp-for="Participant.Gender" class="form-control"></select>
+                <select asp-for="Participant.Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-control"></select>
                 <span asp-validation-for="Participant.Gender" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -54,7 +55,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Participant.Status" class="control-label"></label>
-                <select asp-for="Participant.Status" class="form-control"></select>
+                <select asp-for="Participant.Status" asp-items="Html.GetEnumSelectList<Status>()" class="form-control"></select>
                 <span asp-validation-for="Participant.Status" class="text-danger"></span>
             </div>
             <div class="form-group form-check">

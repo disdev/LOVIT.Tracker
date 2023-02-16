@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using LOVIT.Tracker.Services;
 
 namespace LOVIT.Tracker.Pages.Admin.Participants
 {
     public class CreateModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;
+        private readonly IParticipantService _participantService;
 
-        public CreateModel(LOVIT.Tracker.Data.TrackerContext context)
+        public CreateModel(LOVIT.Tracker.Data.TrackerContext context, IParticipantService participantService)
         {
             _context = context;
+            _participantService = participantService;
         }
 
         public IActionResult OnGet()
@@ -32,13 +35,7 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
         {
-          if (!ModelState.IsValid || _context.Participants == null || Participant == null)
-            {
-                return Page();
-            }
-
-            _context.Participants.Add(Participant);
-            await _context.SaveChangesAsync();
+            var participant = await _participantService.AddOrUpdateParticipantAsync(Participant);
 
             return RedirectToPage("./Index");
         }
