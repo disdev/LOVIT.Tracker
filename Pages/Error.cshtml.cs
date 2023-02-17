@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using LOVIT.Tracker.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,15 +15,35 @@ public class ErrorModel : PageModel
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
     private readonly ILogger<ErrorModel> _logger;
+    private readonly SlackService _slackService;
 
-    public ErrorModel(ILogger<ErrorModel> logger)
+    public ErrorModel(ILogger<ErrorModel> logger, SlackService slackService)
     {
         _logger = logger;
+        _slackService = slackService;
     }
 
-    public void OnGet()
+    public async Task OnGet()
     {
+        await RecordException();
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+    }
+
+    public async Task OnPost()
+    {
+        await RecordException();
+        RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+    }
+    
+    private async Task RecordException()
+    {
+        var exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+        var error = exceptionHandlerPathFeature?.Error;
+        var errorMessage = error?.Message;
+        var path = exceptionHandlerPathFeature?.Path;
+        var queryString = this.Request.QueryString;
+        await _slackService.PostMessageAsync($"Exception: {errorMessage}, Path: {path}, Method: {this.Request.Method}, Query: {queryString}", SlackService.Channel.Exceptions);
+        _logger.LogError(error, errorMessage);
     }
 }
 
