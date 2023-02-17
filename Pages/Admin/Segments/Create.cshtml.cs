@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LOVIT.Tracker.Pages.Admin.Segments
 {
-    public class CreateModel : PageModel
+    [Authorize(Roles="Administrator")]
+public class CreateModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;
 

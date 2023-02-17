@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
 using LOVIT.Tracker.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LOVIT.Tracker.Pages.Admin.Participants
 {
+    [Authorize(Roles="Administrator")]
     public class IndexModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;

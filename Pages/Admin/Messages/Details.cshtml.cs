@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LOVIT.Tracker.Pages.Admin.Messages
 {
+    [Authorize(Roles="Administrator")]
     public class DetailsModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;

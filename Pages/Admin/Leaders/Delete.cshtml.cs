@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LOVIT.Tracker.Pages.Admin.Leaders
 {
+    [Authorize(Roles="Administrator")]
     public class DeleteModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;

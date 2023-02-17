@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
 using LOVIT.Tracker.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LOVIT.Tracker.Pages.Admin.Checkins
 {
+    [Authorize(Roles="Administrator")]
     public class DeleteModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;
