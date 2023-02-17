@@ -214,7 +214,7 @@ public class ParticipantService : IParticipantService
         var template = File.ReadAllText("Templates/ParticipantRegistration.html");
         var participants = await GetParticipantsAsync();
 
-        foreach (var participant in participants)
+        foreach (var participant in participants.Where(x => x.Linked == false))
         {
             var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
             emailBody = emailBody.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
