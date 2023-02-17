@@ -6,6 +6,15 @@
     ViewData["Title"] = "Home";
 }
 
+@section Styles {
+<style>
+.place-number {
+    font-size: 28px;
+    font-weight: 400;
+}
+</style>
+}
+
 <div class="row-fluid">
     <div class="col">
         <ul class="nav nav-pills nav-justified flex-colum d-xxl-none pb-3 mx-auto" role="tablist" id="race-tabs">
@@ -50,7 +59,7 @@
         <tbody class="table-group-divider">
             {{#each participants}}
             <tr>
-                <th class="text-center align-middle" scope="row">{{this.place}}</th>
+                <th class="place-number text-center align-middle" scope="row">{{this.place}}</th>
                 <td>
                     <div class="d-flex">
                         <div class="d-none d-sm-flex p-sm-2 align-items-center">
@@ -93,8 +102,7 @@
 </script>
 <script type="text/javascript">
     let races, leaders;
-    let spinner = loadingOverlay.activate();
-
+    
     async function getData() {
         races = await getRaces();
         leaders = await getLeaders();
@@ -122,7 +130,7 @@
         }
     }
 
-    getData().then((data) => {
+    function buildTable() {
         races.forEach((race) => {
             var tableData = [];
             var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id);
@@ -157,9 +165,21 @@
             };
             document.getElementById(`leaderboard-container-${race.code}`).innerHTML = leaderboardTemplate(leaderboardData);
         });
+    }
 
-        loadingOverlay.cancel(spinner);
-    });
+    function loadLeaderboard() {
+        let spinner = loadingOverlay.activate();
+        getData().then((data) => {
+            buildTable();
+            loadingOverlay.cancel(spinner);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadLeaderboard();
+
+        setInterval(loadLeaderboard, 300000);
+    }, false);
 
     var firstTabEl = document.querySelector('#race-tabs li:first-child a')
     var firstTab = new bootstrap.Tab(firstTabEl);
