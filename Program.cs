@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplicationInsightsTelemetry();
+
 /*
 builder.Services.AddDbContext<TrackerContext>(options =>
     options.UseSqlite("Data Source=Tracker.db"));
