@@ -141,10 +141,9 @@
         leaders = await getLeaders();
         predictions = await getPredictions();
         
-        for (var race of races) {
-            for (var segment of segments.filter((segment) => segment.raceId === race.id)) {
-                await drawSegment(segment, race.code);
-            }
+        var race = races.find((r) => r.code === "100M");
+        for (var segment of segments.filter((segment) => segment.raceId === race.id)) {
+            await drawSegment(segment, race.code);
         }
         
         for (var checkpoint of checkpoints) {
@@ -154,7 +153,13 @@
         for (var prediction of predictions) {
             var leader = leaders.find((leader) => leader.participant.fullName === prediction.fullName);
             var nextSegment = getNextSegment(leader);
-            var lastCheckinTime = luxon.DateTime.fromISO(`${leader.lastCheckin ? leader.lastCheckin.when : race.start}Z`, { zone: "America/Chicago" });
+            var lastCheckinTime;
+            if (leader.lastCheckin) {
+                lastCheckinTime = luxon.DateTime.fromISO(`${leader.lastCheckin.when}Z`, { zone: "America/Chicago" });
+            } else {
+                // race.start is already in luxon format
+                lastCheckinTime = race.start;
+            }
             var predictedCheckinTime = lastCheckinTime.plus({ seconds: prediction.segmentElapsed });
             var elapsed = luxon.DateTime.now({ zone: "America/Chicago" }).diff(lastCheckinTime).as("seconds");
             var percentDone = elapsed / prediction.segmentElapsed;

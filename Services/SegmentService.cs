@@ -43,7 +43,11 @@ public class SegmentService : ISegmentService
 
     public async Task<Segment> GetSegmentAsync(Guid segmentId)
     {
-        return await _context.Segments.Where(x => x.Id == segmentId).SingleAsync();
+        return await _context.Segments
+            .Where(x => x.Id == segmentId)
+            .Include(x => x.FromCheckpoint)
+            .Include(x => x.ToCheckpoint)
+            .SingleAsync();
     }
 
     public async Task<Segment> GetFinishSegment(Guid raceId)

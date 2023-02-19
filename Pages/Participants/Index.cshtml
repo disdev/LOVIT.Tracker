@@ -336,7 +336,7 @@
             };
 
             if (checkin) {
-                checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`);
+                checkinWhen = luxon.DateTime.fromISO(`${checkin.when}Z`, { zone: "America/Chicago" });
                 segmentElapsed = checkin.elapsed;
 
                 previousCheckin = checkin;

@@ -57,7 +57,7 @@ public class CheckinService : ICheckinService
     public async Task<List<Checkin>> GetCheckinsAsync(Guid raceId)
     {
         return await _context.Checkins
-            .Where(x => x.Participant.RaceId == raceId)
+            .Where(x => x.Participant.RaceId == raceId && x.Confirmed == true)
             .Include(x => x.Segment)
             .OrderBy(x => x.When)
             .AsNoTracking()
@@ -89,7 +89,7 @@ public class CheckinService : ICheckinService
     public async Task<List<Checkin>> GetCheckinsForParticipantAsync(Guid participantId)
     {
         return await _context.Checkins
-            .Where(x => x.ParticipantId == participantId)
+            .Where(x => x.ParticipantId == participantId && x.Confirmed == true)
             .OrderBy(x => x.Segment.Order)
             .Include(x => x.Segment)
             .ToListAsync();
@@ -98,8 +98,7 @@ public class CheckinService : ICheckinService
     public async Task<List<Checkin>> GetCheckinsForSegmentAsync(Guid segmentId)
     {
         return await _context.Checkins
-            .Where(ci => ci.SegmentId == segmentId)
-            .Where(x => x.Confirmed == true)
+            .Where(ci => ci.SegmentId == segmentId && ci.Confirmed == true)
             .Include(x => x.Participant)
             .Include(x => x.Message)
             .Include(x => x.Segment)
@@ -166,14 +165,15 @@ public class CheckinService : ICheckinService
                 checkin = await InsertCheckinAsync(participant.Id, segment, checkinTime, confirmAutomatically, message.Id, segmentTime);
                 checkinSegmentOrder = segment.Order;
 
-                var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
-
                 // Send a message to Slack
-                //var slackMessage = $"{participant.FullName} ({participant.Bib}) checked into {segment.ToCheckpoint?.Name}, {segment.TotalDistance} miles. ";
-                //slackMessage += $"{segment.Distance} at {segmentPaceString} pace";
+                var slackMessage = $"{participant.FullName} ({participant.Bib}) checked into {segment.ToCheckpoint?.Name}, {segment.TotalDistance} miles. ";
+                slackMessage += $"{segment.Distance} at {segmentPaceString} pace";
                 
                 if (confirmAutomatically)
                 {
+                    // Update leader if confirmed
+                    var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
+
                     // If the checkin is confirmed, send the watcher notifications.
                     await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
 
@@ -184,17 +184,17 @@ public class CheckinService : ICheckinService
                     }
                     
                     // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                    await NotifyMonitorIfFirst(segments.Skip(skipIndex + 1).First());
+                    await NotifyMonitorIfFirst(segments.Skip(skipIndex).First());
                 }
                 else
                 {
                     // If the checkin isn't automatically confirmed, send a message to the admin.
-                    //slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
+                    slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
                     await _twilioService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
                 }
 
                 // Post the slack message.
-                //await _slackService.PostMessageAsync(slackMessage, SlackService.Channel.Checkins);
+                await _slackService.PostMessageAsync(slackMessage, SlackService.Channel.Checkins);
                 
                 break;
             }
@@ -203,21 +203,23 @@ public class CheckinService : ICheckinService
 
         if (checkinSegmentOrder == -1 && checkin.Id == Guid.Empty)
         {
-            // await _twilioService.SendAdminMessageAsync($"Error checking in #{bib} - {participant.FullName}. No monitor recognized.");
+            await _twilioService.SendAdminMessageAsync($"Error checking in #{bib} - {participant.FullName}. No monitor recognized.");
             return 0;
         }
 
         return 1;
     }
 
-    private async Task NotifyMonitorIfFirst(Segment nextSegment)
+    private async Task NotifyMonitorIfFirst(Segment segment)
     {
-        if (await _context.Checkins.CountAsync(x => x.SegmentId == nextSegment.Id) == 1) {
-            var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(nextSegment.ToCheckpointId.Value);
+        var count = await _context.Checkins.CountAsync(x => x.SegmentId == segment.Id);
+        if (count == 1) {
+            var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(segment.ToCheckpointId.Value);
             foreach (var checkpointMonitor in checkpointMonitors)
             {
-                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed your way.");
+                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {segment.FromCheckpoint.Name} and is headed to {segment.ToCheckpoint.Name}.");
             }
+            await _twilioService.SendAdminMessageAsync($"The first participant has checked into {segment.FromCheckpoint.Name} and is headed to {segment.ToCheckpoint.Name}.");
         }
     }
 
@@ -239,7 +241,7 @@ public class CheckinService : ICheckinService
 
         if (confirmed)
         {
-            await _participantService.UpdateParticipantWithCheckinAsync(checkin, segment);
+            //await _participantService.UpdateParticipantWithCheckinAsync(checkin, segment);
         }
 
         return checkin;
@@ -251,12 +253,14 @@ public class CheckinService : ICheckinService
         var checkins = await GetCheckinsForParticipantAsync(checkin.ParticipantId.GetValueOrDefault());
         var participant = await _participantService.GetParticipantAsync(checkin.ParticipantId.GetValueOrDefault(), true);
         var segment = await _segmentService.GetSegmentAsync(checkin.SegmentId.GetValueOrDefault());
-        
+        var overallTime = Convert.ToUInt32((checkin.When - participant.Race.Start).TotalSeconds);
+        var overallPaceInSeconds = TimeHelpers.CalculatePaceInSeconds(overallTime, segment.TotalDistance);
         var finishSegment = await _segmentService.GetFinishSegment(participant.RaceId);
-
         var lastCheckinTime = checkins.Count > 0 ? checkins.OrderByDescending(x => x.When).First().When : participant.Race!.Start;
 
         checkin.Confirmed = true;
+
+        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
 
         if (segmentId.HasValue)
         {
@@ -275,12 +279,12 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            await NotifyMonitorIfFirst(await _segmentService.GetNextSegment(segment.RaceId, segment.Order));
+            await NotifyMonitorIfFirst(segment);
         }
         
         await _context.SaveChangesAsync();
 
-        await _participantService.UpdateParticipantWithCheckinAsync(checkin, segment);
+        //await _participantService.UpdateParticipantWithCheckinAsync(checkin, segment);
         await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
 
         return checkin;

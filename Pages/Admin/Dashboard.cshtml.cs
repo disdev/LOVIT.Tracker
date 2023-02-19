@@ -100,10 +100,6 @@ namespace LOVIT.Tracker.Pages.Admin
                 {
                     incomingParticipant.RowClass = "table-info";
                 }
-                else
-                {
-                    IncomingParticipants.Remove(incomingParticipant);
-                }
 
             }
         }

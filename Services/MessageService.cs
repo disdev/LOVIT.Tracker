@@ -155,7 +155,7 @@ public class MessageService : IMessageService
 
     private async Task<string> HandleStartMessage(Tuple<string, string[]> messageIntent, Message message)
     {
-        var race = await _raceService.StartRace(message.From, messageIntent.Item2[0], message.Received);
+        var race = await _raceService.StartRace(message.From, messageIntent.Item2[0].ToUpper(), message.Received);
         return $"Started {race.Code}.";
     }
 
@@ -163,6 +163,7 @@ public class MessageService : IMessageService
     {
         var monitor = await _monitorService.AddMonitor(message.From, Convert.ToInt16(messageIntent.Item2[0], CultureInfo.InvariantCulture));
         await _slackService.PostMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}", SlackService.Channel.Monitors);
+        await _twilioService.SendAdminMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}");
         return $"You're set up as a monitor for {monitor.Checkpoint?.Name}.";
     }
 
