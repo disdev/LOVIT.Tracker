@@ -16,7 +16,7 @@
             <input type="hidden" asp-for="AlertMessage.Id" />
             <div class="form-group">
                 <label asp-for="AlertMessage.Message" class="control-label"></label>
-                <input asp-for="AlertMessage.Message" class="form-control" />
+                <textarea asp-for="AlertMessage.Message" class="form-control" rows="6"></textarea>
                 <span asp-validation-for="AlertMessage.Message" class="text-danger"></span>
             </div>
             <div class="form-group">

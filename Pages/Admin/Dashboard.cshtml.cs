@@ -18,23 +18,35 @@ namespace LOVIT.Tracker.Pages.Admin
         private readonly IParticipantService _participantService;
         private readonly ILeaderService _leaderService;
         private readonly IPredictionService _predictionService;
+        private readonly IMonitorService _monitorService;
+        private readonly TrackerContext _context;
 
-        public DashboardModel(IRaceService raceService, ISegmentService segmentService, IParticipantService participantService, ILeaderService leaderService, IPredictionService predictionService)
+        public DashboardModel(IRaceService raceService, ISegmentService segmentService, IParticipantService participantService, ILeaderService leaderService, IPredictionService predictionService, IMonitorService monitorService, TrackerContext context)
         {
             _raceService = raceService;
             _segmentService = segmentService;
             _participantService = participantService;
             _leaderService = leaderService;
             _predictionService = predictionService;
+            _monitorService = monitorService;
+            _context = context;
         }
 
         public IList<Leader> Leaders { get;set; } = default!;
         public IList<Segment> Segments { get; set; } = default!;
         public IList<Race> Races { get; set; } = default!;
         public List<IncomingViewModel> IncomingParticipants { get; set; } = default!;
+        public int MessageCount { get; set; }
+
+        public int WatcherCount { get; set; }
+        public int MissingMonitorCount { get; set; }
 
         public async Task OnGetAsync()
         {
+            MessageCount = await _context.Messages.CountAsync();
+            WatcherCount = await _context.Watchers.CountAsync();
+            MissingMonitorCount = await _monitorService.GetMissingMonitorCountAsync();
+
             Races = await _raceService.GetRacesAsync();
             Leaders = await _leaderService.GetLeadersAsync();
             Segments = await _segmentService.GetSegmentsAsync();

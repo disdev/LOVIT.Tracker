@@ -68,6 +68,33 @@
 </div>   
 }
 
+<div class="row">
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Messages</h5>
+                <h1>@Model.MessageCount</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Watchers</h5>
+                <h1>@Model.WatcherCount</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Missing Monitors</h5>
+                <h1>@Model.MissingMonitorCount</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h2>Overdue Runners</h2>
 
 <table class="table">

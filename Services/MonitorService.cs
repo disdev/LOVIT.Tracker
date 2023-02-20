@@ -11,6 +11,7 @@ public interface IMonitorService
     Task<bool> IsValidMonitor(string phoneNumber, Int16 checkpoint = -1);
     Task<List<LOVIT.Tracker.Models.Monitor>> GetMonitorsForPhoneNumberAsync(string phoneNumber);
     Task<LOVIT.Tracker.Models.Monitor> AddMonitor(string phoneNumber, Int16 checkpointNumber);
+    Task<int> GetMissingMonitorCountAsync();
 }
 
 public class MonitorService : IMonitorService
@@ -82,5 +83,12 @@ public class MonitorService : IMonitorService
             .OrderBy(x => x.Checkpoint.Number)
             .Include(x => x.Checkpoint)
             .ToListAsync();
+    }
+
+    public async Task<int> GetMissingMonitorCountAsync()
+    {
+        return await _context.Checkpoints
+            .Where(x => x.Monitors.Count() == 0)
+            .CountAsync();
     }
 }

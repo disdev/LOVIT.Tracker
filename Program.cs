@@ -61,6 +61,11 @@ builder.Services.AddAuth0WebAppAuthentication(options => {
     options.Audience = Auth0Audience;
 });
 
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy("admin", p => p.RequireRole("Administrator"));
+});
+
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Tracker API", Version = "v1" });
@@ -222,11 +227,11 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
 app.MapGet("/api/mail", async (IParticipantService participantService) => 
 {
     await participantService.SendParticipantProfileEmails();
-});
+}).RequireAuthorization("admin");
 
 app.MapGet("/api/mail/{participantId}", async (Guid participantId, IParticipantService participantService) => 
 {
     await participantService.SendParticipantProfileEmail(participantId);
-});
+}).RequireAuthorization("admin");
 
 app.Run();
