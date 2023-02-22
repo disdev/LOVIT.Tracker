@@ -281,6 +281,14 @@
             attribution: '<a href="https://usgs.gov/">U.S. Geological Survey</a>'
         }).addTo(map);
 
+        var checkpointIcon = L.icon({
+            iconUrl: '/images/location.png',
+
+            iconSize:     [32, 32], // size of the icon
+            iconAnchor:   [16, 28], // point of the icon which will correspond to marker's location
+            popupAnchor:  [0, -16] // point from which the popup should open relative to the iconAnchor
+        });
+
         var nextSegment;
         if (!lastSegment) {
             nextSegment = segments.find((s) => s.order === 1);
@@ -293,6 +301,11 @@
             .then((data) => {
                 mapLayer = L.geoJson().addTo(map);
                 mapLayer.addData(data);
+
+                var fromGeoJson = JSON.parse(nextSegment.fromCheckpoint.geoJson);
+                var toGeoJson = JSON.parse(nextSegment.toCheckpoint.geoJson);
+                L.marker([fromGeoJson.geometry.coordinates[1], fromGeoJson.geometry.coordinates[0]], { icon: checkpointIcon }).addTo(map).bindPopup(nextSegment.fromCheckpoint.name);
+                L.marker([toGeoJson.geometry.coordinates[1], toGeoJson.geometry.coordinates[0]], { icon: checkpointIcon }).addTo(map).bindPopup(nextSegment.toCheckpoint.name);
 
                 var prediction = predictions.find((p) => p.segmentOrder === nextSegment.order);
                 //var lastCheckinTime = new Date(`${lastCheckin ? lastCheckin.when : race.start}Z`);
@@ -365,8 +378,7 @@
             row.overallTime = formatSecondsToTime(totalElapsed);
             row.overallPace = formatSecondsToTime(totalElapsed / segment.totalDistance);
 
-            tableData.push(row);
-            console.log(row);   
+            tableData.push(row); 
         });
 
         table = new Tabulator("#participant-table", {
