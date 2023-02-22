@@ -134,16 +134,17 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+/*
 app.MapGet("/api/seed", async (ISeedService seedService) =>
 {
     await seedService.Initialize();
-});
+}).RequireAuthorization("admin");
 
 app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, int numberOfParticipants, bool addCheckins, ISeedService seedService) =>
 {
     await seedService.SimulateRace(raceId, numberOfParticipants, addCheckins, hourLimit);
-});
-
+}).RequireAuthorization("admin");
+*/
 app.MapGet("/api/races", async (IRaceService raceService) =>
 {
     return await raceService.GetRacesAsync();
@@ -223,7 +224,7 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
     response.Message(responseBody);
     return new TwiMLResult(response);
 });
-
+/*
 app.MapGet("/api/mail", async (IParticipantService participantService) => 
 {
     await participantService.SendParticipantProfileEmails();
@@ -233,5 +234,5 @@ app.MapGet("/api/mail/{participantId}", async (Guid participantId, IParticipantS
 {
     await participantService.SendParticipantProfileEmail(participantId);
 }).RequireAuthorization("admin");
-
+*/
 app.Run();
