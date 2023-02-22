@@ -125,7 +125,7 @@
                 <td></td>
             }
             @if (item.Prediction != null) {
-                <td class="@item.RowClass">@item.DueDate.ToLocalTime()</td>
+                <td class="@item.RowClass">@item.DueDate.ToLocalTime().ToString("ddd h:mm tt")</td>
             } else {
                 <td></td>
             }
