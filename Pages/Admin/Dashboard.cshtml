@@ -120,7 +120,7 @@
             <td>@item.RaceCode</td>
             <td>@item.Leader.Participant.Status</td>
             @if (item.Leader.LastCheckin != null) {
-                <td>@item.Leader.LastCheckin.When</td>
+                <td>@item.Leader.LastCheckin.When.ToLocalTime().ToString("ddd h:mm tt")</td>
             } else {
                 <td></td>
             }
