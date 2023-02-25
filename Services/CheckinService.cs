@@ -214,7 +214,9 @@ public class CheckinService : ICheckinService
     {
         var count = await _context.Checkins.CountAsync(x => x.SegmentId == segment.Id);
         if (count == 1) {
-            var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(segment.ToCheckpointId.Value);
+            var nextSegment = await _segmentService.GetNextSegment(segment.Id);
+            var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(nextSegment.ToCheckpointId.Value);
+
             foreach (var checkpointMonitor in checkpointMonitors)
             {
                 await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {segment.FromCheckpoint.Name} and is headed to {segment.ToCheckpoint.Name}.");
