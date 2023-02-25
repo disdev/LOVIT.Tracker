@@ -81,14 +81,14 @@ public class PredictionService : IPredictionService
                 SegmentOrder = input.Segment.Order,
                 SegmentDistance = (float)input.Segment.Distance,
                 TotalDistance = (float)input.Segment.TotalDistance,
-                LastTotalElapsed = 0F,
+                LastTotalElapsed = (float)input.LastTotalElapsed,
                 SegmentElapsed = 0F
             });
         }
 
-        // inputs.First().LastTotalElapsed = (float)lastTotalElapsed;
+        //inputs.First().LastTotalElapsed = (float)lastTotalElapsed;
 
-        var resultString = await SendRequest<List<SegmentPredictionModelInput>>(inputs, "api/predict/multiple");
+        var resultString = await SendRequest<List<SegmentPredictionModelInput>>(inputs, "api/predict/many");
         return JsonConvert.DeserializeObject<List<SegmentPredictionModelInput>>(resultString);
     }
 

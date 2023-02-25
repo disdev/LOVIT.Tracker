@@ -38,7 +38,7 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
         {
             await _checkinService.ConfirmCheckinAsync(checkinId, checkinWhen.ToUniversalTime(), checkinSegmentId);
             await LoadData();
-            return RedirectToPage("./unconfirmed");
+            return RedirectToPage("/admin/checkins/unconfirmed");
         }
 
         private async Task LoadData()
