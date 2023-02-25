@@ -66,7 +66,7 @@ public class WatcherService : IWatcherService
 
         foreach (var watcher in watchers)
         {
-            await _twilioService.SendMessageAsync(watcher.PhoneNumber, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles at {checkin.When.ToLocalTime().ToShortTimeString()}. http://track.runlovit.com/participant?id={participant.Bib}");
+            await _twilioService.SendMessageAsync(watcher.PhoneNumber, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles at {checkin.When.ToLocalTime().ToShortTimeString()}. https://track.runlovit.com/participant?id={participant.Bib}");
             // await _twilioService.SendMessageAsync(watcher, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles.");
         }
     }
