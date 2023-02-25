@@ -137,12 +137,12 @@
 
         function getNextSegment(leader) {
             var nextSegment;
+            
             if (!leader.lastSegment) {
-                nextSegment = segments.find((s) => s.order === 1);
+                nextSegment = segments.find((s) => s.order === 1 && leader.participant.raceId === s.raceId);
             } else {
-                nextSegment = segments.find((s) => s.order === (leader.lastSegment.order + 1));
+                nextSegment = segments.find((s) => s.order === (leader.lastSegment.order + 1) && leader.participant.raceId === s.raceId);
             }
-
             return nextSegment;
         }
 
@@ -153,11 +153,12 @@
             leaders = await getLeaders();
             predictions = await getPredictions();
 
-            var race = races.find((r) => r.code === "100M");
-            for (var segment of segments.filter((segment) => segment.raceId === race.id)) {
-                await drawSegment(segment, race.code);
+            for (var race of races) {
+                for (var segment of segments.filter((segment) => segment.raceId === race.id)) {
+                    await drawSegment(segment, race.code);
+                }
             }
-
+            
             for (var checkpoint of checkpoints) {
                 drawCheckpoint(checkpoint);
             }
@@ -165,6 +166,7 @@
             for (var prediction of predictions) {
                 var leader = leaders.find((leader) => leader.participant.fullName === prediction.fullName);
                 var nextSegment = getNextSegment(leader);
+                var race = races.find((x) => x.id === leader.participant.raceId);
                 var lastCheckinTime;
                 if (leader.lastCheckin) {
                     lastCheckinTime = luxon.DateTime.fromISO(`${leader.lastCheckin.when}Z`, { zone: "America/Chicago" });
@@ -176,7 +178,7 @@
                 var elapsed = luxon.DateTime.now({ zone: "America/Chicago" }).diff(lastCheckinTime).as("seconds");
                 var percentDone = elapsed / prediction.segmentElapsed;
                 var distanceEstimate = Math.min(percentDone * nextSegment.distance, nextSegment.distance);
-                var segmentGeoJson = segmentCache[nextSegment.geoJson];
+                var segmentGeoJson = segmentCache[`${race.code}-${nextSegment.geoJson}`];
                 expectedPoint = getClosestPoint(distanceEstimate, segmentGeoJson.features[0].geometry.coordinates[0]);
                 var participantIcon = L.icon({
                     iconUrl: leader.participant.profilePicture,
@@ -199,11 +201,11 @@
 
         async function drawSegment(segment, code) {
             let segmentJson;
-            if (!segmentCache[segment.geoJson]) {
+            if (!segmentCache[`${code}-${segment.geoJson}`]) {
                 segmentJson = await (await fetch(`/js/maps/segments/${code}/${segment.geoJson}`)).json();
-                segmentCache[segment.geoJson] = segmentJson;
+                segmentCache[`${code}-${segment.geoJson}`] = segmentJson;
             } else {
-                segmentJson = segmentCache[segment.geoJson];
+                segmentJson = segmentCache[`${code}-${segment.geoJson}`];
             }
             layer.addData(segmentJson);
             layer.setStyle(lineStyle);
