@@ -219,7 +219,7 @@ public class CheckinService : ICheckinService
 
             foreach (var checkpointMonitor in checkpointMonitors)
             {
-                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {segment.FromCheckpoint.Name} and is headed to {segment.ToCheckpoint.Name}.");
+                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}.");
             }
             await _twilioService.SendAdminMessageAsync($"The first participant has checked into {segment.FromCheckpoint.Name} and is headed to {segment.ToCheckpoint.Name}.");
         }
