@@ -1,5 +1,6 @@
 @page
 @model LOVIT.Tracker.Pages.Admin.DashboardModel
+@using LOVIT.Tracker.Models;
 
 @{
     ViewData["Title"] = "Index";
@@ -109,9 +110,13 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.IncomingParticipants.OrderBy(x => x.DueDate)) {
+        @foreach (var item in Model.IncomingParticipants.Where(x => x.Leader.Participant.Status == Status.Started).OrderBy(x => x.DueDate)) {
         <tr>
-            <td>@item.Leader.Participant.FullName</td>
+            <td>
+                <a asp-page="/participants/index" asp-route-id="@item.Leader.Participant.BibOrId">
+                    @item.Leader.Participant.FullName <span class="mx-1">#@item.Leader.Participant.Bib</span>
+                </a>
+            </td>
             <td>@item.RaceCode</td>
             <td>@item.Leader.Participant.Status</td>
             @if (item.Leader.LastCheckin != null) {
