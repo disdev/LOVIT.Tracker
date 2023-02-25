@@ -31,7 +31,7 @@
                         </a>
                     </td>
                     <td>
-                        @(checkin != null ? checkin.When.ToString("ddd, h:mm tt") : "")
+                        @(checkin != null ? checkin.When.ToLocalTime().ToString("ddd, h:mm tt") : "")
                     </td>
                     <td>
                         @(checkin != null ? TimeHelpers.FormatSeconds(checkin.Elapsed) : "")
