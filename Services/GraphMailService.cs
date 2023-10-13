@@ -2,6 +2,7 @@ using Azure.Identity;
 using LOVIT.Tracker.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
+using Microsoft.Graph.Models;
 
 namespace LOVIT.Tracker.Services;
 
@@ -28,32 +29,31 @@ public class GraphMailService : IGraphMailService
         ClientSecretCredential credential = new(tenantId, clientId, clientSecret);
         GraphServiceClient graphClient = new(credential);
 
-        Microsoft.Graph.Message message = new()
+        var requestBody = new Microsoft.Graph.Me.SendMail.SendMailPostRequestBody()
         {
-            Subject = subject,
-            Body = new ItemBody
+            Message = new()
             {
-                ContentType = BodyType.Html,
-                Content = content
-            },
-            ToRecipients = new List<Recipient>()
-            {
-                new Recipient
+                Subject = subject,
+                Body = new ItemBody
                 {
-                    EmailAddress = new EmailAddress
+                    ContentType = BodyType.Html,
+                    Content = content
+                },
+                ToRecipients = new List<Recipient>()
+                {
+                    new Recipient
                     {
-                        Address = toAddress,
-                        Name = toName
+                        EmailAddress = new EmailAddress
+                        {
+                            Address = toAddress,
+                            Name = toName
+                        }
                     }
                 }
-            }
+            },
+            SaveToSentItems = true
         };
 
-        bool saveToSentItems = true;
-
-        await graphClient.Users[fromAddress]
-          .SendMail(message, saveToSentItems)
-          .Request()
-          .PostAsync();
+        await graphClient.Me.SendMail.PostAsync(requestBody);
     }
 }
