@@ -9,9 +9,9 @@ variables:
 
 steps:
 - task: UseDotNet@2 
-  displayName: ".NET Core 7.0"
+  displayName: ".NET Core"
   inputs:
-    version: '7.0.x'
+    version: '8.0.x'
     packageType: sdk
 
 - script: dotnet restore
