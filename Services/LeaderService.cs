@@ -8,7 +8,7 @@ public interface ILeaderService
 {
     Task<Leader> AddLeaderAsync(Participant participant);
     Task<Leader> GetLeaderByParticipantIdAsync(Guid participantId);
-    Task<Leader> UpdateLeaderAsync(Guid participantId, Guid checkpointId, Guid segmentId, Guid checkinId, uint overallTime, uint overallPace);
+    Task<Leader> UpdateLeaderAsync(Guid participantId, Guid checkpointId, Guid segmentId, Guid checkinId, uint overallTime, uint overallPace, uint nextPredictedSegmentTime);
     Task<List<Leader>> GetLeadersAsync();
     Task<List<Leader>> GetLeadersByRaceIdAsync(Guid raceId);
     Task<List<Leader>> GetLeadersByWatcherUserAsync(string userId);
@@ -42,7 +42,7 @@ public class LeaderService : ILeaderService
         return _context.Leaders.FirstAsync(x => x.ParticipantId == participantId);
     }
 
-    public async Task<Leader> UpdateLeaderAsync(Guid participantId, Guid checkpointId, Guid segmentId, Guid checkinId, uint overallTime, uint overallPace)
+    public async Task<Leader> UpdateLeaderAsync(Guid participantId, Guid checkpointId, Guid segmentId, Guid checkinId, uint overallTime, uint overallPace, uint nextPredictedSegmentTime)
     {
         var leader = await GetLeaderByParticipantIdAsync(participantId);
         leader.LastCheckpointId = checkpointId;
@@ -50,6 +50,7 @@ public class LeaderService : ILeaderService
         leader.LastCheckinId = checkinId;
         leader.OverallTime = overallTime;
         leader.OverallPace = overallPace;
+        leader.NextPredictedSegmentTime = nextPredictedSegmentTime;
 
         await _context.SaveChangesAsync();
         return leader;
@@ -71,7 +72,7 @@ public class LeaderService : ILeaderService
     public async Task<List<Leader>> GetLeadersByRaceIdAsync(Guid raceId)
     {
         return await _context.Leaders
-            .Where(x => x.Participant.RaceId == raceId)
+            .Where(x => x.Participant!.RaceId == raceId)
             .Include(x => x.Participant)
             .Include(x => x.LastSegment)
             .Include(x => x.LastCheckpoint)

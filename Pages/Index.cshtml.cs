@@ -25,7 +25,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnGet()
     {
-        //Leaderboard = await _leaderService.GetLeadersAsync();
+        Leaderboard = await _leaderService.GetLeadersAsync();
         Races = await _raceService.GetRacesAsync();
 
         return Page();

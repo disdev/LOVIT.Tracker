@@ -7,182 +7,343 @@
 }
 
 @section Styles {
-<style>
-.place-number {
-    font-size: 28px;
-    font-weight: 400;
-}
-</style>
+    <style>
+    </style>
 }
 
-<div class="row-fluid">
-    <div class="col">
-        <ul class="nav nav-pills nav-justified flex-colum d-xxl-none pb-3 mx-auto" role="tablist" id="race-tabs">
-            @foreach (var race in Model.Races)
-            {
-                <li class="nav-item" role="presentation ">
-                    <a class="nav-link" id="race-@race.Code-tab" data-bs-toggle="pill" data-bs-target="#race-@race.Code" type="button" role="tab" aria-controls="race-@race.Code" aria-selected="false">@race.Name</a>
-                </li>
-            }
-        </ul>
+<div class="row">
+    <div class="col-xs-12 col-lg-12">
+        <div class="card card-dashboard-table">
+            <div class="card-header pd-t-20 d-sm-flex align-items-start justify-content-between bd-b-0 pd-b-0">
+                <div>
+                    <h3 class="mg-b-0">Leaderboard</h3>
+                </div>
+                <div class="d-flex mg-t-20 mg-sm-t-0">
+                    <div id="race-tab-buttons" class="btn-group flex-fill" role="tablist">
+                        @foreach (var race in Model.Races)
+                        {
+                            <button id="button-@race.Code-tab" class="btn btn-white btn-xs" data-bs-toggle="tab"
+                                data-bs-target="#tab-leaderboard-@race.Code" type="button" role="tab">@race.Code</button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    @foreach (var race in Model.Races)
+                    {
+                        <div class="tab-pane" id="tab-leaderboard-@race.Code" role="tabpanel" aria-labelledby="button-@race.Code-tab">
+                            <div class="row">
+                                <div id="chart-@race.Code"></div>
+                            </div>
+                            <div class="row">
+                                <div id="leaderboard-@race.Code"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bd-b-0 pd-b-0">
+                <h6 class="mg-b-0">Recent Checkins</h6>
+            </div>
+            <div class="card-body">
+                <ul id="recent-checkins" class="activity tx-13">
+
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<div class="tab-content d-flex">
-    @foreach (var race in Model.Races)
-    {
-        <div class="flex-grow-1 d-xxl-block tab-pane col-xs-12 col-xxl-6 px-md-2" id="race-@race.Code" role="tabpanel" aria-labelledby="tab-@race.Code">
-            <div class="card">
-                <div class="card-header">
-                    <h1 class="text-center p-2">@race.Code</h1>
-                </div>
-                <div id="leaderboard-container-@race.Code"></div>
-            </div> 
-        </div>
-    }
-</div>
-
 @section Scripts {
-<script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-<script id="leaderboard-template" type="text/x-handlebars">
-    <table id="table-{{race.code}}" class="table table-responsive table-striped">
-        <thead>
-            <tr>
-                <th scope="col" class="text-center">#</th>
-                <th scope="col">Participant</th>
-                <th scope="col" class="d-none d-lg-table-cell text-center">Last Segment</th>
-                <th scope="col" class="text-center">Distance</th>
-                <th scope="col" class="text-center">Time</th>
-            </tr>
-        </thead>
-        <tbody class="table-group-divider">
-            {{#each participants}}
-            <tr>
-                <th class="place-number text-center align-middle" scope="row">{{this.place}}</th>
-                <td>
-                    <div class="d-flex">
-                        <div class="d-none d-sm-flex p-sm-2 align-items-center">
-                            <img src="{{this.participant.profilePicture}}" class="avatar rounded-3 img-responsive" style="width: 72px; height: 72px; object-fit: cover;"/>
-                        </div>
-                        <div class="d-flex flex-column p-md-2 justify-content-center">
-                            <div><a href="/participants/index?id={{this.participant.id}}">{{this.participant.fullName}}</a></div>
-                            <div><small class="text-muted">{{this.participant.hometown}}</small></div>
-                            {{#if this.participant.bib}}
-                            <div><small class="text-muted">#{{this.participant.bib}}</small></div>
-                            {{/if}}
-                        </div>
-                        <div class="d-flex align-items-center">
-                            {{#if this.includeBadge}}
-                            <span class="d-inline badge {{this.participant.statusClass}} m-3">{{this.participant.statusText}}</span>
-                            {{/if}}
-                        </div>
-                    </div>
-                </td>
-                <td class="text-center align-middle d-none d-lg-table-cell">
-                    {{#if this.lastSegment}}
-                    {{this.lastSegment}}
-                    {{/if}}
-                </td>
-                <td class="text-center align-middle">{{this.distance}}</td>
-                <td class="text-center align-middle">
-                    <div class="d-flex flex-column justify-content-center">
-                        {{#if this.time}}
-                        <div>{{this.time}}</div>
-                        {{/if}}
-                        {{#if this.pace}}
-                        <div>{{this.pace}} pace</div>
-                        {{/if}}
-                    </div>
-                </td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-</script>
-<script type="text/javascript">
-    let races, leaders;
-    
-    async function getData() {
-        races = await getRaces();
-        leaders = await getLeaders();
-    }
+    <script src="https://cdn.rawgit.com/katmore/gpu-loading-overlay/master/src/loadingOverlay.js"></script>
+    <script src="/js/elevation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"
+        integrity="sha512-FwNWaxyfy2XlEINoSnZh1JQ5TRRtGow0D6XcmAWmYCRgvqOUTnzCxPc9uF35u5ZEpirk1uhlPVA19tflhvnW1g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/relativeTime.min.js"
+        integrity="sha512-MVzDPmm7QZ8PhEiqJXKz/zw2HJuv61waxb8XXuZMMs9b+an3LoqOqhOEt5Nq3LY1e4Ipbbd/e+AWgERdHlVgaA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/timezone.min.js"
+        integrity="sha512-jmsGNYDezdyZ+W3bVeZy83kZp/2n5BgWe/0solkveG0vSSrP9XIVTD1tNiM1OqImc4H3OxHfs1uSfVclOU3mWw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <script id="leaderboard-template" type="text/x-handlebars">
+                                <div class="table-responsive">
+                                    <table id="table-{{race.code}}" class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="text-center">#</th>
+                                                <th scope="col">Participant</th>
+                                                <th scope="col" class="text-center">Distance</th>
+                                                <th scope="col" class="text-center">Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="table-group-divider">
+                                            {{#each participants}}
+                                            <tr>
+                                                <th class="text-center align-middle" scope="row">{{this.place}}</th>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <div class="d-none d-sm-flex p-sm-2 align-items-center">
+                                                            <img src="{{this.participant.profilePicture}}" class="avatar rounded-3 img-responsive" style="width: 36px; height: 36px; object-fit: cover;"/>
+                                                        </div>
+                                                        <div class="d-flex flex-column p-md-2 justify-content-center">
+                                                            <div>
+                                                                {{#if this.participant.bib}}
+                                                                <small class="text-muted">#{{this.participant.bib}}</small>
+                                                                {{/if}}
+                                                                <a href="/participants/index?id={{this.participant.id}}">{{this.participant.fullName}}</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            {{#if this.includeBadge}}
+                                                            <span class="d-inline badge {{this.participant.statusClass}} m-3">{{this.participant.statusText}}</span>
+                                                            {{/if}}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center align-middle">{{this.distance}}</td>
+                                                <td class="text-center align-middle">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        {{#if this.time}}
+                                                        <div>{{this.time}}</div>
+                                                        {{/if}}
+                                                        {{#if this.pace}}
+                                                        <div>{{this.pace}} pace</div>
+                                                        {{/if}}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {{/each}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </script>
+    <script id="recent-checkin-template" type="text/x-handlebars">
+                                {{#each checkins}}
+                                <li class="activity-item">
+                                    <div class="activity-icon bg-primary-light tx-primary">
+                                        <img src="{{this.participant.profilePicture}}" class="rounded-3" style="height: 32px; width: 32px;"/>
+                                    </div>
+                                    <div class="activity-body">
+                                        <p class="mg-b-2"><a href=""><strong>{{this.participant.fullName}}</strong></a> checked into <a href="" class="link-02"><strong>{{this.checkpoint}}</strong></a></p>
+                                        <small class="tx-color-03">{{this.when}}</small>
+                                    </div>
+                                </li>
+                                {{/each}}
+                            </script>
+    <script type="text/javascript">
+        let races, leaders, recentCheckins, segments, checkpoints, charts = [];
 
-    async function getRaces() {
-        const response = await fetch("/api/races");
-        return response.json();
-    }
+        document.querySelector('#race-tab-buttons button:first-child').click();
+        dayjs().format();
+        dayjs.extend(dayjs_plugin_relativeTime);
+        dayjs.extend(dayjs_plugin_timezone);
 
-    async function getLeaders() {
-        const response = await fetch("/api/leaders");
-        return response.json();
-    }
-
-    function formatSecondsToTime(secondsElapsed) {
-        var hours = Math.floor(secondsElapsed / 3600);
-        var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
-        var seconds = Math.round(secondsElapsed - hours * 3600 - minutes * 60);
-
-        if (secondsElapsed >= 3600) {
-            return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-        } else {
-            return `${minutes}:${String(seconds).padStart(2, "0")}`;
+        async function getData() {
+            races = await getRaces();
+            leaders = await getLeaders();
+            recentCheckins = await getRecentCheckins();
+            segments = await getSegments();
+            checkpoints = await getCheckpoints();
         }
-    }
 
-    function buildTable() {
-        races.forEach((race) => {
-            var tableData = [];
-            var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id);
-            var placeIndex = 1;
+        async function getRaces() {
+            const response = await fetch("/api/races");
+            return response.json();
+        }
 
-            raceLeaders.forEach((raceLeader) => {
-                var row = {
-                    place: placeIndex,
-                    participant: raceLeader.participant,
-                    picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
+        async function getLeaders() {
+            const response = await fetch("/api/leaders");
+            return response.json();
+        }
+
+        async function getRecentCheckins() {
+            const response = await fetch("/api/checkins/recent/25");
+            return response.json();
+        }
+
+        async function getSegments() {
+            const response = await fetch("/api/segments");
+            return response.json();
+        }
+
+        async function getCheckpoints() {
+            const response = await fetch("/api/checkpoints");
+            return response.json();
+        }
+
+        function formatSecondsToTime(secondsElapsed) {
+            var hours = Math.floor(secondsElapsed / 3600);
+            var minutes = Math.floor((secondsElapsed - hours * 3600) / 60);
+            var seconds = Math.round(secondsElapsed - hours * 3600 - minutes * 60);
+
+            if (secondsElapsed >= 3600) {
+                return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+            } else {
+                return `${minutes}:${String(seconds).padStart(2, "0")}`;
+            }
+        }
+
+        function buildDashboard() {
+            buildLeaderboard();
+            buildRecentCheckins();
+            buildElevationChart();
+        }
+
+        function buildLeaderboard() {
+            races.forEach((race) => {
+                var tableData = [];
+                var raceLeaders = leaders.filter((leader) => leader.participant.raceId === race.id);
+                var placeIndex = 1;
+
+                raceLeaders.forEach((raceLeader) => {
+                    var row = {
+                        place: placeIndex,
+                        participant: raceLeader.participant,
+                        picture: `<img src="${raceLeader.participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`
+                    };
+
+                    if (raceLeader.participant.status != 0 && raceLeader.participant.status != 2) {
+                        row.includeBadge = true;
+                    }
+
+                    if (raceLeader.overallTime > 0) {
+                        row.lastCheckpoint = raceLeader.lastCheckpoint.name;
+                        row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
+                        row.time = formatSecondsToTime(raceLeader.overallTime);
+                        row.pace = formatSecondsToTime(raceLeader.overallPace);
+                    }
+
+                    tableData.push(row);
+                    placeIndex++;
+                });
+
+                let leaderboardTemplate = Handlebars.compile(document.getElementById("leaderboard-template").innerHTML);
+                let leaderboardData = {
+                    race: race,
+                    participants: tableData
                 };
+                document.getElementById(`leaderboard-${race.code}`).innerHTML = leaderboardTemplate(leaderboardData);
 
-                if (raceLeader.participant.status != 0 && raceLeader.participant.status != 2) {
-                    row.includeBadge = true;
-                }
+            });
+        }
 
-                if (raceLeader.overallTime > 0) {
-                    row.lastSegment = raceLeader.lastSegment.name,
-                    row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
-                    row.time = formatSecondsToTime(raceLeader.overallTime);
-                    row.pace = formatSecondsToTime(raceLeader.overallPace);
-                }
-
-                tableData.push(row);
-                placeIndex++;
+        function buildRecentCheckins() {
+            var checkins = [];
+            recentCheckins.forEach((checkin) => {
+                var participant = leaders.find((leader) => leader.participant.id === checkin.participantId).participant;
+                var segment = segments.find((segment) => segment.id === checkin.segmentId);
+                var checkpoint = checkpoints.find((checkpoint) => checkpoint.id === segment.toCheckpointId);
+                var row = {
+                    participant: participant,
+                    picture: `<img src="${participant.profilePicture}" class="rounded-3" style="height: 48px; width: 48px;"/>`,
+                    checkpoint: checkpoint.name,
+                    when: dayjs(checkin.when).fromNow()
+                };
+                checkins.push(row);
             });
 
-            let leaderboardTemplate = Handlebars.compile(document.getElementById("leaderboard-template").innerHTML);
-            let leaderboardData = {
-                race: race,
-                participants: tableData
+            let checkinTemplate = Handlebars.compile(document.getElementById("recent-checkin-template").innerHTML);
+            let recentCheckinsData = {
+                checkins: checkins
             };
-            document.getElementById(`leaderboard-container-${race.code}`).innerHTML = leaderboardTemplate(leaderboardData);
-        });
-    }
+            document.getElementById('recent-checkins').innerHTML = checkinTemplate(recentCheckinsData);
 
-    function loadLeaderboard() {
-        let spinner = loadingOverlay.activate();
-        getData().then((data) => {
-            buildTable();
-            loadingOverlay.cancel(spinner);
-        });
-    }
+            console.log(checkins)
+        }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        loadLeaderboard();
+        function buildElevationChart() {
+            races.forEach((race) => {
+                var annotations = {
+                    xaxis: [
+                    ]
+                };
 
-        setInterval(loadLeaderboard, 300000);
-    }, false);
+                segments.filter(s => s.raceId === race.id).forEach((segment) => {
+                    annotations.xaxis.push({
+                        x: segment.totalDistance,
+                        borderColor: '#808080',
+                        label: {
+                            borderColor: '#808080',
+                            style: {
+                                color: '#36454F',
+                                background: '#D3D3D3'
+                            },
+                            text: checkpoints.find(c => c.id === segment.toCheckpointId).name
+                        }
+                    })
+                });
 
-    var firstTabEl = document.querySelector('#race-tabs li:first-child a')
-    var firstTab = new bootstrap.Tab(firstTabEl);
-    firstTab.show()
-</script>
+                var elevationData = race.code === '100M' ? elevationM : elevationK;
+                var options = {
+                    chart: {
+                        type: 'area',
+                        height: '400px'
+                    },
+                    stroke: {
+                        curve: 'smooth'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    series: [{
+                        data: elevationData
+                    }],
+                    xaxis: {
+                        type: 'numeric'
+                    },
+                    yaxis: {
+                        min: 500,
+                        max: 2000
+                    },
+                    annotations: annotations
+                };
+
+                
+
+                annotations: {
+                    yaxis: [
+                        {
+                        y: 8800,
+                        borderColor: '#00E396',
+                        label: {
+                            borderColor: '#00E396',
+                            style: {
+                            color: '#fff',
+                            background: '#00E396'
+                            },
+                            text: 'Y-axis annotation on 8800'
+                        }
+                        }
+                    ]
+                    }
+
+                var chart = new ApexCharts(document.querySelector(`#chart-${race.code}`), options);
+                chart.render();
+                charts.push(chart);
+            });
+        }
+
+        function loadDashboard() {
+            let spinner = loadingOverlay.activate();
+            getData().then((data) => {
+                buildDashboard();
+                loadingOverlay.cancel(spinner);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboard();
+
+            setInterval(loadDashboard, 300000);
+        }, false);
+    </script>
 }

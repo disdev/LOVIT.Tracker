@@ -13,12 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
 
-/*
-builder.Services.AddDbContext<TrackerContext>(options =>
-    options.UseSqlite("Data Source=Tracker.db"));
-*/
+/*builder.Services.AddDbContext<TrackerContext>(options =>
+    options.UseSqlite("Data Source=Tracker.db"));*/
+    
 builder.Services.AddDbContext<TrackerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
@@ -134,17 +134,16 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-/*
 app.MapGet("/api/seed", async (ISeedService seedService) =>
 {
     await seedService.Initialize();
-}).RequireAuthorization("admin");
+});
 
 app.MapGet("/api/simulate", async (Guid raceId, int hourLimit, int numberOfParticipants, bool addCheckins, ISeedService seedService) =>
 {
     await seedService.SimulateRace(raceId, numberOfParticipants, addCheckins, hourLimit);
-}).RequireAuthorization("admin");
-*/
+});
+
 app.MapGet("/api/races", async (IRaceService raceService) =>
 {
     return await raceService.GetRacesAsync();
@@ -208,6 +207,11 @@ app.MapGet("/api/checkins", async (ICheckinService checkinService) =>
 app.MapGet("/api/checkins/{raceId}", async (Guid raceId, ICheckinService checkinService) =>
 {
     return await checkinService.GetCheckinsAsync(raceId);
+});
+
+app.MapGet("/api/checkins/recent/{count}", async (int count, ICheckinService checkinService) =>
+{
+    return await checkinService.GetCheckinsAsync(count);
 });
 
 app.MapGet("/api/participants/sync", async (IRaceService raceService) => 

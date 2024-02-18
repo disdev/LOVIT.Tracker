@@ -11,6 +11,7 @@ public class Leader
     public Segment? LastSegment { get; set; }
     public Guid? LastCheckinId { get; set; }
     public Checkin? LastCheckin { get; set; }
+    public uint NextPredictedSegmentTime { get; set; }
     public uint OverallTime { get; set; }
     public uint OverallPace { get; set; }
 }

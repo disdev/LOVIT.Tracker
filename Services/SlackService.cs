@@ -24,7 +24,7 @@ public class SlackService
     public async Task PostMessageAsync(string text, Channel channel)
     {
         var uri = GetChannelUri(channel);
-        
+        /*
         using (var httpClient = new HttpClient())
         {
             try
@@ -51,6 +51,7 @@ public class SlackService
                 throw;
             }
         }
+        */
     }
 
     private Uri GetChannelUri(Channel channel)

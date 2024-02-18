@@ -53,7 +53,7 @@ public class SeedService : ISeedService
         var race = await _context.Races.Where(x => x.Id == raceId).Include(x => x.Segments).FirstAsync();
         var participants = await AddParticipants(race, numberOfParticipants);
 
-        if (addCheckins) 
+        if (addCheckins)
         {
             await _raceService.StartRace("+1111111111", race.Code, DateTime.UtcNow.AddHours(hours * -1));
             var result = await AddCheckins(race, participants, (hours > 0), hours);
@@ -79,9 +79,9 @@ public class SeedService : ISeedService
             Name = "100 Mile",
             Code = "100M",
             Distance = 100.0F,
-            Start = new DateTime(2023, 2, 24, 23, 0, 0),
-            End = new DateTime(2023, 2, 26, 9, 0, 0),
-            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=95541",
+            Start = new DateTime(2024, 2, 23, 23, 0, 0),
+            End = new DateTime(2024, 2, 25, 9, 0, 0),
+            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=107333",
             RaceEvent = e1,
             Segments = new List<Segment>(),
             Participants = new List<Participant>(),
@@ -94,9 +94,9 @@ public class SeedService : ISeedService
             Name = "100 Kilometer",
             Code = "100K",
             Distance = 100.0F,
-            Start = new DateTime(2023, 2, 25, 12, 0, 0),
-            End = new DateTime(2023, 2, 26, 9, 0, 0),
-            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=95542",
+            Start = new DateTime(2024, 2, 24, 12, 0, 0),
+            End = new DateTime(2024, 2, 25, 9, 0, 0),
+            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=107334",
             RaceEvent = e1,
             Segments = new List<Segment>(),
             Participants = new List<Participant>(),
@@ -116,7 +116,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "East Cove Pavilion",
-            GeoJson = @"",
+            GeoJson = @"{""type"": ""Feature"", ""properties"": { ""name"": ""East Cove Pavilion"" }, ""geometry"": { ""coordinates"": [ -93.43124485906752, 34.57632124535455 ], ""type"": ""Point"" } }",
             Number = 0,
             Code = ""
         };
@@ -125,7 +125,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Hickory Nut Mountain",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Hickory Nut Mountain"" }, ""geometry"": { ""coordinates"": [ -93.40772635215696, 34.56413017495403 ], ""type"": ""Point"" } }",
             Number = 1,
             Code = ""
         };
@@ -134,7 +134,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Joplin Road Crossing",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Joplin"" }, ""geometry"": { ""coordinates"": [ -93.45197553145184, 34.54434898546012 ], ""type"": ""Point"" } }",
             Number = 2,
             Code = ""
         };
@@ -143,7 +143,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Tompkins Bend",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Tompkins Bend"" }, ""geometry"": { ""coordinates"": [ -93.47078789234095, 34.568732403410976 ], ""type"": ""Point"" } }",
             Number = 3,
             Code = ""
         };
@@ -152,7 +152,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "ADA",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""ADA"" }, ""geometry"": { ""coordinates"": [ -93.47250300454692, 34.543646238287565 ], ""type"": ""Point"" } }",
             Number = 4,
             Code = ""
         };
@@ -161,7 +161,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Forest Road 47A",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""47A"" }, ""geometry"": { ""coordinates"": [ -93.38906785603287, 34.54481133064378 ], ""type"": ""Point"" } }",
             Number = 5,
             Code = ""
         };
@@ -170,7 +170,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Charlton",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Charlton"" }, ""geometry"": { ""coordinates"": [ -93.38316305494537, 34.51599072029107 ], ""type"": ""Point"" } }",
             Number = 6,
             Code = ""
         };
@@ -179,7 +179,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Crystal Springs",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Crystal Springs"" }, ""geometry"": { ""coordinates"": [ -93.3514341198992, 34.54138810542142 ], ""type"": ""Point"" } }",
             Number = 7,
             Code = ""
         };
@@ -188,7 +188,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Bear Creek",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Bear Creek"" }, ""geometry"": { ""coordinates"": [ -93.3423075843046, 34.54804122506539 ], ""type"": ""Point"" } }",
             Number = 8,
             Code = ""
         };
@@ -197,7 +197,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Brady Mountain Road",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Brady Mountain Road"" }, ""geometry"": { ""coordinates"": [ -93.2603652796786, 34.558186497621435 ], ""type"": ""Point"" } }",
             Number = 9,
             Code = ""
         };
@@ -206,7 +206,7 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Spillway ",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Spillway"" }, ""geometry"": { ""coordinates"": [ -93.22230412488346, 34.567531655456946 ], ""type"": ""Point"" } }",
             Number = 10,
             Code = ""
         };
@@ -215,14 +215,14 @@ public class SeedService : ISeedService
         {
             Id = Guid.NewGuid(),
             Name = "Avery Rec Area",
-            GeoJson = @"",
+            GeoJson = @"{ ""type"": ""Feature"", ""properties"": { ""name"": ""Avery"" }, ""geometry"": { ""coordinates"": [ -93.19212063798282, 34.568943018340605 ], ""type"": ""Point"" } }",
             Number = 11,
             Code = ""
         };
 
         var checkpoints = new List<Checkpoint> {
-    c1, c2, c3, c4, c5, c6, c7, c8, c9, c10,
-            c11, c12
+c1, c2, c3, c4, c5, c6, c7, c8, c9, c10,
+c11, c12
 };
         _context.Checkpoints.AddRange(checkpoints);
         _context.SaveChanges();
@@ -701,14 +701,14 @@ public class SeedService : ISeedService
         };
 
         var r1Segments = new List<Segment>()
-        {
-            s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22
-        };
+{
+s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22
+};
 
         var r2Segments = new List<Segment>()
-        {
-            s23, s24, s25, s26, s27, s28, s29, s30, s31, s32, s33, s34, s35, s36
-        };
+{
+s23, s24, s25, s26, s27, s28, s29, s30, s31, s32, s33, s34, s35, s36
+};
 
         _context.Segments.AddRange(r1Segments);
         _context.Segments.AddRange(r2Segments);
@@ -776,7 +776,7 @@ public class SeedService : ISeedService
     {
         var random = new Random();
         var raceSegments = race.Segments.OrderBy(x => x.Order).ToList();
-        
+
         foreach (var participant in participants)
         {
             var quality = random.Next(1, 10);
@@ -836,7 +836,7 @@ public class SeedService : ISeedService
         await _context.Watchers.ExecuteDeleteAsync();
         await _context.Messages.ExecuteDeleteAsync();
         await _context.Participants.ExecuteDeleteAsync();
-        
+
         await _context.Checkpoints.ExecuteDeleteAsync();
         await _context.Segments.ExecuteDeleteAsync();
         await _context.Monitors.ExecuteDeleteAsync();

@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Models;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Utilities;
+using NuGet.Common;
 
 namespace LOVIT.Tracker.Services;
 
 public interface ICheckinService
 {
     Task<List<Checkin>> GetCheckinsAsync();
+    Task<List<Checkin>> GetCheckinsAsync(int count);
     Task<List<Checkin>> GetCheckinsAsync(Guid raceId);
     Task<List<Checkin>> GetUnconfirmedCheckinsAsync();
     Task<Checkin> GetCheckinAsync(Guid checkinId);
@@ -33,8 +35,9 @@ public class CheckinService : ICheckinService
     //private readonly ILeaderboardService _leaderboardService;
     private readonly SlackService _slackService;
     private readonly ILeaderService _leaderService;
+    private readonly IPredictionService _predictionService;
 
-    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITwilioService twilioService)
+    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITwilioService twilioService, IPredictionService predictionService)
     {
         _context = context;
         _participantService = participantService;
@@ -44,12 +47,22 @@ public class CheckinService : ICheckinService
         _twilioService = twilioService;
         _slackService = slackService;
         _leaderService = leaderService;
+        _predictionService = predictionService;
     }
 
     public async Task<List<Checkin>> GetCheckinsAsync()
     {
         return await _context.Checkins
             .OrderBy(x => x.When)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<List<Checkin>> GetCheckinsAsync(int count)
+    {
+        return await _context.Checkins
+            .OrderByDescending(x => x.When)
+            .Take(count)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -160,6 +173,7 @@ public class CheckinService : ICheckinService
                 var overallPaceString = TimeHelpers.CalculatePace(overallTime, segment.TotalDistance);
                 var segmentPaceString = TimeHelpers.CalculatePace(segmentTime, segment.Distance);
                 var confirmAutomatically = segment.Order == skipIndex + 1;
+                SegmentPredictionModelInput prediction = new SegmentPredictionModelInput();
 
                 // If so, create the checkin. Automatically confirm it if it's the next segment in order.
                 checkin = await InsertCheckinAsync(participant.Id, segment, checkinTime, confirmAutomatically, message.Id, segmentTime);
@@ -171,20 +185,27 @@ public class CheckinService : ICheckinService
                 
                 if (confirmAutomatically)
                 {
-                    // Update leader if confirmed
-                    var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
-
-                    // If the checkin is confirmed, send the watcher notifications.
-                    await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
-
-                    // If this is the last segment, mark them as finished.
-                    if (segments.Last().Order == checkinSegmentOrder)
+                    // Get the prediction for the next segment
+                    var finished = (segments.Last().Order == checkinSegmentOrder) ? true : false;
+                    
+                    if (finished)
                     {
                         await _participantService.SetParticipantStatusAsync(participant.Id, Status.Finished);
                     }
-                    
-                    // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                    await NotifyMonitorIfFirst(segments.Skip(skipIndex).First());
+                    else
+                    {
+                        // Get the prediction for their arrival
+                        //prediction = await _predictionService.GetEstimateAsync(participant, segment, race.Code, overallTime);
+                        //var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
+
+                        // if confirmed, and it's the first notification for a segment, send a notification to the monitors
+                        // TO DO: Put the prediction back
+                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), DateTime.Now);
+                    }
+
+                    // Update leader and notify watchers
+                    var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), 0);
+                    await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
                 }
                 else
                 {
@@ -199,7 +220,6 @@ public class CheckinService : ICheckinService
                 break;
             }
         }
-        // TODO: What to do if no monitor found?
 
         if (checkinSegmentOrder == -1 && checkin.Id == Guid.Empty)
         {
@@ -210,18 +230,20 @@ public class CheckinService : ICheckinService
         return 1;
     }
 
-    private async Task NotifyMonitorIfFirst(Segment segment)
+    private async Task NotifyMonitorIfFirst(Segment segment, DateTime prediction)
     {
         var count = await _context.Checkins.CountAsync(x => x.SegmentId == segment.Id);
         if (count == 1) {
             var nextSegment = await _segmentService.GetNextSegment(segment.Id);
             var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(nextSegment.ToCheckpointId.Value);
+            // TO DO: Edit date time format
+            var message = $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}. Estimated arrival at {prediction.ToLocalTime().ToString()}";
 
             foreach (var checkpointMonitor in checkpointMonitors)
             {
-                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}.");
+                await _twilioService.SendMessageAsync(checkpointMonitor.PhoneNumber, message);
             }
-            await _twilioService.SendAdminMessageAsync($"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}.");
+            await _twilioService.SendAdminMessageAsync(message);
         }
     }
 
@@ -259,10 +281,13 @@ public class CheckinService : ICheckinService
         var overallPaceInSeconds = TimeHelpers.CalculatePaceInSeconds(overallTime, segment.TotalDistance);
         var finishSegment = await _segmentService.GetFinishSegment(participant.RaceId);
         var lastCheckinTime = checkins.Count > 0 ? checkins.OrderByDescending(x => x.When).First().When : participant.Race!.Start;
+        // Get the prediction for their arrival
+        //var prediction = await _predictionService.GetEstimateAsync(participant, segment, participant.Race.Code, overallTime);
+        //var predictedDateTime = checkin.When.AddSeconds(prediction.SegmentElapsed);
 
         checkin.Confirmed = true;
 
-        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds));
+        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), 0);
 
         if (segmentId.HasValue)
         {
@@ -281,7 +306,8 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            await NotifyMonitorIfFirst(segment);
+            // TO DO: Fix this
+            await NotifyMonitorIfFirst(segment, DateTime.Now);
         }
         
         await _context.SaveChangesAsync();
