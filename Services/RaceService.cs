@@ -24,14 +24,14 @@ public class RaceService : IRaceService
 
     private readonly IMonitorService _monitorService;
     private readonly IParticipantService _participantService;
-    private readonly ITextService _TextService;
+    private readonly ITextService _textService;
 
-    public RaceService(TrackerContext context, IMonitorService monitorService, IParticipantService participantService, ITextService TextService)
+    public RaceService(TrackerContext context, IMonitorService monitorService, IParticipantService participantService, ITextService textService)
     {
         _context = context;
         _monitorService = monitorService;
         _participantService = participantService;
-        _TextService = TextService;
+        _textService = textService;
     }
 
     public async Task<List<Race>> GetRacesAsync()
@@ -84,7 +84,7 @@ public class RaceService : IRaceService
                 var watchers = await _context.Watchers.Where(x => x.Participant.RaceId == race.Id).ToListAsync();
                 foreach (var watcher in watchers)
                 {
-                    await _TextService.SendMessageAsync(watchers, $"{watcher.Participant.FullName} has started the LOVIT {race.Code}.");
+                    await _textService.SendMessageAsync(watchers, $"{watcher.Participant.FullName} has started the LOVIT {race.Code}.");
                 }
             }
             catch (Exception ex)

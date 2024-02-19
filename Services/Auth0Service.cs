@@ -20,12 +20,12 @@ public class Auth0Service : IAuth0Service
     private readonly Auth0Config _auth0Config;
     private AuthenticationApiClient _auth0Client; 
     private ManagementApiClient _auth0ManagementClient;
-    private readonly ITextService _TextService;
+    private readonly ITextService _textService;
 
-    public Auth0Service(IOptionsMonitor<Auth0Config> optionsMonitor, ITextService TextService)
+    public Auth0Service(IOptionsMonitor<Auth0Config> optionsMonitor, ITextService textService)
     {
         _auth0Config = optionsMonitor.CurrentValue;
-        _TextService = TextService;
+        _textService = textService;
 
         _auth0Client = new AuthenticationApiClient(_auth0Config.Domain);
         var adminToken = _auth0Client.GetTokenAsync(new ClientCredentialsTokenRequest() 

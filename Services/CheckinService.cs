@@ -31,20 +31,20 @@ public class CheckinService : ICheckinService
     private readonly IMonitorService _monitorService;
     private readonly IWatcherService _watcherService;
     private readonly ISegmentService _segmentService;
-    private readonly ITextService _TextService;
+    private readonly ITextService _textService;
     //private readonly ILeaderboardService _leaderboardService;
     private readonly SlackService _slackService;
     private readonly ILeaderService _leaderService;
     private readonly IPredictionService _predictionService;
 
-    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITextService TextService, IPredictionService predictionService)
+    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITextService textService, IPredictionService predictionService)
     {
         _context = context;
         _participantService = participantService;
         _monitorService = monitorService;
         _watcherService = watcherService;
         _segmentService = segmentService;
-        _TextService = TextService;
+        _textService = textService;
         _slackService = slackService;
         _leaderService = leaderService;
         _predictionService = predictionService;
@@ -211,7 +211,7 @@ public class CheckinService : ICheckinService
                 {
                     // If the checkin isn't automatically confirmed, send a message to the admin.
                     slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
-                    await _TextService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
+                    await _textService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
                 }
 
                 // Post the slack message.
@@ -223,7 +223,7 @@ public class CheckinService : ICheckinService
 
         if (checkinSegmentOrder == -1 && checkin.Id == Guid.Empty)
         {
-            await _TextService.SendAdminMessageAsync($"Error checking in #{bib} - {participant.FullName}. No monitor recognized.");
+            await _textService.SendAdminMessageAsync($"Error checking in #{bib} - {participant.FullName}. No monitor recognized.");
             return 0;
         }
 
@@ -241,9 +241,9 @@ public class CheckinService : ICheckinService
 
             foreach (var checkpointMonitor in checkpointMonitors)
             {
-                await _TextService.SendMessageAsync(checkpointMonitor.PhoneNumber, message);
+                await _textService.SendMessageAsync(checkpointMonitor.PhoneNumber, message);
             }
-            await _TextService.SendAdminMessageAsync(message);
+            await _textService.SendAdminMessageAsync(message);
         }
     }
 

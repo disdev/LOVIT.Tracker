@@ -21,7 +21,7 @@ builder.Services.AddDbContext<TrackerContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.Configure<TextSettings>(builder.Configuration.GetSection("TwilioConfig"));
+builder.Services.Configure<TextSettings>(builder.Configuration.GetSection("TextConfig"));
 builder.Services.Configure<Auth0Config>(builder.Configuration.GetSection("Auth0Config"));
 builder.Services.Configure<PredictionConfig>(builder.Configuration.GetSection("PredictionConfig"));
 builder.Services.Configure<GraphMailConfig>(builder.Configuration.GetSection("GraphMailConfig"));
