@@ -23,17 +23,17 @@ public class MessageService : IMessageService
     private readonly IRaceService _raceService;
     private readonly IMonitorService _monitorService;
     private readonly IWatcherService _watcherService;
-    private readonly ITwilioService _twilioService;
+    private readonly ITextService _TextService;
     private readonly ICheckinService _checkinService;
     private readonly SlackService _slackService;
 
-    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, SlackService slackService, ITwilioService twilioService)
+    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, SlackService slackService, ITextService TextService)
     {
         _context = context;
         _raceService = raceService;
         _monitorService = monitorService;
         _watcherService = watcherService;
-        _twilioService = twilioService;
+        _TextService = TextService;
         _checkinService = checkinService;
         _slackService = slackService;
     }
@@ -91,7 +91,7 @@ public class MessageService : IMessageService
         {
             // THIS IS WHERE WE SHOULD ADD OPEN AI RESPONSES
             
-            await _twilioService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
+            await _TextService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
             await _slackService.PostMessageAsync($"{message.From} sent an unhandled message: {message.Body}", SlackService.Channel.Exceptions);
             return $"This is an automated system that handles race updates. We cannot respond to incoming messages.";
         }   
@@ -165,7 +165,7 @@ public class MessageService : IMessageService
     {
         var monitor = await _monitorService.AddMonitor(message.From, Convert.ToInt16(messageIntent.Item2[0], CultureInfo.InvariantCulture));
         await _slackService.PostMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}", SlackService.Channel.Monitors);
-        await _twilioService.SendAdminMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}");
+        await _TextService.SendAdminMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}");
         return $"You're set up as a monitor for {monitor.Checkpoint?.Name}.";
     }
 

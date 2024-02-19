@@ -19,7 +19,7 @@ public class ProfileModel : PageModel
     private readonly ILogger<IndexModel> _logger;
     private readonly IAuth0Service _auth0Service;
     private readonly IParticipantService _participantService;
-    private readonly ITwilioService _twilioService;
+    private readonly ITextService _TextService;
     private readonly SlackService _slackService;
 
     public User Auth0User { get; set; } = new();
@@ -32,12 +32,12 @@ public class ProfileModel : PageModel
     [BindProperty]
     public UserProfileViewModel UserProfile { get; set; } = new();
 
-    public ProfileModel(ILogger<IndexModel> logger, IAuth0Service auth0Service, IParticipantService participantService, ITwilioService twilioService, SlackService slackService)
+    public ProfileModel(ILogger<IndexModel> logger, IAuth0Service auth0Service, IParticipantService participantService, ITextService TextService, SlackService slackService)
     {
         _logger = logger;
         _auth0Service = auth0Service;
         _participantService = participantService;
-        _twilioService = twilioService;
+        _TextService = TextService;
         _slackService = slackService;
     }
 
@@ -63,7 +63,7 @@ public class ProfileModel : PageModel
         ModelState.Remove("UserProfile.LastName");
         ModelState.Remove("UserProfile.PhoneNumber");
 
-        var phoneNumber = await _twilioService.CheckPhoneNumberAsync(UserProfile.PhoneNumber);
+        var phoneNumber = await _TextService.CheckPhoneNumberAsync(UserProfile.PhoneNumber);
 
         var userId = User.Claims?.FirstOrDefault(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", StringComparison.OrdinalIgnoreCase))?.Value;
         Auth0User = await _auth0Service.UpdateUserAsync(userId, UserProfile.FirstName, UserProfile.LastName, phoneNumber);
@@ -76,7 +76,7 @@ public class ProfileModel : PageModel
         }
         else
         {
-            await _twilioService.CreateBindingAsync(userId, phoneNumber);
+            await _TextService.CreateBindingAsync(userId, phoneNumber);
 
             AlertVisible = true;
             AlertMessage = "Your profile has been updated.";

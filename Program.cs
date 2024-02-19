@@ -21,7 +21,7 @@ builder.Services.AddDbContext<TrackerContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioConfig"));
+builder.Services.Configure<TextSettings>(builder.Configuration.GetSection("TwilioConfig"));
 builder.Services.Configure<Auth0Config>(builder.Configuration.GetSection("Auth0Config"));
 builder.Services.Configure<PredictionConfig>(builder.Configuration.GetSection("PredictionConfig"));
 builder.Services.Configure<GraphMailConfig>(builder.Configuration.GetSection("GraphMailConfig"));
@@ -37,7 +37,7 @@ builder.Services.AddScoped<IRaceService, RaceService>();
 builder.Services.AddScoped<ISegmentService, SegmentService>();
 builder.Services.AddScoped<IWatcherService, WatcherService>();
 builder.Services.AddScoped<IAlertMessageService, AlertMessageService>();
-builder.Services.AddScoped<ITwilioService, TwilioService>();
+builder.Services.AddScoped<ITextService, TextService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
 builder.Services.AddSingleton<SlackService>();
@@ -225,7 +225,7 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
     var responseBody = await messageService.HandleMessageAsync(message);
     
     var response = new MessagingResponse();
-    response.Message(responseBody);
+    // response.Message(responseBody); // SEND NO RESPONSE
     return new TwiMLResult(response);
 });
 /*

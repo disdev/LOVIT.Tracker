@@ -23,14 +23,14 @@ public class WatcherService : IWatcherService
     private readonly TrackerContext _context;
     private readonly SlackService _slackService;
     private readonly IParticipantService _participantService;
-    private readonly ITwilioService _twilioService;
+    private readonly ITextService _TextService;
 
-    public WatcherService(TrackerContext context, SlackService slackService, IParticipantService participantService, ITwilioService twilioService)
+    public WatcherService(TrackerContext context, SlackService slackService, IParticipantService participantService, ITextService TextService)
     {
         _context = context;
         _slackService = slackService;
         _participantService = participantService;
-        _twilioService = twilioService;
+        _TextService = TextService;
     }
 
     public async Task<List<Watcher>> GetWatchersAsync()
@@ -66,8 +66,8 @@ public class WatcherService : IWatcherService
 
         foreach (var watcher in watchers)
         {
-            await _twilioService.SendMessageAsync(watcher.PhoneNumber, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles at {checkin.When.ToLocalTime().ToShortTimeString()}. https://track.runlovit.com/participants?id={participant.Bib}");
-            // await _twilioService.SendMessageAsync(watcher, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles.");
+            await _TextService.SendMessageAsync(watcher.PhoneNumber, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles at {checkin.When.ToLocalTime().ToShortTimeString()}. https://track.runlovit.com/participants?id={participant.Bib}");
+            // await _TextService.SendMessageAsync(watcher, $"{participant.FullName} checked into {segment.ToCheckpoint.Name} at {segment.TotalDistance} miles.");
         }
     }
 
@@ -98,7 +98,7 @@ public class WatcherService : IWatcherService
             }
         }
 
-        // await _twilioService.SendMessageAsync(watcher, $"You're set up to receive LOViT race updates for {participant.FullName}. Reply STOP to end.");
+        // await _TextService.SendMessageAsync(watcher, $"You're set up to receive LOViT race updates for {participant.FullName}. Reply STOP to end.");
         await _slackService.PostMessageAsync($"Watcher enabled for {participant.FullName}. Phone: {phoneNumber}, User: {userId}", SlackService.Channel.Actions);
         
         return watcher;
