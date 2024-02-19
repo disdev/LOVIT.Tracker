@@ -219,13 +219,14 @@ app.MapGet("/api/participants/sync", async (IRaceService raceService) =>
     await raceService.SyncParticipantsWithUltraSignup();
 });
 
-app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService messageService) =>
+app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService messageService, ITextService textService) =>
 {
     var message = await messageService.AddMessageAsync(httpContext);
     var responseBody = await messageService.HandleMessageAsync(message);
     
     var response = new MessagingResponse();
     // response.Message(responseBody); // SEND NO RESPONSE
+    await textService.SendMessageAsync(message.From, responseBody);
     return new TwiMLResult(response);
 });
 /*
