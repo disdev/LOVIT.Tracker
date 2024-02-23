@@ -187,6 +187,7 @@ public class CheckinService : ICheckinService
                 {
                     // Get the prediction for the next segment
                     var finished = (segments.Last().Order == checkinSegmentOrder) ? true : false;
+                    uint predictedElapsed = 0;
                     
                     if (finished)
                     {
@@ -195,16 +196,16 @@ public class CheckinService : ICheckinService
                     else
                     {
                         // Get the prediction for their arrival
-                        //prediction = await _predictionService.GetEstimateAsync(participant, segment, race.Code, overallTime);
-                        //var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
+                        prediction = await _predictionService.GetEstimateAsync(participant, segment, race.Code, overallTime);
+                        predictedElapsed = (uint)prediction.SegmentElapsed;
+                        var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
 
                         // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                        // TO DO: Put the prediction back
-                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), DateTime.Now);
+                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
                     }
 
                     // Update leader and notify watchers
-                    var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), 0);
+                    var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), predictedElapsed);
                     await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
                 }
                 else
@@ -236,8 +237,7 @@ public class CheckinService : ICheckinService
         if (count == 1) {
             var nextSegment = await _segmentService.GetNextSegment(segment.Id);
             var checkpointMonitors = await _monitorService.GetMonitorsForCheckpointAsync(nextSegment.ToCheckpointId.Value);
-            // TO DO: Edit date time format
-            var message = $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}. Estimated arrival at {prediction.ToLocalTime().ToString()}";
+            var message = $"The first participant has checked into {nextSegment.FromCheckpoint.Name} and is headed to {nextSegment.ToCheckpoint.Name}. Estimated arrival at {prediction.ToLocalTime().ToShortTimeString().ToString()}";
 
             foreach (var checkpointMonitor in checkpointMonitors)
             {
@@ -282,12 +282,12 @@ public class CheckinService : ICheckinService
         var finishSegment = await _segmentService.GetFinishSegment(participant.RaceId);
         var lastCheckinTime = checkins.Count > 0 ? checkins.OrderByDescending(x => x.When).First().When : participant.Race!.Start;
         // Get the prediction for their arrival
-        //var prediction = await _predictionService.GetEstimateAsync(participant, segment, participant.Race.Code, overallTime);
-        //var predictedDateTime = checkin.When.AddSeconds(prediction.SegmentElapsed);
+        var prediction = await _predictionService.GetEstimateAsync(participant, segment, participant.Race.Code, overallTime);
+        var predictedDateTime = checkin.When.AddSeconds(prediction.SegmentElapsed);
 
         checkin.Confirmed = true;
 
-        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), 0);
+        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), (uint)prediction.SegmentElapsed);
 
         if (segmentId.HasValue)
         {
@@ -306,7 +306,6 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            // TO DO: Fix this
             await NotifyMonitorIfFirst(segment, DateTime.Now);
         }
         

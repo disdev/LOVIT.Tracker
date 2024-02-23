@@ -3,6 +3,7 @@ using LOVIT.Tracker.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using Microsoft.Graph.Users.Item.SendMail;
 
 namespace LOVIT.Tracker.Services;
 
@@ -29,7 +30,7 @@ public class GraphMailService : IGraphMailService
         ClientSecretCredential credential = new(tenantId, clientId, clientSecret);
         GraphServiceClient graphClient = new(credential);
 
-        var requestBody = new Microsoft.Graph.Me.SendMail.SendMailPostRequestBody()
+        var requestBody = new SendMailPostRequestBody()
         {
             Message = new()
             {
@@ -54,6 +55,6 @@ public class GraphMailService : IGraphMailService
             SaveToSentItems = true
         };
 
-        await graphClient.Me.SendMail.PostAsync(requestBody);
+        await graphClient.Users["dustin@runlovit.com"].SendMail.PostAsync(requestBody);
     }
 }

@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{id}"
 @using Models
 @using Utilities
 @model LOVIT.Tracker.Pages.Races.IndexModel
@@ -93,7 +93,7 @@
             { title: "Name", field: "name", vertAlign: "middle", headerSort: false, frozen: true, formatter:"link", formatterParams: {
                 url: function (cell) { 
                     var data = cell.getData();
-                    return `/participants?id=${data.participantId}`;
+                    return `/participants/${data.participantId}`;
                 }
             }}
         ];
@@ -116,7 +116,7 @@
                 place: placeIndex,
                 bib: leader.participant.bib,
                 name: leader.participant.fullName,
-                participantId: leader.participant.id
+                participantId: leader.participant.bibOrId
             };
 
             var leaderCheckins = checkins.filter((checkin) => checkin.participantId === leader.participantId);

@@ -66,7 +66,7 @@
                             <img src="{{this.participant.profilePicture}}" class="avatar rounded-3 img-responsive" style="width: 72px; height: 72px; object-fit: cover;"/>
                         </div>
                         <div class="d-flex flex-column p-md-2 justify-content-center">
-                            <div><a href="/participants/index?id={{this.participant.id}}">{{this.participant.fullName}}</a></div>
+                            <div><a href="/participants/{{this.participant.bibOrId}}">{{this.participant.fullName}}</a></div>
                             <div><small class="text-muted">{{this.participant.hometown}}</small></div>
                             {{#if this.participant.bib}}
                             <div><small class="text-muted">#{{this.participant.bib}}</small></div>
@@ -80,8 +80,8 @@
                     </div>
                 </td>
                 <td class="text-center align-middle d-none d-lg-table-cell">
-                    {{#if this.lastSegment}}
-                    {{this.lastSegment}}
+                    {{#if this.lastCheckpoint}}
+                    {{this.lastCheckpoint}}
                     {{/if}}
                 </td>
                 <td class="text-center align-middle">{{this.distance}}</td>
@@ -149,6 +149,7 @@
 
                 if (raceLeader.overallTime > 0) {
                     row.lastSegment = raceLeader.lastSegment.name,
+                    row.lastCheckpoint = raceLeader.lastCheckpoint.name,
                     row.distance = `${raceLeader.lastSegment.totalDistance} miles`;
                     row.time = formatSecondsToTime(raceLeader.overallTime);
                     row.pace = formatSecondsToTime(raceLeader.overallPace);
