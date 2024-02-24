@@ -240,4 +240,10 @@ app.MapGet("/api/mail/{participantId}", async (Guid participantId, IParticipantS
     await participantService.SendParticipantProfileEmail(participantId);
 }).RequireAuthorization("admin");
 */
+
+app.MapGet("api/leaders/fix", async (string bib, ILeaderService leaderService) => 
+{
+    return await leaderService.FixLeaderAsync(bib);
+});
+
 app.Run();
