@@ -201,7 +201,7 @@ public class CheckinService : ICheckinService
                         var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
 
                         // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
+                        // await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
                     }
 
                     // Update leader and notify watchers
@@ -306,7 +306,7 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            await NotifyMonitorIfFirst(segment, DateTime.Now);
+            // await NotifyMonitorIfFirst(segment, DateTime.Now);
         }
         
         await _context.SaveChangesAsync();

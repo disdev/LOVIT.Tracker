@@ -89,8 +89,6 @@ public class MessageService : IMessageService
         var isValidMonitor = await _monitorService.IsValidMonitor(message.From);
         if (!isValidMonitor && !message.Body.ToUpper().StartsWith("SETUP"))
         {
-            // THIS IS WHERE WE SHOULD ADD OPEN AI RESPONSES
-            
             await _textService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
             await _slackService.PostMessageAsync($"{message.From} sent an unhandled message: {message.Body}", SlackService.Channel.Exceptions);
             return $"This is an automated system that handles race updates. We cannot respond to incoming messages.";
