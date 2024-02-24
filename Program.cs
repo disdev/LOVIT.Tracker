@@ -243,7 +243,7 @@ app.MapGet("/api/mail/{participantId}", async (Guid participantId, IParticipantS
 
 app.MapGet("api/leaders/fix", async (string bib, ILeaderService leaderService) => 
 {
-    return await leaderService.FixLeaderAsync(bib);
+    await leaderService.FixLeaderAsync(bib);
 });
 
 app.Run();
