@@ -5,7 +5,10 @@ namespace LOVIT.Tracker.Data;
 
 public class TrackerContext : DbContext
 {
-    public TrackerContext (DbContextOptions<TrackerContext> options) : base(options)
+    public TrackerContext()
+    {}
+
+    public TrackerContext(DbContextOptions<TrackerContext> options) : base(options)
     {
     }
 

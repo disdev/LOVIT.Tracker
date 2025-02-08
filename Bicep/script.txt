@@ -1,7 +1,7 @@
 az account set --subscription 6b21ba90-c19d-4d3b-8ce3-95eb73bf9759
 
-az group create --name lovit-tracker-dev --location southcentralus
+az group create --name lovit-tracker-dev --location centralus
 az deployment group create --resource-group lovit-tracker-dev --template-file main.bicep --parameters applicationName=lovit-tracker environmentName=dev skuName=S1 sqlAdministratorLogin=trackeruser
 
-az group create --name lovit-tracker-prod --location southcentralus
+az group create --name lovit-tracker-prod --location centralus
 az deployment group create --resource-group lovit-tracker-prod --template-file main.bicep --parameters applicationName=lovit-tracker environmentName=prod skuName=S1 sqlAdministratorLogin=trackeruser

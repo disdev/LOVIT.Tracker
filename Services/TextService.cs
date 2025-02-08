@@ -1,15 +1,7 @@
 using System;
 using LOVIT.Tracker.Models;
 using Microsoft.Extensions.Options;
-using Twilio;
-using Twilio.Types;
-using Twilio.Rest.Api.V2010.Account;
-using Twilio.Rest.Lookups.V1;
-using Twilio.Rest.Notify.V1.Service;
-using Microsoft.Extensions.Logging;
 using LOVIT.Tracker.Data;
-using System.Collections.Specialized;
-using System.Net;
 
 namespace LOVIT.Tracker.Services;
 
@@ -18,7 +10,6 @@ public interface ITextService
     Task SendMessageAsync(string toNumber, string body);
     Task SendAdminMessageAsync(string body);
     Task<string> CheckPhoneNumberAsync(string inputNumber);
-    Task CreateBindingAsync(string userId, string phoneNumber);
     Task SendMessageAsync(Watcher watcher, string body);
     Task SendMessageAsync(List<Watcher> watchers, string body);
 }
@@ -34,8 +25,6 @@ public class TextService : ITextService
         _textSettings = textSettings.Value;
         _slackService = slackService;
         _logger = logger;
-
-        TwilioClient.Init(_textSettings.AccountSid, _textSettings.AuthKey);
     }
 
     public async Task SendMessageAsync(string toNumber, string body)
@@ -91,16 +80,6 @@ public class TextService : ITextService
         }
     }
 
-    public async Task CreateBindingAsync(string userId, string phoneNumber)
-    {
-        var binding = await BindingResource.CreateAsync(
-            identity: userId,
-            bindingType: BindingResource.BindingTypeEnum.Sms,
-            address: phoneNumber,
-            pathServiceSid: _textSettings.NotificationSid
-        );
-    }
-
     public async Task SendAdminMessageAsync(string body)
     {
         if (_textSettings.Enabled)
@@ -119,25 +98,8 @@ public class TextService : ITextService
 
     public async Task<string> CheckPhoneNumberAsync(string inputNumber)
     {
-        if (_textSettings.Enabled)
-        {
-            try
-            {
-                var phoneNumber = await PhoneNumberResource.FetchAsync(
-                    pathPhoneNumber: new Twilio.Types.PhoneNumber(inputNumber)
-                );
-
-                return phoneNumber.PhoneNumber.ToString();
-            }
-            catch
-            {
-                return "";
-            }
-        }
-        else
-        {
-            return inputNumber;
-        }
+        // TODO: Implement this
+        return inputNumber;
     }
 
     private async Task<string> SendTextMessage(string number, string message)

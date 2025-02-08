@@ -4,20 +4,17 @@ using LOVIT.Tracker.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Auth0.AspNetCore.Authentication;
-using Twilio.TwiML;
-using Twilio.AspNet.Core;
-using Twilio.AspNet.Common;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
 
-/*builder.Services.AddDbContext<TrackerContext>(options =>
-    options.UseSqlite("Data Source=Tracker.db"));*/
-    
 builder.Services.AddDbContext<TrackerContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));
+    options.UseSqlite("Data Source=Tracker.db"));
+    
+/*builder.Services.AddDbContext<TrackerContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TrackerContext")));*/
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -46,10 +43,10 @@ builder.Services.AddScoped<IGraphMailService, GraphMailService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-string Auth0Domain = builder.Configuration["Auth0Config:Domain"];
-string Auth0ClientId = builder.Configuration["Auth0Config:AppClientId"];
-string Auth0ClientSecret = builder.Configuration["Auth0Config:AppClientSecret"];
-string Auth0Audience = builder.Configuration["Auth0Config:Audience"];
+string Auth0Domain = builder.Configuration["Auth0Config:Domain"]!;
+string Auth0ClientId = builder.Configuration["Auth0Config:AppClientId"]!;
+string Auth0ClientSecret = builder.Configuration["Auth0Config:AppClientSecret"]!;
+string Auth0Audience = builder.Configuration["Auth0Config:Audience"]!;
 
 builder.Services.AddAuth0WebAppAuthentication(options => {
     options.Domain = Auth0Domain;
@@ -224,10 +221,11 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
     var message = await messageService.AddMessageAsync(httpContext);
     var responseBody = await messageService.HandleMessageAsync(message);
     
-    var response = new MessagingResponse();
-    // response.Message(responseBody); // SEND NO RESPONSE
-    await textService.SendMessageAsync(message.From, responseBody);
-    return new TwiMLResult(response);
+    // TODO: Handle text response
+    // var response = new MessagingResponse();
+    // // response.Message(responseBody); // SEND NO RESPONSE
+    // await textService.SendMessageAsync(message.From, responseBody);
+    // return new TwiMLResult(response);
 });
 /*
 app.MapGet("/api/mail", async (IParticipantService participantService) => 

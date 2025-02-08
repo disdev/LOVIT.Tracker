@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
-using Twilio.AspNet.Common;
-
 namespace LOVIT.Tracker.Services;
 
 public interface IMessageService
@@ -66,12 +64,12 @@ public class MessageService : IMessageService
         var formData = httpContext.Request.Form;
         var message = new Message() 
         {
-            From = formData["From"],
-            FromCity = formData["FromCity"],
-            FromState = formData["FromState"],
-            FromCountry = formData["FromCountry"],
-            FromZip = formData["FromZip"],
-            Body = formData["Body"],
+            From = formData["From"]!,
+            FromCity = formData["FromCity"]!,
+            FromState = formData["FromState"]!,
+            FromCountry = formData["FromCountry"]!,
+            FromZip = formData["FromZip"]!,
+            Body = formData["Body"]!,
             Received = DateTime.UtcNow
         };
 

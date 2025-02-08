@@ -76,8 +76,6 @@ public class ProfileModel : PageModel
         }
         else
         {
-            await _textService.CreateBindingAsync(userId, phoneNumber);
-
             AlertVisible = true;
             AlertMessage = "Your profile has been updated.";
         }
