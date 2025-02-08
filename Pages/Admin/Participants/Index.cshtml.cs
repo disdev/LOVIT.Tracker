@@ -28,7 +28,7 @@ namespace LOVIT.Tracker.Pages.Admin.Participants
 
         public async Task OnGetAsync()
         {
-            //await _raceService.SyncParticipantsWithUltraSignup();
+            await _raceService.SyncParticipantsWithUltraSignup();
 
             if (_context.Participants != null)
             {
