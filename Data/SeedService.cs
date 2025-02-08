@@ -67,7 +67,7 @@ public class SeedService : ISeedService
             Id = Guid.NewGuid(),
             Name = "LOVIT",
             Location = "Lake Ouachita",
-            Start = new DateTime(2023, 2, 24, 17, 0, 0).ToUniversalTime(),
+            Start = new DateTime(2025, 2, 22, 12, 0, 0).ToUniversalTime(),
             Current = true
         };
         _context.RaceEvents.Add(e1);
@@ -79,9 +79,9 @@ public class SeedService : ISeedService
             Name = "100 Mile",
             Code = "100M",
             Distance = 100.0F,
-            Start = new DateTime(2024, 2, 23, 22, 0, 0),
-            End = new DateTime(2024, 2, 25, 8, 0, 0),
-            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=107333",
+            Start = new DateTime(2025, 2, 22, 12, 0, 0),
+            End = new DateTime(2025, 2, 23, 22, 0, 0),
+            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=115998",
             RaceEvent = e1,
             Segments = new List<Segment>(),
             Participants = new List<Participant>(),
@@ -94,9 +94,9 @@ public class SeedService : ISeedService
             Name = "100 Kilometer",
             Code = "100K",
             Distance = 100.0F,
-            Start = new DateTime(2024, 2, 24, 11, 0, 0),
-            End = new DateTime(2024, 2, 25, 8, 0, 0),
-            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=107334",
+            Start = new DateTime(2025, 2, 22, 12, 0, 0),
+            End = new DateTime(2025, 2, 23, 12, 0, 0),
+            UltraSignupUrl = "https://ultrasignup.com/entrants_event.aspx?did=115999",
             RaceEvent = e1,
             Segments = new List<Segment>(),
             Participants = new List<Participant>(),
@@ -239,86 +239,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 0),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 1,
-            Distance = 4.25,
-            TotalDistance = 4.25,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s2 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Hickory Nut Mountain to Joplin Road Crossing",
-            GeoJson = @"segment-2.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 1),
-            ToCheckpoint = checkpoints.First(x => x.Number == 2),
-            Order = 2,
-            Distance = 5.25,
-            TotalDistance = 9.5,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s3 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Joplin Road Crossing to Tompkins Bend",
-            GeoJson = @"segment-3.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 2),
-            ToCheckpoint = checkpoints.First(x => x.Number == 3),
-            Order = 3,
-            Distance = 4.75,
-            TotalDistance = 14.25,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s4 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Tompkins Bend to ADA",
-            GeoJson = @"segment-4.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 3),
-            ToCheckpoint = checkpoints.First(x => x.Number == 4),
-            Order = 4,
-            Distance = 5.5,
-            TotalDistance = 19.75,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s5 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "ADA to Tompkins Bend",
-            GeoJson = @"segment-5.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 4),
-            ToCheckpoint = checkpoints.First(x => x.Number == 3),
-            Order = 5,
-            Distance = 5.5,
-            TotalDistance = 25.25,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s6 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Tompkins Bend to Joplin Road Crossing",
-            GeoJson = @"segment-6.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 3),
-            ToCheckpoint = checkpoints.First(x => x.Number == 2),
-            Order = 6,
-            Distance = 4.75,
-            TotalDistance = 30,
-            Race = races.First(x => x.Code == "100M")
-        };
-
-        var s7 = new Segment()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Joplin Road Crossing to Hickory Nut Mountain",
-            GeoJson = @"segment-7.json",
-            FromCheckpoint = checkpoints.First(x => x.Number == 2),
-            ToCheckpoint = checkpoints.First(x => x.Number == 1),
-            Order = 7,
-            Distance = 5.25,
-            TotalDistance = 35.25,
+            Distance = 4.1,
+            TotalDistance = 4.1,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -329,9 +251,9 @@ c11, c12
             GeoJson = @"segment-8.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
-            Order = 8,
+            Order = 2,
             Distance = 3.5,
-            TotalDistance = 38.75,
+            TotalDistance = 7.6,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -342,9 +264,9 @@ c11, c12
             GeoJson = @"segment-9.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 6),
-            Order = 9,
+            Order = 3,
             Distance = 4.5,
-            TotalDistance = 43.25,
+            TotalDistance = 12.1,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -355,9 +277,9 @@ c11, c12
             GeoJson = @"segment-10.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 6),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
-            Order = 10,
+            Order = 4,
             Distance = 4.5,
-            TotalDistance = 47.75,
+            TotalDistance = 16.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -368,9 +290,9 @@ c11, c12
             GeoJson = @"segment-11.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
-            Order = 11,
+            Order = 5,
             Distance = 3.5,
-            TotalDistance = 51.25,
+            TotalDistance = 20,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -381,9 +303,9 @@ c11, c12
             GeoJson = @"segment-12.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
-            Order = 12,
+            Order = 6,
             Distance = 7.5,
-            TotalDistance = 58.75,
+            TotalDistance = 28,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -394,9 +316,9 @@ c11, c12
             GeoJson = @"segment-13.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
-            Order = 13,
-            Distance = 3.75,
-            TotalDistance = 62.5,
+            Order = 7,
+            Distance = 4,
+            TotalDistance = 32,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -407,9 +329,9 @@ c11, c12
             GeoJson = @"segment-14.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 11),
-            Order = 14,
+            Order = 8,
             Distance = 3,
-            TotalDistance = 65.5,
+            TotalDistance = 35,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -420,9 +342,9 @@ c11, c12
             GeoJson = @"segment-15.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 11),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
-            Order = 15,
+            Order = 9,
             Distance = 3,
-            TotalDistance = 68.5,
+            TotalDistance = 38,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -433,9 +355,9 @@ c11, c12
             GeoJson = @"segment-16.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
-            Order = 16,
-            Distance = 3.75,
-            TotalDistance = 72.25,
+            Order = 10,
+            Distance = 4,
+            TotalDistance = 42,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -446,9 +368,9 @@ c11, c12
             GeoJson = @"segment-17.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
-            Order = 17,
+            Order = 11,
             Distance = 7.5,
-            TotalDistance = 79.75,
+            TotalDistance = 49.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -459,9 +381,9 @@ c11, c12
             GeoJson = @"segment-18.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
-            Order = 18,
+            Order = 12,
             Distance = 3.5,
-            TotalDistance = 83.25,
+            TotalDistance = 53,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -472,9 +394,9 @@ c11, c12
             GeoJson = @"segment-19.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 6),
-            Order = 19,
+            Order = 13,
             Distance = 4.5,
-            TotalDistance = 87.75,
+            TotalDistance = 57.5,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -485,9 +407,9 @@ c11, c12
             GeoJson = @"segment-20.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 6),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
-            Order = 20,
+            Order = 14,
             Distance = 4.5,
-            TotalDistance = 92.25,
+            TotalDistance = 62,
             Race = races.First(x => x.Code == "100M")
         };
 
@@ -498,11 +420,89 @@ c11, c12
             GeoJson = @"segment-21.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
-            Order = 21,
+            Order = 15,
             Distance = 3.5,
-            TotalDistance = 95.75,
+            TotalDistance = 65.5,
             Race = races.First(x => x.Code == "100M")
         };
+
+        var s2 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Hickory Nut Mountain to Joplin Road Crossing",
+            GeoJson = @"segment-2.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 1),
+            ToCheckpoint = checkpoints.First(x => x.Number == 2),
+            Order = 16,
+            Distance = 4.5,
+            TotalDistance = 70,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s3 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Joplin Road Crossing to Tompkins Bend",
+            GeoJson = @"segment-3.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 2),
+            ToCheckpoint = checkpoints.First(x => x.Number == 3),
+            Order = 17,
+            Distance = 4.5,
+            TotalDistance = 74.5,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s4 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Tompkins Bend to ADA",
+            GeoJson = @"segment-4.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 3),
+            ToCheckpoint = checkpoints.First(x => x.Number == 4),
+            Order = 18,
+            Distance = 6,
+            TotalDistance = 80.5,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s5 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "ADA to Tompkins Bend",
+            GeoJson = @"segment-5.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 4),
+            ToCheckpoint = checkpoints.First(x => x.Number == 3),
+            Order = 19,
+            Distance = 6,
+            TotalDistance = 86.5,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s6 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Tompkins Bend to Joplin Road Crossing",
+            GeoJson = @"segment-6.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 3),
+            ToCheckpoint = checkpoints.First(x => x.Number == 2),
+            Order = 20,
+            Distance = 4.5,
+            TotalDistance = 91,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s7 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Joplin Road Crossing to Hickory Nut Mountain",
+            GeoJson = @"segment-7.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 2),
+            ToCheckpoint = checkpoints.First(x => x.Number == 1),
+            Order = 21,
+            Distance = 4.5,
+            TotalDistance = 95.5,
+            Race = races.First(x => x.Code == "100M")
+        };        
 
         var s22 = new Segment()
         {
@@ -512,12 +512,10 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 0),
             Order = 22,
-            Distance = 4.25,
+            Distance = 4.5,
             TotalDistance = 100,
             Race = races.First(x => x.Code == "100M")
         };
-
-
 
         var s23 = new Segment()
         {
@@ -527,8 +525,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 0),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
             Order = 1,
-            Distance = 4.25,
-            TotalDistance = 4.25,
+            Distance = 4.1,
+            TotalDistance = 4.1,
             Race = races.First(x => x.Code == "100K")
         };
         var s24 = new Segment()
@@ -539,8 +537,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 5),
             Order = 2,
-            Distance = 3.5,
-            TotalDistance = 7.75,
+            Distance = 3.4,
+            TotalDistance = 7.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -552,8 +550,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 3,
-            Distance = 4,
-            TotalDistance = 11.75,
+            Distance = 3.9,
+            TotalDistance = 11.4,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -565,8 +563,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 4,
-            Distance = 3.5,
-            TotalDistance = 15.25,
+            Distance = 3.3,
+            TotalDistance = 14.7,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -578,8 +576,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 8),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 5,
-            Distance = 7.5,
-            TotalDistance = 22.75,
+            Distance = 7.3,
+            TotalDistance = 22,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -591,8 +589,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 6,
-            Distance = 3.75,
-            TotalDistance = 36.25,
+            Distance = 3.8,
+            TotalDistance = 25.8,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -604,8 +602,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 11),
             Order = 7,
-            Distance = 3,
-            TotalDistance = 29.5,
+            Distance = 2.7,
+            TotalDistance = 28.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -618,7 +616,7 @@ c11, c12
             ToCheckpoint = checkpoints.First(x => x.Number == 10),
             Order = 8,
             Distance = 3,
-            TotalDistance = 32.5,
+            TotalDistance = 31.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -630,8 +628,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 10),
             ToCheckpoint = checkpoints.First(x => x.Number == 9),
             Order = 9,
-            Distance = 3.75,
-            TotalDistance = 36.25,
+            Distance = 4,
+            TotalDistance = 35.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -643,8 +641,8 @@ c11, c12
             FromCheckpoint = checkpoints.First(x => x.Number == 9),
             ToCheckpoint = checkpoints.First(x => x.Number == 8),
             Order = 10,
-            Distance = 7.5,
-            TotalDistance = 43.75,
+            Distance = 7.2,
+            TotalDistance = 42.7,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -657,46 +655,59 @@ c11, c12
             ToCheckpoint = checkpoints.First(x => x.Number == 7),
             Order = 11,
             Distance = 3.5,
-            TotalDistance = 47.25,
+            TotalDistance = 46.2,
             Race = races.First(x => x.Code == "100K")
         };
 
         var s34 = new Segment()
         {
             Id = Guid.NewGuid(),
-            Name = "Crystal Springs to Forest Road 47A",
-            GeoJson = @"segment-12.json",
+            Name = "Crystal Springs to Charlton",
+            GeoJson = @"segment-19.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 7),
-            ToCheckpoint = checkpoints.First(x => x.Number == 5),
+            ToCheckpoint = checkpoints.First(x => x.Number == 6),
             Order = 12,
-            Distance = 4,
-            TotalDistance = 51.25,
-            Race = races.First(x => x.Code == "100K")
+            Distance = 4.3,
+            TotalDistance = 50.5,
+            Race = races.First(x => x.Code == "100M")
         };
 
         var s35 = new Segment()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Charlton to Forest Road 47A",
+            GeoJson = @"segment-20.json",
+            FromCheckpoint = checkpoints.First(x => x.Number == 6),
+            ToCheckpoint = checkpoints.First(x => x.Number == 5),
+            Order = 13,
+            Distance = 4.5,
+            TotalDistance = 55,
+            Race = races.First(x => x.Code == "100M")
+        };
+
+        var s36 = new Segment()
         {
             Id = Guid.NewGuid(),
             Name = "Forest Road 47A to Hickory Nut Mountain",
             GeoJson = @"segment-13.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 5),
             ToCheckpoint = checkpoints.First(x => x.Number == 1),
-            Order = 13,
-            Distance = 3.5,
-            TotalDistance = 53.75,
+            Order = 14,
+            Distance = 3.4,
+            TotalDistance = 58.4,
             Race = races.First(x => x.Code == "100K")
         };
 
-        var s36 = new Segment()
+        var s37 = new Segment()
         {
             Id = Guid.NewGuid(),
             Name = "Hickory Nut Mountain to Finish",
             GeoJson = @"segment-14.json",
             FromCheckpoint = checkpoints.First(x => x.Number == 1),
             ToCheckpoint = checkpoints.First(x => x.Number == 0),
-            Order = 14,
-            Distance = 4.25,
-            TotalDistance = 59,
+            Order = 15,
+            Distance = 4.1,
+            TotalDistance = 62.5,
             Race = races.First(x => x.Code == "100K")
         };
 
@@ -707,7 +718,7 @@ s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18,
 
         var r2Segments = new List<Segment>()
 {
-s23, s24, s25, s26, s27, s28, s29, s30, s31, s32, s33, s34, s35, s36
+s23, s24, s25, s26, s27, s28, s29, s30, s31, s32, s33, s34, s35, s36, s37
 };
 
         _context.Segments.AddRange(r1Segments);
