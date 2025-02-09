@@ -200,7 +200,7 @@
     }
 
     async function getMultiplePredictions(modelInput) {
-        const response = await fetch("https://lovit-predictions-website-dev.azurewebsites.net/api/predict/multiple",{
+        const response = await fetch("https://lovit-tracker-predictions-g2g5cmekbpgvcscn.centralus-01.azurewebsites.net/api/predict/multiple",{
             method: "POST",
             headers: {
                 "Accept": "application/json",
@@ -212,7 +212,7 @@
     }
 
     async function getSinglePrediction(modelInput) {
-        const response = await fetch("https://lovit-predictions-website-dev.azurewebsites.net/api/predict/single",{
+        const response = await fetch("https://lovit-tracker-predictions-g2g5cmekbpgvcscn.centralus-01.azurewebsites.net/api/predict/single",{
             method: "POST",
             headers: {
                 "Accept": "application/json",
