@@ -63,9 +63,8 @@ public class ProfileModel : PageModel
 
         var phoneNumber = await _textService.CheckPhoneNumberAsync(UserProfile.PhoneNumber);
 
-        var userId = User.Claims?.FirstOrDefault(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", StringComparison.OrdinalIgnoreCase))?.Value;
-        Auth0User = await _auth0Service.UpdateUserAsync(userId, UserProfile.FirstName, UserProfile.LastName, phoneNumber);
-
+        var userId = User.Claims!.FirstOrDefault(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", StringComparison.OrdinalIgnoreCase))?.Value;
+        
         if (String.IsNullOrEmpty(phoneNumber) && UserProfile.PhoneNumber != phoneNumber)
         {
             AlertVisible = true;
@@ -74,6 +73,7 @@ public class ProfileModel : PageModel
         }
         else
         {
+            Auth0User = await _auth0Service.UpdateUserAsync(userId, UserProfile.FirstName, UserProfile.LastName, phoneNumber);
             AlertVisible = true;
             AlertMessage = "Your profile has been updated.";
         }

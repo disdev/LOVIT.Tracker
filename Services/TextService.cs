@@ -96,10 +96,11 @@ public class TextService : ITextService
     public async Task<string> CheckPhoneNumberAsync(string inputNumber)
     {
         // regex to check for valid phone number
-        var e164Regex = new Regex(@"^\+?[1-9]\d{1,14}$");
+        inputNumber = inputNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+        var e164Regex = new Regex(@"^\+1\d{10}$");
         if (!e164Regex.IsMatch(inputNumber))
         {
-            throw new ArgumentException("Invalid phone number format.");
+            return "";
         }
         return inputNumber;
     }
