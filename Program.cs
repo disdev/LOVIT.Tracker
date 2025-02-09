@@ -37,7 +37,6 @@ builder.Services.AddScoped<IAlertMessageService, AlertMessageService>();
 builder.Services.AddScoped<ITextService, TextService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IPredictionService, PredictionService>();
-builder.Services.AddSingleton<SlackService>();
 builder.Services.AddScoped<IGraphMailService, GraphMailService>();
 
 builder.Services.AddEndpointsApiExplorer();

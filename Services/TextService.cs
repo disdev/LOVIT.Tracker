@@ -17,13 +17,11 @@ public interface ITextService
 public class TextService : ITextService
 {
     private TextSettings _textSettings;
-    private readonly SlackService _slackService;
     private readonly ILogger<TextService> _logger;
 
-    public TextService(TrackerContext context, IOptions<TextSettings> textSettings, SlackService slackService, ILogger<TextService> logger)
+    public TextService(TrackerContext context, IOptions<TextSettings> textSettings, ILogger<TextService> logger)
     {
         _textSettings = textSettings.Value;
-        _slackService = slackService;
         _logger = logger;
     }
 
@@ -53,7 +51,6 @@ public class TextService : ITextService
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, $"Error in TextService: {ex.ToString()}");
-                await _slackService.PostMessageAsync($"Error in TextService: {ex.ToString()}", SlackService.Channel.Exceptions);
             }
         }
     }
@@ -71,7 +68,6 @@ public class TextService : ITextService
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, $"Error in TextService: {ex.ToString()}");
-                await _slackService.PostMessageAsync($"Error in TextService: {ex.ToString()}", SlackService.Channel.Exceptions);
             }
         }
         else
@@ -91,7 +87,6 @@ public class TextService : ITextService
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, $"Error in TextService: {ex.ToString()}");
-                await _slackService.PostMessageAsync($"Error in TextService: {ex.ToString()}", SlackService.Channel.Exceptions);
             }
         }
     }

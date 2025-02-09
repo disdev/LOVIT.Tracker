@@ -15,12 +15,10 @@ public class ErrorModel : PageModel
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
     private readonly ILogger<ErrorModel> _logger;
-    private readonly SlackService _slackService;
 
-    public ErrorModel(ILogger<ErrorModel> logger, SlackService slackService)
+    public ErrorModel(ILogger<ErrorModel> logger)
     {
         _logger = logger;
-        _slackService = slackService;
     }
 
     public async Task OnGet()
@@ -42,7 +40,6 @@ public class ErrorModel : PageModel
         var errorMessage = error?.Message;
         var path = exceptionHandlerPathFeature?.Path;
         var queryString = this.Request.QueryString;
-        await _slackService.PostMessageAsync($"Exception: {errorMessage}, Path: {path}, Method: {this.Request.Method}, Query: {queryString}", SlackService.Channel.Exceptions);
         _logger.LogError(error, errorMessage);
     }
 }

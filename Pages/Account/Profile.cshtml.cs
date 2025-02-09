@@ -20,7 +20,6 @@ public class ProfileModel : PageModel
     private readonly IAuth0Service _auth0Service;
     private readonly IParticipantService _participantService;
     private readonly ITextService _textService;
-    private readonly SlackService _slackService;
 
     public User Auth0User { get; set; } = new();
     public bool AlertVisible { get; set; } = false;
@@ -32,13 +31,12 @@ public class ProfileModel : PageModel
     [BindProperty]
     public UserProfileViewModel UserProfile { get; set; } = new();
 
-    public ProfileModel(ILogger<IndexModel> logger, IAuth0Service auth0Service, IParticipantService participantService, ITextService textService, SlackService slackService)
+    public ProfileModel(ILogger<IndexModel> logger, IAuth0Service auth0Service, IParticipantService participantService, ITextService textService)
     {
         _logger = logger;
         _auth0Service = auth0Service;
         _participantService = participantService;
         _textService = textService;
-        _slackService = slackService;
     }
 
     public async Task OnGetAsync()
@@ -81,8 +79,6 @@ public class ProfileModel : PageModel
         }
         
         UpdateFields();
-
-        await _slackService.PostMessageAsync($"Profile page updated. User: {userId}", SlackService.Channel.Actions);
 
         return Page();
     }

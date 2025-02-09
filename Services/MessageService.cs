@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
+using System.Text.Json;
+using Auth0.ManagementApi.Models;
+using Newtonsoft.Json.Linq;
 namespace LOVIT.Tracker.Services;
 
 public interface IMessageService
@@ -23,9 +26,8 @@ public class MessageService : IMessageService
     private readonly IWatcherService _watcherService;
     private readonly ITextService _textService;
     private readonly ICheckinService _checkinService;
-    private readonly SlackService _slackService;
 
-    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, SlackService slackService, ITextService textService)
+    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, ITextService textService)
     {
         _context = context;
         _raceService = raceService;
@@ -33,7 +35,6 @@ public class MessageService : IMessageService
         _watcherService = watcherService;
         _textService = textService;
         _checkinService = checkinService;
-        _slackService = slackService;
     }
 
     public async Task<List<Message>> GetMessagesAsync()
@@ -53,30 +54,28 @@ public class MessageService : IMessageService
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
 
-        await _slackService.PostMessageAsync($"Message: {message.Body}, From: {message.From}", SlackService.Channel.Messages);
-
         return message;
     }
 
     public async Task<Message> AddMessageAsync(HttpContext httpContext)
     {
         // THIS IS USED BY THE MESSAGE HANDLER
-        var formData = httpContext.Request.Form;
-        var message = new Message() 
+        var responseString = await new StreamReader(httpContext.Request.Body).ReadToEndAsync();
+        JObject responseJson = JObject.Parse(responseString);
+        //var formData = httpContext.Request.Form;
+        var message = new Message()
         {
-            From = formData["From"]!,
-            FromCity = formData["FromCity"]!,
-            FromState = formData["FromState"]!,
-            FromCountry = formData["FromCountry"]!,
-            FromZip = formData["FromZip"]!,
-            Body = formData["Body"]!,
+            From = responseJson["fromNumber"]!.ToString(),
+            FromCity = "",
+            FromState = "",
+            FromCountry = "",
+            FromZip = "",
+            Body = responseJson["text"]!.ToString(),
             Received = DateTime.UtcNow
         };
 
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
-
-        await _slackService.PostMessageAsync($"Message: {message.Body}, From: {message.From}", SlackService.Channel.Messages);
 
         return message;
     }
@@ -88,7 +87,6 @@ public class MessageService : IMessageService
         if (!isValidMonitor && !message.Body.ToUpper().StartsWith("SETUP"))
         {
             await _textService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
-            await _slackService.PostMessageAsync($"{message.From} sent an unhandled message: {message.Body}", SlackService.Channel.Exceptions);
             return $"This is an automated system that handles race updates. We cannot respond to incoming messages.";
         }   
 
@@ -160,7 +158,6 @@ public class MessageService : IMessageService
     private async Task<string> HandleSetupMessage(Tuple<string, string[]> messageIntent, Message message)
     {
         var monitor = await _monitorService.AddMonitor(message.From, Convert.ToInt16(messageIntent.Item2[0], CultureInfo.InvariantCulture));
-        await _slackService.PostMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}", SlackService.Channel.Monitors);
         await _textService.SendAdminMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}");
         return $"You're set up as a monitor for {monitor.Checkpoint?.Name}.";
     }
@@ -168,7 +165,6 @@ public class MessageService : IMessageService
     private async Task<string> HandleStopMessage(Tuple<string, string[]> messageIntent, Message message)
     {
         await _watcherService.DisableAllWatchersForPhoneAsync(message.From);
-        await _slackService.PostMessageAsync($"{message.From} sent a STOP message.", SlackService.Channel.Messages);
         return $"You will no longer receive race updates. If you'd like to change this, please sign up for updates online again.";
     }
 

@@ -32,12 +32,10 @@ public class CheckinService : ICheckinService
     private readonly IWatcherService _watcherService;
     private readonly ISegmentService _segmentService;
     private readonly ITextService _textService;
-    //private readonly ILeaderboardService _leaderboardService;
-    private readonly SlackService _slackService;
     private readonly ILeaderService _leaderService;
     private readonly IPredictionService _predictionService;
 
-    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, SlackService slackService, ILeaderService leaderService, ITextService textService, IPredictionService predictionService)
+    public CheckinService(TrackerContext context, IParticipantService participantService, IMonitorService monitorService, IWatcherService watcherService, ISegmentService segmentService, ILeaderService leaderService, ITextService textService, IPredictionService predictionService)
     {
         _context = context;
         _participantService = participantService;
@@ -45,7 +43,6 @@ public class CheckinService : ICheckinService
         _watcherService = watcherService;
         _segmentService = segmentService;
         _textService = textService;
-        _slackService = slackService;
         _leaderService = leaderService;
         _predictionService = predictionService;
     }
@@ -215,9 +212,6 @@ public class CheckinService : ICheckinService
                     await _textService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
                 }
 
-                // Post the slack message.
-                await _slackService.PostMessageAsync(slackMessage, SlackService.Channel.Checkins);
-                
                 break;
             }
         }

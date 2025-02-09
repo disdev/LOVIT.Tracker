@@ -21,14 +21,12 @@ public interface IWatcherService
 public class WatcherService : IWatcherService
 {
     private readonly TrackerContext _context;
-    private readonly SlackService _slackService;
     private readonly IParticipantService _participantService;
     private readonly ITextService _textService;
 
-    public WatcherService(TrackerContext context, SlackService slackService, IParticipantService participantService, ITextService textService)
+    public WatcherService(TrackerContext context, IParticipantService participantService, ITextService textService)
     {
         _context = context;
-        _slackService = slackService;
         _participantService = participantService;
         _textService = textService;
     }
@@ -99,7 +97,6 @@ public class WatcherService : IWatcherService
         }
 
         await _textService.SendMessageAsync(watcher, $"You're set up to receive LOViT race updates for {participant.FullName}. Reply STOP to end.");
-        await _slackService.PostMessageAsync($"Watcher enabled for {participant.FullName}. Phone: {phoneNumber}, User: {userId}", SlackService.Channel.Actions);
         
         return watcher;
     }
