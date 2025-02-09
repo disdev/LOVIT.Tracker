@@ -183,7 +183,6 @@ public class MessageService : IMessageService
     {
         var monitors = await _monitorService.GetMonitorsForPhoneNumberAsync(message.From);
         var monitorList = string.Join(",", monitors.Select(x => x.Checkpoint!.Name));
-        await _slackService.PostMessageAsync($"Monitor {message.From} from {monitorList} sent an unhandled message: {message.Body}", SlackService.Channel.Exceptions);
         return "I only understand race bib numbers. Your message has been forwarded to the race director for review.";
     }
 }
