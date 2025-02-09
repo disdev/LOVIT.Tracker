@@ -26,8 +26,9 @@ public class MessageService : IMessageService
     private readonly IWatcherService _watcherService;
     private readonly ITextService _textService;
     private readonly ICheckinService _checkinService;
+    private readonly IParticipantService _participantService;
 
-    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, ITextService textService)
+    public MessageService(TrackerContext context, IRaceService raceService, IMonitorService monitorService, IWatcherService watcherService, ICheckinService checkinService, ITextService textService, IParticipantService participantService)
     {
         _context = context;
         _raceService = raceService;
@@ -35,6 +36,7 @@ public class MessageService : IMessageService
         _watcherService = watcherService;
         _textService = textService;
         _checkinService = checkinService;
+        _participantService = participantService;
     }
 
     public async Task<List<Message>> GetMessagesAsync()
@@ -82,9 +84,10 @@ public class MessageService : IMessageService
 
     public async Task<string> HandleMessageAsync(Message message)
     {
+        var adminPhone = _textService.GetAdminPhone();
         // First check that we know who this is.
         var isValidMonitor = await _monitorService.IsValidMonitor(message.From);
-        if (!isValidMonitor && !message.Body.ToUpper().StartsWith("SETUP"))
+        if (!isValidMonitor && !message.Body.ToUpper().StartsWith("SETUP") && message.From != adminPhone)
         {
             await _textService.SendAdminMessageAsync($"Bad message from {message.From.ToString()}. Monitor: {isValidMonitor.ToString()}. Message: {message.Body}.");
             return $"This is an automated system that handles race updates. We cannot respond to incoming messages.";
@@ -101,6 +104,8 @@ public class MessageService : IMessageService
                 return await HandleStartMessage(messageIntent, message);
             case "SETUP":
                 return await HandleSetupMessage(messageIntent, message);
+            case "DROP":
+                return await HandleDropMessage(messageIntent, message);
             case "STOP":
                 return await HandleStopMessage(messageIntent, message);
             case "DNS":
@@ -136,6 +141,11 @@ public class MessageService : IMessageService
             return new ("DNS", messageParts.Skip(1).ToArray());
         }
 
+        if (messageParts[0].Trim().ToUpper(CultureInfo.InvariantCulture) == "DROP")
+        {
+            return new ("DROP", messageParts.Skip(1).ToArray());
+        }
+
         if (messageParts[0].Trim().ToUpper(CultureInfo.InvariantCulture) == "DNF")
         {
             return new ("DNF", messageParts.Skip(1).ToArray());
@@ -160,6 +170,21 @@ public class MessageService : IMessageService
         var monitor = await _monitorService.AddMonitor(message.From, Convert.ToInt16(messageIntent.Item2[0], CultureInfo.InvariantCulture));
         await _textService.SendAdminMessageAsync($"{message.From} is a monitor for {monitor.Checkpoint?.Name}");
         return $"You're set up as a monitor for {monitor.Checkpoint?.Name}.";
+    }
+
+    private async Task<string> HandleDropMessage(Tuple<string, string[]> messageIntent, Message message)
+    {
+        if (message.From == _textService.GetAdminPhone())
+        {
+            foreach (var bib in messageIntent.Item2)
+            {
+                var participant = await _participantService.GetParticipantAsync(bib);
+                await _participantService.DropParticipantAsync(bib);
+                await _textService.SendAdminMessageAsync($"{participant.FullName} ({bib}) had been dropped from the race.");
+            }
+        }
+
+        return "Completed processing drops.";
     }
 
     private async Task<string> HandleStopMessage(Tuple<string, string[]> messageIntent, Message message)

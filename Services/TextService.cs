@@ -2,6 +2,7 @@ using System;
 using LOVIT.Tracker.Models;
 using Microsoft.Extensions.Options;
 using LOVIT.Tracker.Data;
+using System.Text.RegularExpressions;
 
 namespace LOVIT.Tracker.Services;
 
@@ -12,6 +13,7 @@ public interface ITextService
     Task<string> CheckPhoneNumberAsync(string inputNumber);
     Task SendMessageAsync(Watcher watcher, string body);
     Task SendMessageAsync(List<Watcher> watchers, string body);
+    string GetAdminPhone();
 }
 
 public class TextService : ITextService
@@ -93,7 +95,12 @@ public class TextService : ITextService
 
     public async Task<string> CheckPhoneNumberAsync(string inputNumber)
     {
-        // TODO: Implement this
+        // regex to check for valid phone number
+        var e164Regex = new Regex(@"^\+?[1-9]\d{1,14}$");
+        if (!e164Regex.IsMatch(inputNumber))
+        {
+            throw new ArgumentException("Invalid phone number format.");
+        }
         return inputNumber;
     }
 
@@ -132,5 +139,10 @@ public class TextService : ITextService
         }
 
         return "";
+    }
+
+    public string GetAdminPhone()
+    {
+        return _textSettings.AdminPhone;
     }
 }

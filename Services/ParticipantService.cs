@@ -27,6 +27,7 @@ public interface IParticipantService
     Task<Participant> UpdateParticipantWithCheckinAsync(Checkin checkin, Segment segment);
     Task SendParticipantProfileEmails();
     Task SendParticipantProfileEmail(Guid participantId);
+    Task DropParticipantAsync(string participantBib);
 }
 
 public class ParticipantService : IParticipantService
@@ -229,5 +230,12 @@ public class ParticipantService : IParticipantService
         var emailBody = template.Replace("$$$ClaimProfileLink$$$", $"https://track.runlovit.com/participants/link?linkCode={participant.LinkCode}");
         emailBody = emailBody.Replace("$$$ParticipantFirstName$$$", participant.FirstName);
         await _graphMailService.SendAsync("dustin@runlovit.com", participant.UltraSignupEmail, participant.FullName, "LOViT Tracking Profile", emailBody);
+    }
+
+    public async Task DropParticipantAsync(string participantBib)
+    {
+        var participant = await _context.Participants.Where(x => x.Bib == participantBib).FirstAsync();
+        participant.Status = Status.DNF;
+        await _context.SaveChangesAsync();
     }
 }

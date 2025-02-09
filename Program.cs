@@ -219,12 +219,7 @@ app.MapPost("/api/messages", async (HttpContext httpContext, IMessageService mes
 {
     var message = await messageService.AddMessageAsync(httpContext);
     var responseBody = await messageService.HandleMessageAsync(message);
-    
-    // TODO: Handle text response
-    // var response = new MessagingResponse();
-    // // response.Message(responseBody); // SEND NO RESPONSE
-    // await textService.SendMessageAsync(message.From, responseBody);
-    // return new TwiMLResult(response);
+    await textService.SendMessageAsync(message.From, responseBody);
 });
 /*
 app.MapGet("/api/mail", async (IParticipantService participantService) => 
