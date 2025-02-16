@@ -10,7 +10,7 @@ public interface ITextService
 {
     Task SendMessageAsync(string toNumber, string body);
     Task SendAdminMessageAsync(string body);
-    Task<string> CheckPhoneNumberAsync(string inputNumber);
+    string CheckPhoneNumber(string inputNumber);
     Task SendMessageAsync(Watcher watcher, string body);
     Task SendMessageAsync(List<Watcher> watchers, string body);
     string GetAdminPhone();
@@ -93,7 +93,7 @@ public class TextService : ITextService
         }
     }
 
-    public async Task<string> CheckPhoneNumberAsync(string inputNumber)
+    public string CheckPhoneNumber(string inputNumber)
     {
         // regex to check for valid phone number
         inputNumber = inputNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
@@ -114,6 +114,7 @@ public class TextService : ITextService
                 new KeyValuePair<string, string>("phone", number), 
                 new KeyValuePair<string, string>("message", message),
                 new KeyValuePair<string, string>("key", _textSettings.TextBeltKey),
+                new KeyValuePair<string, string>("replyWebhookUrl", "https://track.runlovit.com/api/messages"),
             });
 
             var response = await client.PostAsync(_textSettings.TextBeltUrl, formContent);

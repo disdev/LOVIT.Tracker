@@ -61,7 +61,7 @@ public class ProfileModel : PageModel
         ModelState.Remove("UserProfile.LastName");
         ModelState.Remove("UserProfile.PhoneNumber");
 
-        var phoneNumber = await _textService.CheckPhoneNumberAsync(UserProfile.PhoneNumber);
+        var phoneNumber = _textService.CheckPhoneNumber(UserProfile.PhoneNumber);
 
         var userId = User.Claims!.FirstOrDefault(x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", StringComparison.OrdinalIgnoreCase))?.Value;
         
