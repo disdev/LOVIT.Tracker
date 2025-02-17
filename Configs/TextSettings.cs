@@ -10,4 +10,5 @@ public class TextSettings
   public bool Enabled { get; set; }
   public string TextBeltUrl { get; set; } = "";
   public string TextBeltKey { get; set; } = "";
+  public string WebhookUrl { get; set; } = "";
 }

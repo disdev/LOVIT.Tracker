@@ -114,7 +114,7 @@ public class TextService : ITextService
                 new KeyValuePair<string, string>("phone", number), 
                 new KeyValuePair<string, string>("message", message),
                 new KeyValuePair<string, string>("key", _textSettings.TextBeltKey),
-                new KeyValuePair<string, string>("replyWebhookUrl", "https://track.runlovit.com/api/messages"),
+                new KeyValuePair<string, string>("replyWebhookUrl", _textSettings.WebhookUrl),
             });
 
             var response = await client.PostAsync(_textSettings.TextBeltUrl, formContent);
