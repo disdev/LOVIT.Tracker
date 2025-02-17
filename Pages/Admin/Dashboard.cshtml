@@ -111,7 +111,7 @@
     </thead>
     <tbody>
         @foreach (var item in Model.IncomingParticipants.Where(x => x.Leader.Participant.Status == Status.Started).OrderBy(x => x.DueDate)) {
-        <tr>
+        <tr class="@item.RowClass">
             <td>
                 <a asp-page="/participants/index" asp-route-id="@item.Leader.Participant.BibOrId">
                     @item.Leader.Participant.FullName <span class="mx-1">#@item.Leader.Participant.Bib</span>
@@ -130,7 +130,7 @@
                 <td></td>
             }
             @if (item.Prediction != null) {
-                <td class="@item.RowClass">@item.DueDate.ToLocalTime().ToString("ddd h:mm tt")</td>
+                <td>@item.DueDate.ToLocalTime().ToString("ddd h:mm tt")</td>
             } else {
                 <td></td>
             }
