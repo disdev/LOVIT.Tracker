@@ -37,7 +37,7 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
         public async Task<IActionResult> OnPostAsync(Guid checkinId, DateTime checkinWhen, Guid checkinSegmentId)
         {
             await _checkinService.ConfirmCheckinAsync(checkinId, checkinWhen.ToUniversalTime(), checkinSegmentId);
-            await LoadData();
+            //await LoadData();
             return RedirectToPage("/admin/checkins/unconfirmed");
         }
 
@@ -45,7 +45,8 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
         {
             Checkins = await _checkinService.GetUnconfirmedCheckinsAsync();
             Monitors = await _monitorService.GetMonitorsAsync();
-            ViewData["Segments"] = new SelectList(await _segmentService.GetSegmentsAsync(), "Id", "Name");
+            var segments = await _segmentService.GetSegmentsAsync();
+            ViewData["Segments"] = segments.Select(x => new SelectListItem(String.Concat(x.Race.Code, " - ", x.Order, " - ", x.Name), x.Id.ToString()));
         }
     }
 }

@@ -32,6 +32,11 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
                 .Include(c => c.Participant)
                 .Include(c => c.Segment)
                 .OrderBy(c => c.When).ToListAsync();
+
+                foreach (var checkin in Checkin)
+                {
+                    checkin.When = checkin.When.ToLocalTime();
+                }
             }
         }
     }

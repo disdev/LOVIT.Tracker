@@ -11,6 +11,7 @@ public interface ILeaderService
     Task<Leader> GetLeaderByParticipantIdAsync(Guid participantId);
     Task<Leader> UpdateLeaderAsync(Guid participantId, Guid checkpointId, Guid segmentId, Guid checkinId, uint overallTime, uint overallPace, uint nextPredictedSegmentTime);
     Task<Leader> FixLeaderAsync(string bib);
+    Task<Leader> FixLeaderAsync(Guid id);
     Task<List<Leader>> GetLeadersAsync();
     Task<List<Leader>> GetLeadersByRaceIdAsync(Guid raceId);
     Task<List<Leader>> GetLeadersByWatcherUserAsync(string userId);
@@ -61,6 +62,27 @@ public class LeaderService : ILeaderService
     public async Task<Leader> FixLeaderAsync(string bib)
     {
         var participant = await _context.Participants.Where(x => x.Bib == bib).SingleAsync();
+        var leader = await GetLeaderByParticipantIdAsync(participant.Id);
+        var checkin = await _context.Checkins.Where(x => x.ParticipantId == participant.Id).OrderByDescending(x => x.When).FirstAsync();
+        var segment = await _context.Segments.Where(x => x.Id == checkin.SegmentId).SingleAsync();
+        var race = await _context.Races.Where(x => x.Id == leader.Participant.RaceId).SingleAsync();
+        var overallTime = Convert.ToUInt32((checkin.When - race.Start).TotalSeconds);
+        var overallPaceInSeconds = TimeHelpers.CalculatePaceInSeconds(overallTime, segment.TotalDistance);
+
+        leader.LastCheckpointId = segment.ToCheckpointId;
+        leader.LastSegmentId = segment.Id;
+        leader.LastCheckinId = checkin.Id;
+        leader.OverallTime = overallTime;
+        leader.OverallPace = (uint)overallPaceInSeconds;
+        leader.NextPredictedSegmentTime = 0;
+
+        await _context.SaveChangesAsync();
+        return leader;
+    }
+
+    public async Task<Leader> FixLeaderAsync(Guid id)
+    {
+        var participant = await _context.Participants.Where(x => x.Id == id).SingleAsync();
         var leader = await GetLeaderByParticipantIdAsync(participant.Id);
         var checkin = await _context.Checkins.Where(x => x.ParticipantId == participant.Id).OrderByDescending(x => x.When).FirstAsync();
         var segment = await _context.Segments.Where(x => x.Id == checkin.SegmentId).SingleAsync();

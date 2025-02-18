@@ -21,14 +21,19 @@ namespace LOVIT.Tracker.Pages.Admin.Races
             _context = context;
         }
 
-        public IList<Race> Race { get;set; } = default!;
+        public IList<Race> Races { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
             if (_context.Races != null)
             {
-                Race = await _context.Races
-                .Include(r => r.RaceEvent).ToListAsync();
+                Races = await _context.Races.Include(r => r.RaceEvent).ToListAsync();
+                foreach (var race in Races)
+                {
+                    race.Start = race.Start.ToLocalTime();
+                    race.End = race.End.ToLocalTime();
+                }
+                
             }
         }
     }

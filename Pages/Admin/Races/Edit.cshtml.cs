@@ -38,7 +38,10 @@ namespace LOVIT.Tracker.Pages.Admin.Races
                 return NotFound();
             }
             Race = race;
-           ViewData["RaceEventId"] = new SelectList(_context.RaceEvents, "Id", "Name");
+            Race.Start = Race.Start.ToLocalTime();
+            Race.End = Race.End.ToLocalTime();
+
+            ViewData["RaceEventId"] = new SelectList(_context.RaceEvents, "Id", "Name");
             return Page();
         }
 
@@ -46,6 +49,9 @@ namespace LOVIT.Tracker.Pages.Admin.Races
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            Race.Start = Race.Start.ToUniversalTime();
+            Race.End = Race.End.ToUniversalTime();
+
             if (!ModelState.IsValid)
             {
                 return Page();

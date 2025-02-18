@@ -27,7 +27,7 @@ public class SegmentService : ISegmentService
 
     public async Task<List<Segment>> GetSegmentsAsync()
     {
-        return await _context.Segments.OrderBy(x => x.RaceId).ThenBy(x => x.Order).ToListAsync();
+        return await _context.Segments.Include(x => x.Race).OrderBy(x => x.RaceId).ThenBy(x => x.Order).ToListAsync();
     }
     
     public async Task<List<Segment>> GetSegmentsAsync(Guid raceId)

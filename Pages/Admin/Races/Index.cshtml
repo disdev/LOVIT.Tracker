@@ -14,37 +14,37 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].Name)
+                @Html.DisplayNameFor(model => model.Races[0].Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].Code)
+                @Html.DisplayNameFor(model => model.Races[0].Code)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].Distance)
+                @Html.DisplayNameFor(model => model.Races[0].Distance)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].Start)
+                @Html.DisplayNameFor(model => model.Races[0].Start)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].End)
+                @Html.DisplayNameFor(model => model.Races[0].End)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].UltraSignupUrl)
+                @Html.DisplayNameFor(model => model.Races[0].UltraSignupUrl)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].RaceEvent)
+                @Html.DisplayNameFor(model => model.Races[0].RaceEvent)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].GeoJson)
+                @Html.DisplayNameFor(model => model.Races[0].GeoJson)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Race[0].Active)
+                @Html.DisplayNameFor(model => model.Races[0].Active)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Race) {
+@foreach (var item in Model.Races) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)

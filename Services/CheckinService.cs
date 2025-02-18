@@ -22,6 +22,7 @@ public interface ICheckinService
     Task<Checkin> ConfirmCheckinAsync(Guid checkinId, DateTime? when = null, Guid? segmentId = null);
     Task<Checkin> GetLastCheckinForParticipant(Guid participantId);
     Task<List<Checkin>> GetCheckinsForCheckpointAsync(Guid checkpointId);
+    Task<Checkin> ModifyCheckinAsync(Checkin checkin);
 }
 
 public class CheckinService : ICheckinService
@@ -198,7 +199,7 @@ public class CheckinService : ICheckinService
                         var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
 
                         // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                        // await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
+                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
                     }
 
                     // Update leader and notify watchers
@@ -208,7 +209,6 @@ public class CheckinService : ICheckinService
                 else
                 {
                     // If the checkin isn't automatically confirmed, send a message to the admin.
-                    slackMessage = $"CHECKIN TO CONFIRM: {slackMessage}";
                     await _textService.SendAdminMessageAsync($"Checkin to confirm for {participant.FullName}.");
                 }
 
@@ -270,7 +270,7 @@ public class CheckinService : ICheckinService
         var checkin = await _context.Checkins.Where(ci => ci.Id == checkinId).FirstAsync();
         var checkins = await GetCheckinsForParticipantAsync(checkin.ParticipantId.GetValueOrDefault());
         var participant = await _participantService.GetParticipantAsync(checkin.ParticipantId.GetValueOrDefault(), true);
-        var segment = await _segmentService.GetSegmentAsync(checkin.SegmentId.GetValueOrDefault());
+        var segment = await _segmentService.GetSegmentAsync(segmentId.Value);
         var overallTime = Convert.ToUInt32((checkin.When - participant.Race.Start).TotalSeconds);
         var overallPaceInSeconds = TimeHelpers.CalculatePaceInSeconds(overallTime, segment.TotalDistance);
         var finishSegment = await _segmentService.GetFinishSegment(participant.RaceId);
@@ -280,8 +280,6 @@ public class CheckinService : ICheckinService
         var predictedDateTime = checkin.When.AddSeconds(prediction.SegmentElapsed);
 
         checkin.Confirmed = true;
-
-        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), (uint)prediction.SegmentElapsed);
 
         if (segmentId.HasValue)
         {
@@ -300,14 +298,12 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            // await NotifyMonitorIfFirst(segment, DateTime.Now);
+            await NotifyMonitorIfFirst(segment, DateTime.Now);
         }
         
         await _context.SaveChangesAsync();
-
-        //await _participantService.UpdateParticipantWithCheckinAsync(checkin, segment);
+        var leader = await _leaderService.UpdateLeaderAsync(participant.Id, segment.ToCheckpointId.Value, segment.Id, checkin.Id, overallTime, Convert.ToUInt32(overallPaceInSeconds), (uint)prediction.SegmentElapsed);
         await _watcherService.NotifyWatchersAsync(participant, segment, checkin);
-
         return checkin;
     }
 
@@ -330,5 +326,27 @@ public class CheckinService : ICheckinService
             .Include(x => x.Segment)
             .AsNoTracking()
             .ToListAsync();
+    }
+
+    public async Task<Checkin> ModifyCheckinAsync(Checkin checkinValues)
+    {
+        var checkins = await GetCheckinsForParticipantAsync(checkinValues.ParticipantId.GetValueOrDefault());
+        var priorCheckin = checkins[checkins.Count - 2];
+        var segmentElapsed = (checkinValues.When - priorCheckin.When).TotalSeconds;
+        checkinValues.Elapsed = (uint)segmentElapsed;
+
+        var checkin = checkins.Where(ci => ci.Id == checkinValues.Id).First();
+        checkin.When = checkinValues.When;
+        checkin.ParticipantId = checkinValues.ParticipantId;
+        checkin.SegmentId = checkinValues.SegmentId;
+        checkin.Confirmed = checkinValues.Confirmed;
+        checkin.Note = checkinValues.Note; 
+        checkin.MessageId = checkinValues.MessageId;
+        checkin.Elapsed = checkinValues.Elapsed;
+
+        await _context.SaveChangesAsync();
+        await _leaderService.FixLeaderAsync(checkin.ParticipantId.GetValueOrDefault());
+
+        return checkin;
     }
 }

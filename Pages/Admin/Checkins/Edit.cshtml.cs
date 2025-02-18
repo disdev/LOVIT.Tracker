@@ -9,17 +9,20 @@ using Microsoft.EntityFrameworkCore;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using LOVIT.Tracker.Services;
 
 namespace LOVIT.Tracker.Pages.Admin.Checkins
 {
     [Authorize(Roles="Administrator")]
     public class EditModel : PageModel
     {
-        private readonly LOVIT.Tracker.Data.TrackerContext _context;
+        private readonly TrackerContext _context;
+        private readonly ICheckinService _checkinService;
 
-        public EditModel(LOVIT.Tracker.Data.TrackerContext context)
+        public EditModel(LOVIT.Tracker.Data.TrackerContext context, ICheckinService checkinService)
         {
             _context = context;
+            _checkinService = checkinService;
         }
 
         [BindProperty]
@@ -41,6 +44,9 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
            ViewData["MessageId"] = new SelectList(_context.Messages, "Id", "Id");
            ViewData["ParticipantId"] = new SelectList(_context.Participants, "Id", "FullName");
            ViewData["SegmentId"] = new SelectList(_context.Segments, "Id", "Name");
+
+            Checkin.When = Checkin.When.ToLocalTime();
+
             return Page();
         }
 
@@ -48,28 +54,14 @@ namespace LOVIT.Tracker.Pages.Admin.Checkins
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            Checkin.When = Checkin.When.ToUniversalTime();
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(Checkin).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CheckinExists(Checkin.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _checkinService.ModifyCheckinAsync(Checkin);
 
             return RedirectToPage("./Index");
         }
