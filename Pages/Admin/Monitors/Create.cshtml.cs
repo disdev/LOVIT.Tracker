@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using LOVIT.Tracker.Data;
 using LOVIT.Tracker.Models;
 using Microsoft.AspNetCore.Authorization;
+using LOVIT.Tracker.Services;
 
 namespace LOVIT.Tracker.Pages.Admin.Monitors
 {
@@ -15,10 +16,12 @@ namespace LOVIT.Tracker.Pages.Admin.Monitors
 public class CreateModel : PageModel
     {
         private readonly LOVIT.Tracker.Data.TrackerContext _context;
+        private readonly ITextService _textService;
 
-        public CreateModel(LOVIT.Tracker.Data.TrackerContext context)
+        public CreateModel(LOVIT.Tracker.Data.TrackerContext context, ITextService textService)
         {
             _context = context;
+            _textService = textService;
         }
 
         public IActionResult OnGet()
@@ -41,6 +44,11 @@ public class CreateModel : PageModel
 
             _context.Monitors.Add(Monitor);
             await _context.SaveChangesAsync();
+
+            var checkpoint = await _context.Checkpoints.FindAsync(Monitor.CheckpointId);
+
+            await _textService.SendMessageAsync(Monitor.PhoneNumber, $"You're set up as a monitor for {checkpoint.Name}.");
+            await _textService.SendAdminMessageAsync($"A number has been set up as a monitor for {Monitor.Checkpoint.Name}.");
 
             return RedirectToPage("./Index");
         }
