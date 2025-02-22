@@ -199,7 +199,7 @@ public class CheckinService : ICheckinService
                         var predictedDateTime = checkinTime.AddSeconds(prediction.SegmentElapsed);
 
                         // if confirmed, and it's the first notification for a segment, send a notification to the monitors
-                        await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
+                        //await NotifyMonitorIfFirst(segments.Skip(skipIndex).First(), predictedDateTime);
                     }
 
                     // Update leader and notify watchers
@@ -298,7 +298,7 @@ public class CheckinService : ICheckinService
         }
         else
         {
-            await NotifyMonitorIfFirst(segment, DateTime.Now);
+            //await NotifyMonitorIfFirst(segment, DateTime.Now);
         }
         
         await _context.SaveChangesAsync();
@@ -331,10 +331,14 @@ public class CheckinService : ICheckinService
     public async Task<Checkin> ModifyCheckinAsync(Checkin checkinValues)
     {
         var checkins = await GetCheckinsForParticipantAsync(checkinValues.ParticipantId.GetValueOrDefault());
-        var priorCheckin = checkins[checkins.Count - 2];
-        var segmentElapsed = (checkinValues.When - priorCheckin.When).TotalSeconds;
-        checkinValues.Elapsed = (uint)segmentElapsed;
-
+        
+        if (checkins.Count > 2)
+        {
+            var priorCheckin = checkins[checkins.Count - 2];
+            var segmentElapsed = (checkinValues.When - priorCheckin.When).TotalSeconds;
+            checkinValues.Elapsed = (uint)segmentElapsed;
+        }
+        
         var checkin = checkins.Where(ci => ci.Id == checkinValues.Id).First();
         checkin.When = checkinValues.When;
         checkin.ParticipantId = checkinValues.ParticipantId;
