@@ -27,7 +27,11 @@ namespace LOVIT.Tracker.Pages.Admin.Messages
         {
             if (_context.Messages != null)
             {
-                Message = await _context.Messages.ToListAsync();
+                Message = await _context.Messages.OrderByDescending(m => m.Received).ToListAsync();
+                foreach (var message in Message)
+                {
+                    message.Received = message.Received.ToLocalTime();
+                }
             }
         }
     }
