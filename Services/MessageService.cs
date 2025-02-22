@@ -111,7 +111,7 @@ public class MessageService : IMessageService
             case "DNS":
                 return "";
             case "DNF":
-                return "";
+                return await HandleDropMessage(messageIntent, message);
             default:
                 return await HandleUnhandledMessage(messageIntent, message);
         }
@@ -161,8 +161,13 @@ public class MessageService : IMessageService
 
     private async Task<string> HandleStartMessage(Tuple<string, string[]> messageIntent, Message message)
     {
-        var race = await _raceService.StartRace(message.From, messageIntent.Item2[0].ToUpper(), message.Received);
-        return $"Started {race.Code}.";
+        var races = await _raceService.GetRacesAsync();
+        foreach (var race in races)
+        {
+            await _raceService.StartRace(message.From, race.Code, message.Received);
+        }
+
+        return $"Started races.";
     }
 
     private async Task<string> HandleSetupMessage(Tuple<string, string[]> messageIntent, Message message)
